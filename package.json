@@ -4,7 +4,8 @@
     "dependencies": {
         "express": "~4.14.0",
         "angular": "~1.5.8",
-        "pug":"~2.0.0"
+        "pug":"~2.0.0-beta6",
+        "body-parser":"~1.15.2"
     },
     "author": "Adrien Deprez <adrien.deprez.fr@gmail.com>",
     "description": "AXIS-SOW-POC project description"
