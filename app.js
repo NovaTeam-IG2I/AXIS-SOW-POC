@@ -16,7 +16,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 app.set('view options', {
     layout: false
-});
+});a
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
