@@ -1,3 +1,7 @@
+//
+// Node/Express server configuration file
+//
+
 var express = require('express');
 var path = require('path');
 var favicon = require('serve-favicon');
@@ -5,9 +9,10 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-var routes = require('./routes');
+// import our API routing code and register it with Express
 var api = require('./routes/api');
 
+// creation of the Express application
 var app = express();
 
 // view engine setup
@@ -22,6 +27,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// register the routes handler
 app.use('/api', api);
 
 // catch 404 and forward to error handler
@@ -55,5 +61,5 @@ app.use(function(err, req, res, next) {
   });
 });
 
-
+// allow us to use this app configuration in other files (bin/www)
 module.exports = app;
