@@ -1,7 +1,8 @@
+#!/usr/bin/env node
+
 //
 // Starting and setting servers specifications file
 //
-#!/usr/bin/env node
 
 /**
  * Module dependencies.
