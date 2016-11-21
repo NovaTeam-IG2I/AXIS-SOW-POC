@@ -10,13 +10,14 @@ var bodyParser = require('body-parser');
 
 // import our API routing code and register it with Express
 var api = require('./routes/api');
+var index = require('./routes/index');
 
 // creation of the Express application
 var app = express();
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -26,6 +27,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // register the routes handler
+app.use('/', index);
 app.use('/api', api);
 
 // catch 404 and forward to error handler

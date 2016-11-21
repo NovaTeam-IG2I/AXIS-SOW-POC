@@ -29,11 +29,11 @@ router.route('/list')
       res.send({message:"TODO get all the clip of the database"});
   })
 
-router.route('/load')
+router.route('/clip/:id')
   .get(function(req,res){
 
       //TODO create a loading method to get all the tags of the clip tracks
-      res.send({message:"TODO get all the tags of a clip"})
+      res.send({message:"TODO get all the tags of a clip : " + req.params.id})
   })
 
 router.route('/xmp/:id')
