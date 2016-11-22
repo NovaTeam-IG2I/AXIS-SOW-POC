@@ -26,6 +26,11 @@ app.config(function($routeProvider){
       templateUrl: 'media.html',
       controller: 'mediaController'
     })
+    //the import display
+    .when('/import', {
+      templateUrl: 'import.html',
+      controller: 'importController'
+    })
     .otherwise({
             redirectTo: '/'
     });
@@ -45,4 +50,8 @@ app.controller('xmpController', function(){
 
 app.controller('mediaController', function(){
   //TODO add the functions to controll the media view
+});
+
+app.controller('importController', function(){
+  //TODO add the functions to controll the import view
 });
