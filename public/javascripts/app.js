@@ -2,7 +2,7 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute']);
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']);
 
 app.config(function($routeProvider){
   $routeProvider
@@ -52,6 +52,29 @@ app.controller('mediaController', function(){
   //TODO add the functions to controll the media view
 });
 
-app.controller('importController', function(){
-  //TODO add the functions to controll the import view
-});
+// Controller for the importation of a video mp4
+app.controller('importController', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
+    $scope.uploadFiles = function(file, errFiles) {
+        $scope.f = file;
+        $scope.errFile = errFiles && errFiles[0];
+        if (file) {
+            file.upload = Upload.upload({
+                url: '/api/import',
+                method: 'POST',
+                data: {file: file}
+            });
+
+            file.upload.then(function (response) {
+                $timeout(function () {
+                    file.result = response.data;
+                });
+            }, function (response) {
+                if (response.status > 0)
+                    $scope.errorMsg = response.status + ': ' + response.data;
+            }, function (evt) {
+                file.progress = Math.min(100, parseInt(100.0 *
+                                         evt.loaded / evt.total));
+            });
+        }
+    }
+}]);

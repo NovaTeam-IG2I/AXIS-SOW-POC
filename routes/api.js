@@ -7,12 +7,14 @@ var router = express.Router();
 
 //  Some implementation....
 
-router.route('/list')
-  .put(function(req,res){
+router.route('/import')
+  .post(function(req,res){
 
       //TODO create an deplacement method to deplace a clip to a particular place
+      req.header("Content-Type", "multipart/form-data");
       res.send({message:"TODO deplace a clip to a location"});
   })
+router.route('/list')
   .post(function(req,res){
 
       //TODO create an importation method to add a clip to the database
