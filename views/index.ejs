@@ -9,6 +9,8 @@ Main template for the interface : act as a layout
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.8/angular-route.js"></script>
 		<script src="javascripts/app.js"></script>
+		<script src="javascripts/script.js"></script>
+		<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/angular_material/1.1.0/angular-material.min.css">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 		<link rel="stylesheet" href="stylesheets/style.css">
 	</head>
@@ -18,10 +20,10 @@ Main template for the interface : act as a layout
 				<div class="container">
 					<a class="navbar-brand" href="#/"> <%= title %> </a>
 					<p class="navbar-text"> Proof of concept </p>
-          <p class="navbar-right navbar-text" ng-hide="authenticated"><a href="#/clip">View a clip</a> / <a href="#/xmp"> View the links between TAGs and XMP</a> / <a href="#/media"> View the media sheet</a></p>
+        			<p class="navbar-right navbar-text" ng-hide="authenticated"><a href="#/clip">View a clip</a> / <a href="#/xmp"> View the links between TAGs and XMP</a> / <a href="#/media"> View the media sheet</a></p>
 				</div>
 			</nav>
-			<div class="col-md-offset-2 col-md-8">
+			<div class="col-md-12">
 				<div ng-view>
 				</div>
 			</div>

@@ -4,4 +4,43 @@ View for listing all the informations about a clip
 
 <div class="clearfix">
 	<h4>Visualize the tracks, video and tags of the clip.</h4>
+
+	<div class="col-md-4">
+		<div class="row">
+			<!--Video media player-->
+			<video width="320" height="240" controls>
+			<source src="video/salameche.mp4" type="video/mp4">
+			Your browser does not support the video tag.
+			</video>
+		</div>
+		<div class="row">
+		</div>
+	</div>
+	<div class="col-md-8">
+		<ul class="tab">
+			<li><a href="javascript:void(0)" class="tablinks active" onload="openCity(event, 'Media')" onclick="openCity(event, 'Media')">Media</a></li>
+			<li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'XML')">XML</a></li>
+		</ul>
+
+		<div id="XML" class="tabcontent">
+		  	<p>blblbl</p>
+		</div>
+
+		<div id="Media" class="tabcontent" style="display:block;">
+			<fieldset>
+				<legend>Informations générales</legend>
+				<p><b>Nom du média:</b></p>
+				<p><b>Extension:</b></p>
+				<p><b>Auteur:</b></p>
+				<p><b>Date de création:</b></p>
+				<p><b>Dernière date de modification:</b></p>
+				<p><b>Personne qui l'a importé:</b></p>
+			</fieldset>
+			<fieldset>
+				<legend>Informations associées</legend>
+				<p><b>Personnes:</b> </br>
+					<b>Lieu:</b></p>
+			</fieldset>
+		</div>
+	</div>
 </div>

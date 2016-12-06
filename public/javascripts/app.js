@@ -31,9 +31,10 @@ app.config(function($routeProvider){
     });
 });
 
-app.controller('listController', function(){
+app.controller('listController', ['$scope', function($scope){
   //TODO add the functions to controll the list view
-});
+  $scope.getAllVideo = "";
+}]);
 
 app.controller('clipController', function(){
   //TODO add the functions to controll the clip view
