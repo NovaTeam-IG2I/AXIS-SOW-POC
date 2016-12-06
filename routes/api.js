@@ -4,15 +4,61 @@
 
 var express = require('express');
 var router = express.Router();
-
+var multer = require('multer')
+var querystring = require('querystring');
+var http = require('http');
+var upload = multer({ dest: 'uploads/' })
 //  Some implementation....
 
-router.route('/list')
-  .put(function(req,res){
+router.route('/import')
+  .post(upload.single('file'),function(req,res){
 
       //TODO create an deplacement method to deplace a clip to a particular place
-      res.send({message:"TODO deplace a clip to a location"});
-  })
+      req.header("Content-Type", "multipart/form-data");
+      console.log('Request URL:', req.file);
+      //res.send({message:"TODO deplace a clip to a location"});
+
+      //
+      // Send the imported file to the middleware
+      //
+
+      var postData = querystring.stringify({
+        'file' : req.file
+      });
+
+      var options = {
+        hostname: 'localhost',
+        port: 3000,
+        path: '/api/list',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+
+      var request = http.request(options, (result) => {
+        console.log(`STATUS: ${res.statusCode}`);
+        console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+        result.setEncoding('utf8');
+        result.on('data', (chunk) => {
+          console.log(`BODY: ${chunk}`);
+        });
+        result.on('end', () => {
+          console.log('No more data in response.');
+        });
+      });
+
+      request.on('error', (e) => {
+        console.log(`problem with request: ${e.message}`);
+      });
+
+      // write data to request body
+      request.write(postData);
+      request.end();
+        })
+
+router.route('/list')
   .post(function(req,res){
 
       //TODO create an importation method to add a clip to the database

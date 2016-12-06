@@ -1,0 +1,18 @@
+<!--
+View for listing correlations between XMP and TAGs
+-->
+<div ng-controller="importController">
+  <h4>Upload on file select</h4>
+  <button type="file" ngf-select="uploadFiles($file, $invalidFiles)"
+          accept="video/mp4" ngf-max-size="10MB" enctype="multipart/form-data">
+      Select File</button>
+  <br><br>
+  File:
+  <div style="font:smaller">{{f.name}} {{errFile.name}} {{errFile.$error}} {{errFile.$errorParam}}
+      <span class="progress" ng-show="f.progress >= 0">
+          <div style="width:{{f.progress}}%"
+               ng-bind="f.progress + '%'"></div>
+      </span>
+  </div>
+  {{errorMsg}}
+</div>
