@@ -18,14 +18,19 @@ View for listing all the informations about a clip
 	</div>
 	<div class="col-md-8">
 		<ul class="tab">
-			<li><a href="javascript:void(0)" class="tablinks active" onload="openCity(event, 'Media')" onclick="openCity(event, 'Media')">Media</a></li>
-			<li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'XML')">XML</a></li>
+			<li><a href="javascript:void(0)" class="tablinks active" onload="openTab(event, 'Media')" onclick="openTab(event, 'Media')">Media</a></li>
+			<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'XML')">XML</a></li>
 		</ul>
 
+
+		<!--XML Tab need to be replaced with dynamic tab creation -->
 		<div id="XML" class="tabcontent">
-		  	<p>blblbl</p>
+		  	<div><p>Ligne xmp1</p>
+		  		<p>Ligne xmp2</p>
+		  	</div>
 		</div>
 
+		<!--Media Tab-->
 		<div id="Media" class="tabcontent" style="display:block;">
 			<fieldset>
 				<legend>Informations générales</legend>
@@ -39,7 +44,7 @@ View for listing all the informations about a clip
 			<fieldset>
 				<legend>Informations associées</legend>
 				<p><b>Personnes:</b> </br>
-					<b>Lieu:</b></p>
+				<p><b>Lieu:</b></p>
 			</fieldset>
 		</div>
 	</div>
