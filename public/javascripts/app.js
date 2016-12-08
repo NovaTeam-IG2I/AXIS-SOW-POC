@@ -11,7 +11,12 @@ app.config(function($routeProvider){
       templateUrl: 'list.html',
       controller: 'listController'
     })
-    //the clip display
+    //the gallery display
+    .when('/gallery', {
+      templateUrl: 'list.html',
+      controller: 'listController'
+    })
+    //the gallery display
     .when('/clip', {
       templateUrl: 'clip.html',
       controller: 'clipController'
@@ -36,16 +41,17 @@ app.config(function($routeProvider){
     });
 });
 
-app.controller('listController', function(){
-  //TODO add the functions to controll the list view
-});
+app.controller('listController', ['$scope', function($scope){
+  //TODO add the functions to control the list view
+  $scope.getAllVideo = "";
+}]);
 
 app.controller('clipController', function(){
-  //TODO add the functions to controll the clip view
+  //TODO add the functions to control the clip view
 });
 
 app.controller('xmpController', function(){
-  //TODO add the functions to controll the xmp view
+  //TODO add the functions to control the xmp view
 });
 
 app.controller('mediaController', function(){
