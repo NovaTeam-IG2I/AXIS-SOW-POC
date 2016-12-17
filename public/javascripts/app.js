@@ -21,16 +21,6 @@ app.config(function($routeProvider){
       templateUrl: 'clip.html',
       controller: 'clipController'
     })
-    //the xmp display
-    .when('/xmp', {
-      templateUrl: 'xmp.html',
-      controller: 'xmpController'
-    })
-    //the media display
-    .when('/media', {
-      templateUrl: 'media.html',
-      controller: 'mediaController'
-    })
     //the import display
     .when('/import', {
       templateUrl: 'import.html',
@@ -48,14 +38,6 @@ app.controller('listController', ['$scope', function($scope){
 
 app.controller('clipController', function(){
   //TODO add the functions to control the clip view
-});
-
-app.controller('xmpController', function(){
-  //TODO add the functions to control the xmp view
-});
-
-app.controller('mediaController', function(){
-  //TODO add the functions to controll the media view
 });
 
 // Controller for the importation of a video mp4
