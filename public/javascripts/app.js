@@ -31,14 +31,27 @@ app.config(function($routeProvider){
     });
 });
 
-app.controller('listController', ['$scope', function($scope){
+app.controller('listController', ['$scope', '$http', function($scope,$http){
   //TODO add the functions to control the list view
-  $scope.getAllVideo = "";
+  $scope.getAllVideos = "";
+  $scope.numberOfVideos = 0;
+  $scope.videos = [];
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/cliplist'
+  }).then(function successCallback(response) {
+      $scope.getAllVideos = "Succes";
+      $scope.numberOfVideos = response.data.number;
+      $scope.videos = response.data.videos;
+  }, function errorCallback(response) {
+      $scope.getAllVideos = "Fail";
+  });
 }]);
 
-app.controller('clipController', function(){
+app.controller('clipController', ['$scope',function($scope){
   //TODO add the functions to control the clip view
-});
+  $scope.videoAdress = "video/salameche.mp4";
+}]);
 
 // Controller for the importation of a video mp4
 app.controller('importController', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {

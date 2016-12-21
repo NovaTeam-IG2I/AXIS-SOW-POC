@@ -162,7 +162,7 @@ router.route('/technicalsheet/:id')
 
   })
 
-router.route('/clipsheet/:id')
+router.route('/clipsheet')
   .get(function(req,res){
 
       //TODO create a get method to get all the metadata of a tag
@@ -210,6 +210,60 @@ router.route('/clipsheet/:id')
       tagData.track = "Video";
       tagData.media = "Titanic";
       res.json(tagData);
+
+  })
+
+router.route('/cliplist')
+  .get(function(req,res){
+
+      //TODO create a get method to get all the URI of all the clips
+      console.log("TODO get all the URI of all the clips");
+
+      /*var postData = querystring.stringify({
+      });
+
+      var options = {
+        hostname: 'localhost',
+        port: 3000,
+        path: '/api/productionsheet/test',
+        method: 'GET',
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+
+      var request = http.request(options, (result) => {
+        console.log(`STATUS: ${result.statusCode}`);
+        console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
+        result.setEncoding('utf8');
+        result.on('data', (chunk) => {
+          console.log(`BODY: ${chunk}`);
+        });
+        result.on('end', () => {
+          console.log('No more data in response.');
+        });
+      });
+
+      request.on('error', (e) => {
+        console.log('problem with request: ${e.message}');
+      });
+
+      // write data to request body
+      request.write(postData);
+      request.end();*/
+
+      var clipList = new Object();
+      clipList.number = 6;
+      clipList.videos = [
+        {"id" : 1 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
+        {"id" : 2 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
+        {"id" : 3 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
+        {"id" : 4 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
+        {"id" : 5 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
+        {"id" : 6 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"}
+      ];
+      res.json(clipList);
 
   })
 
