@@ -165,7 +165,7 @@ router.route('/technicalsheet/:id')
 
   })
 
-router.route('/clipsheet')
+router.route('/clipsheet/:id')
   .get(function(req,res){
 
       //TODO create a get method to get all the metadata of a tag

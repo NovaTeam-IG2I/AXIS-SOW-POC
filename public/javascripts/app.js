@@ -78,9 +78,11 @@ app.controller('clipController', ['$scope','$http','sharedMedia',function($scope
 
   $scope.getMediaProductions = "";
   $scope.getMediaTechnicals = "";
+  $scope.getMediaClip = "";
 
   $scope.productionData = new Object();
   $scope.technicalData = new Object();
+  $scope.clipData = new Object();
 
   $http({
     method: 'GET',
@@ -91,6 +93,7 @@ app.controller('clipController', ['$scope','$http','sharedMedia',function($scope
   }, function errorCallback(response) {
       $scope.getMediaProductions = "Fail";
   });
+
   $http({
     method: 'GET',
     url: 'http://localhost:3000/api/technicalsheet/' + $scope.mediaID
@@ -100,6 +103,22 @@ app.controller('clipController', ['$scope','$http','sharedMedia',function($scope
   }, function errorCallback(response) {
       $scope.getMediaTechnicals = "Fail";
   });
+
+  $scope.getClipData = function(clipID){
+    $http({
+      method: 'GET',
+      url: 'http://localhost:3000/api/clipsheet/' + clipID
+    }).then(function successCallback(response) {
+        $scope.getMediaClip= "Succes";
+        console.log($scope.clipData);
+        if ($scope.clipData[clipID] == undefined){
+          $scope.clipData[clipID] = {"id" : clipID,"data" : response.data};
+        }
+    }, function errorCallback(response) {
+        $scope.getMediaClip = "Fail";
+    });
+  };
+
 }]);
 
 // Controller for the importation of a video mp4

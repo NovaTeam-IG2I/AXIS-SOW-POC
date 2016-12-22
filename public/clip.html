@@ -26,10 +26,17 @@ View for listing all the informations about a clip
 			<uib-tab index="1" heading="Données générales">
 				<div class="framework" >{{productionData}}</div>
 			</uib-tab>
-			<uib-tab index="2" heading="Données du tag">
-				<div class="framework" ></div>
+			<uib-tab index="$index + 1" ng-repeat="clip in clipData" disable="tab.disabled" heading="Données du tag {{clip.id}}">
+				<div class="framework" >{{clip.data}}</div>
 			</uib-tab>
 		</uib-tabset>
 
 	</div>
+
+	<div class="col-md-9">
+		<button ng-click="getClipData(1)">Tag1</button>
+		<button ng-click="getClipData(2)">Tag2</button>
+		<button ng-click="getClipData(3)">Tag3</button>
+	</div>
+
 </div>
