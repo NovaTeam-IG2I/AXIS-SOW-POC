@@ -2,7 +2,26 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']);
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']).service('sharedMedia', function () {
+        var media = new Object();
+        media.id = 0;
+        media.adress = "";
+
+        return {
+            getMediaID: function () {
+                return media.id;
+            },
+            setMediaID: function(id) {
+                media.id = id;
+            },
+            getMediaAdress: function () {
+                return media.adress;
+            },
+            setMediaAdress: function(adress) {
+                media.adress = adress;
+            }
+        };
+      });
 
 app.config(function($routeProvider){
   $routeProvider
@@ -31,7 +50,7 @@ app.config(function($routeProvider){
     });
 });
 
-app.controller('listController', ['$scope', '$http', function($scope,$http){
+app.controller('listController', ['$scope', '$http', 'sharedMedia',function($scope,$http,sharedMedia){
   //TODO add the functions to control the list view
   $scope.getAllVideos = "";
   $scope.numberOfVideos = 0;
@@ -46,11 +65,16 @@ app.controller('listController', ['$scope', '$http', function($scope,$http){
   }, function errorCallback(response) {
       $scope.getAllVideos = "Fail";
   });
+  $scope.onMediaSelected = function(id,adress){
+    sharedMedia.setMediaID(id);
+    sharedMedia.setMediaAdress(adress);
+  };
 }]);
 
-app.controller('clipController', ['$scope',function($scope){
+app.controller('clipController', ['$scope','sharedMedia',function($scope,sharedMedia){
   //TODO add the functions to control the clip view
-  $scope.videoAdress = "video/salameche.mp4";
+  $scope.mediaID = sharedMedia.getMediaID();
+  $scope.mediaAdress = sharedMedia.getMediaAdress();
 }]);
 
 // Controller for the importation of a video mp4

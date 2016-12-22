@@ -15,7 +15,7 @@ router.route('/import')
 
       //TODO create an deplacement method to deplace a clip to a particular place
       req.header("Content-Type", "multipart/form-data");
-      //console.log('Request URL:', req.file);
+
       //
       // Send the imported file to the middleware
       //
@@ -154,10 +154,13 @@ router.route('/technicalsheet/:id')
       request.end();*/
 
       var technicalData = new Object();
-      technicalData.camera = "Zenmuse";
-      technicalData.width = "1920";
-      technicalData.height = "1080";
-      technicalData.lens = "X5R";
+      technicalData.fileName = "Selma.mp4"
+      technicalData.date = 2014;
+      technicalData.fileSize = "700mo";
+      technicalData.hyperLink = "http￼/www.imdb.com/title/tt1020072/";
+      technicalData.rights = "Warner Bros";
+      technicalData.duration = "128";
+      technicalData.importationDate = "2016-12-22";
       res.json(technicalData);
 
   })
