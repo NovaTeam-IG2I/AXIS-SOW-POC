@@ -26,27 +26,19 @@ View for listing all the informations about a clip
 
 		<!--XML Tab need to be replaced with dynamic tab creation -->
 		<div id="XML" class="tabcontent">
-		  	<div><p>Ligne xmp1</p>
-		  		<p>Ligne xmp2</p>
-		  	</div>
+			<fieldset>
+				<legend>Données générales</legend>
+				<p><b>{{productionData}}</b></p>
+			</fieldset>
 		</div>
 
 		<!--Media Tab-->
 		<div id="Media" class="tabcontent" style="display:block;">
 			<fieldset>
-				<legend>Informations générales</legend>
-				<p><b>Nom du média:</b></p>
-				<p><b>Extension:</b></p>
-				<p><b>Auteur:</b></p>
-				<p><b>Date de création:</b></p>
-				<p><b>Dernière date de modification:</b></p>
-				<p><b>Personne qui l'a importé:</b></p>
-			</fieldset>
-			<fieldset>
-				<legend>Informations associées</legend>
-				<p><b>Personnes:</b> </br>
-				<p><b>Lieu:</b></p>
+				<legend>Données techniques</legend>
+				<p><b>{{technicalData}}</b></p>
 			</fieldset>
 		</div>
+
 	</div>
 </div>
