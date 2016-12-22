@@ -2,7 +2,7 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']).service('sharedMedia', function () {
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap']).service('sharedMedia', function () {
         var media = new Object();
         media.id = 0;
         media.adress = "";
@@ -71,10 +71,54 @@ app.controller('listController', ['$scope', '$http', 'sharedMedia',function($sco
   };
 }]);
 
-app.controller('clipController', ['$scope','sharedMedia',function($scope,sharedMedia){
+app.controller('clipController', ['$scope','$http','sharedMedia',function($scope,$http,sharedMedia){
   //TODO add the functions to control the clip view
   $scope.mediaID = sharedMedia.getMediaID();
   $scope.mediaAdress = sharedMedia.getMediaAdress();
+
+  $scope.getMediaProductions = "";
+  $scope.getMediaTechnicals = "";
+  $scope.getMediaClip = "";
+
+  $scope.productionData = new Object();
+  $scope.technicalData = new Object();
+  $scope.clipData = new Object();
+
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/productionsheet/' + $scope.mediaID
+  }).then(function successCallback(response) {
+      $scope.getMediaProductions = "Succes";
+      $scope.productionData = response.data;
+  }, function errorCallback(response) {
+      $scope.getMediaProductions = "Fail";
+  });
+
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/technicalsheet/' + $scope.mediaID
+  }).then(function successCallback(response) {
+      $scope.getMediaTechnicals = "Succes";
+      $scope.technicalData = response.data;
+  }, function errorCallback(response) {
+      $scope.getMediaTechnicals = "Fail";
+  });
+
+  $scope.getClipData = function(clipID){
+    $http({
+      method: 'GET',
+      url: 'http://localhost:3000/api/clipsheet/' + clipID
+    }).then(function successCallback(response) {
+        $scope.getMediaClip= "Succes";
+        console.log($scope.clipData);
+        if ($scope.clipData[clipID] == undefined){
+          $scope.clipData[clipID] = {"id" : clipID,"data" : response.data};
+        }
+    }, function errorCallback(response) {
+        $scope.getMediaClip = "Fail";
+    });
+  };
+
 }]);
 
 // Controller for the importation of a video mp4

@@ -18,35 +18,25 @@ View for listing all the informations about a clip
 		</div>
 	</div>
 	<div class="col-md-8">
-		<ul class="tab">
-			<li><a href="javascript:void(0)" class="tablinks active" onload="openTab(event, 'Media')" onclick="openTab(event, 'Media')">Media</a></li>
-			<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'XML')">XML</a></li>
-		</ul>
 
+		<uib-tabset active="active">
+			<uib-tab index="0" heading="Données techniques">
+				<div class="framework" >{{technicalData}}</div>
+			</uib-tab>
+			<uib-tab index="1" heading="Données générales">
+				<div class="framework" >{{productionData}}</div>
+			</uib-tab>
+			<uib-tab index="$index + 2" ng-repeat="clip in clipData" disable="tab.disabled" heading="Données du tag {{clip.id}}">
+				<div class="framework" >{{clip.data}}</div>
+			</uib-tab>
+		</uib-tabset>
 
-		<!--XML Tab need to be replaced with dynamic tab creation -->
-		<div id="XML" class="tabcontent">
-		  	<div><p>Ligne xmp1</p>
-		  		<p>Ligne xmp2</p>
-		  	</div>
-		</div>
-
-		<!--Media Tab-->
-		<div id="Media" class="tabcontent" style="display:block;">
-			<fieldset>
-				<legend>Informations générales</legend>
-				<p><b>Nom du média:</b></p>
-				<p><b>Extension:</b></p>
-				<p><b>Auteur:</b></p>
-				<p><b>Date de création:</b></p>
-				<p><b>Dernière date de modification:</b></p>
-				<p><b>Personne qui l'a importé:</b></p>
-			</fieldset>
-			<fieldset>
-				<legend>Informations associées</legend>
-				<p><b>Personnes:</b> </br>
-				<p><b>Lieu:</b></p>
-			</fieldset>
-		</div>
 	</div>
+
+	<div class="col-md-9">
+		<button ng-click="getClipData(1)">Tag1</button>
+		<button ng-click="getClipData(2)">Tag2</button>
+		<button ng-click="getClipData(3)">Tag3</button>
+	</div>
+
 </div>
