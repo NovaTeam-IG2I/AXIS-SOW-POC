@@ -2,7 +2,26 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']);
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']).service('sharedMedia', function () {
+        var media = new Object();
+        media.id = 0;
+        media.adress = "";
+
+        return {
+            getMediaID: function () {
+                return media.id;
+            },
+            setMediaID: function(id) {
+                media.id = id;
+            },
+            getMediaAdress: function () {
+                return media.adress;
+            },
+            setMediaAdress: function(adress) {
+                media.adress = adress;
+            }
+        };
+      });
 
 app.config(function($routeProvider){
   $routeProvider
@@ -21,16 +40,6 @@ app.config(function($routeProvider){
       templateUrl: 'clip.html',
       controller: 'clipController'
     })
-    //the xmp display
-    .when('/xmp', {
-      templateUrl: 'xmp.html',
-      controller: 'xmpController'
-    })
-    //the media display
-    .when('/media', {
-      templateUrl: 'media.html',
-      controller: 'mediaController'
-    })
     //the import display
     .when('/import', {
       templateUrl: 'import.html',
@@ -41,22 +50,32 @@ app.config(function($routeProvider){
     });
 });
 
-app.controller('listController', ['$scope', function($scope){
+app.controller('listController', ['$scope', '$http', 'sharedMedia',function($scope,$http,sharedMedia){
   //TODO add the functions to control the list view
-  $scope.getAllVideo = "";
+  $scope.getAllVideos = "";
+  $scope.numberOfVideos = 0;
+  $scope.videos = [];
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/cliplist'
+  }).then(function successCallback(response) {
+      $scope.getAllVideos = "Succes";
+      $scope.numberOfVideos = response.data.number;
+      $scope.videos = response.data.videos;
+  }, function errorCallback(response) {
+      $scope.getAllVideos = "Fail";
+  });
+  $scope.onMediaSelected = function(id,adress){
+    sharedMedia.setMediaID(id);
+    sharedMedia.setMediaAdress(adress);
+  };
 }]);
 
-app.controller('clipController', function(){
+app.controller('clipController', ['$scope','sharedMedia',function($scope,sharedMedia){
   //TODO add the functions to control the clip view
-});
-
-app.controller('xmpController', function(){
-  //TODO add the functions to control the xmp view
-});
-
-app.controller('mediaController', function(){
-  //TODO add the functions to controll the media view
-});
+  $scope.mediaID = sharedMedia.getMediaID();
+  $scope.mediaAdress = sharedMedia.getMediaAdress();
+}]);
 
 // Controller for the importation of a video mp4
 app.controller('importController', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
