@@ -2,7 +2,7 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']).service('sharedMedia', function () {
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap']).service('sharedMedia', function () {
         var media = new Object();
         media.id = 0;
         media.adress = "";

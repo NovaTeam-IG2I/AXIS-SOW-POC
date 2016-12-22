@@ -18,27 +18,18 @@ View for listing all the informations about a clip
 		</div>
 	</div>
 	<div class="col-md-8">
-		<ul class="tab">
-			<li><a href="javascript:void(0)" class="tablinks active" onload="openTab(event, 'Media')" onclick="openTab(event, 'Media')">Media</a></li>
-			<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'XML')">XML</a></li>
-		</ul>
 
-
-		<!--XML Tab need to be replaced with dynamic tab creation -->
-		<div id="XML" class="tabcontent">
-			<fieldset>
-				<legend>Données générales</legend>
-				<p><b>{{productionData}}</b></p>
-			</fieldset>
-		</div>
-
-		<!--Media Tab-->
-		<div id="Media" class="tabcontent" style="display:block;">
-			<fieldset>
-				<legend>Données techniques</legend>
-				<p><b>{{technicalData}}</b></p>
-			</fieldset>
-		</div>
+		<uib-tabset active="active">
+			<uib-tab index="0" heading="Données techniques">
+				<div class="framework" >{{technicalData}}</div>
+			</uib-tab>
+			<uib-tab index="1" heading="Données générales">
+				<div class="framework" >{{productionData}}</div>
+			</uib-tab>
+			<uib-tab index="2" heading="Données du tag">
+				<div class="framework" ></div>
+			</uib-tab>
+		</uib-tabset>
 
 	</div>
 </div>
