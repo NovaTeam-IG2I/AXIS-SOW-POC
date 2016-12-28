@@ -66,7 +66,7 @@ router.route('/indexationdata/:id')
     data.tags = {};
         data.tags["0"] = {};
             data.tags["0"].name = "Président";
-            data.tags["0"].id = "1010";
+            data.tags["0"].id = "1";
             data.tags["0"].structure = {};
                 data.tags["0"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 7.2, "end" : 18 };
                 data.tags["0"].structure["1"] = {"track" : "Audio", "type" : "fragment", "begin" : 10.5, "end" : 18 };
@@ -82,7 +82,7 @@ router.route('/indexationdata/:id')
                 data.tags["0"].structure["11"] = {"track" : "Audio", "type" : "fragment", "begin" : 154, "end" : 164};
         data.tags["1"] = {};
             data.tags["1"].name = "Directeur général";
-            data.tags["1"].id = "1011";
+            data.tags["1"].id = "2";
             data.tags["1"].structure = {};
                 data.tags["1"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 84, "end" : 97 };
                 data.tags["1"].structure["1"] = {"track" : "Audio", "type" : "flag", "begin" : 117, "end" : 133 };

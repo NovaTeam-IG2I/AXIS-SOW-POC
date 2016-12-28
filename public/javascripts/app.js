@@ -363,15 +363,30 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         text.innerHTML = segment.name;
 
         text.addEventListener("click",function(event){
-            var video = angular.element(document.querySelector('#video'));
-            video[0].pause();
-            video[0].currentTime = event.target.getAttribute("begin");
-            video[0].play();       
-        }); 
+            event.preventDefault();
+            //left click will start the video at the beginning of the segment
+            if(event.which == 1){
+                var video = angular.element(document.querySelector('#video'));
+                video[0].pause();
+                video[0].currentTime = event.target.getAttribute("begin");
+                video[0].play();   
+                if(event.ctrlKey){
+                   //if right click, we open the dialog for the right tag    
+                   var id_text = this.getAttribute("id");
+                   var id = id_text.substr(0, id_text.indexOf('_'));
+                   var rect = document.getElementById(id);
+                   if(rect != null){
+                       var idTag = rect.getAttribute("idTag");
+                       $scope.getClipData(idTag);
+                   }
+                }
+            }
+        });   
 
         var fragmentProperties = {};
         fragmentProperties.type = "fragment";
         fragmentProperties.id = segment.id;
+        fragmentProperties.idTag = segment.idTag;
         fragmentProperties.nline = level;
         fragmentProperties.begin = segment.begin;
         fragmentProperties.end = segment.end;
@@ -402,6 +417,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         var flagProperties = {};
         flagProperties.type = "flag";
         flagProperties.id = segment.id;
+        flagProperties.idTag = segment.idTag;
         flagProperties.begin = segment.begin;
         flagProperties.nline = level;
         flagProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.25);
@@ -426,11 +442,25 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         text.innerHTML = segment.name;
 
         text.addEventListener("click",function(event){
-            var video = angular.element(document.querySelector('#video'));
-            video[0].pause();
-            video[0].currentTime = event.target.getAttribute("begin");
-            video[0].play();       
-        });           
+            event.preventDefault();
+            //left click will start the video at the beginning of the segment
+            if(event.which == 1){
+                var video = angular.element(document.querySelector('#video'));
+                video[0].pause();
+                video[0].currentTime = event.target.getAttribute("begin");
+                video[0].play();   
+                if(event.ctrlKey){
+                   //if right click, we open the dialog for the right tag    
+                   var id_text = this.getAttribute("id");
+                   var id = id_text.substr(0, id_text.indexOf('_'));
+                   var rect = document.getElementById(id);
+                   if(rect != null){
+                       var idTag = rect.getAttribute("idTag");
+                       $scope.getClipData(idTag);
+                   }
+                }
+            }
+        });
 
 
         currentLine.append(timePoint);
@@ -520,7 +550,39 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
       }
       x = parseFloat(value);
       return x;
-    }
+    }   
+    
+    $scope.showIndexationDialog = function(event) {
+      $mdDialog.show({
+        controller: DialogController,
+        templateUrl: 'template/addIndexation.html',
+        parent: angular.element(document.body),
+        targetEvent: event,
+        clickOutsideToClose:true,
+        fullscreen: $scope.customFullscreen // Only for -xs, -sm breakpoints.
+      })
+      .then(function(answer) {
+        $scope.status = 'You said the information was "' + answer + '".';
+      }, function() {
+        $scope.status = 'You cancelled the dialog.';
+      });
+    };
+
+    function DialogController($scope, $mdDialog) {
+        $scope.hide = function() {
+          $mdDialog.hide();
+        };
+
+        $scope.cancel = function() {
+          $mdDialog.cancel();
+        };
+
+        $scope.answer = function(answer) {
+          $mdDialog.hide(answer);
+        };
+    }   
+    
+    
 }]);
 
 // Controller for the importation of a video mp4
