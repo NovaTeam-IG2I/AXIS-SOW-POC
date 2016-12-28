@@ -56,6 +56,42 @@ router.route('/import')
       request.end();
         })
 
+router.route('/indexationdata/:id')
+  .get(function(req,res){
+
+      //TODO create a get method to get all the indexation of a media
+    var data = {};
+    data.informations = {};
+    data.duree = 171;
+    data.tags = {};
+        data.tags["0"] = {};
+            data.tags["0"].name = "Président";
+            data.tags["0"].id = "1010";
+            data.tags["0"].structure = {};
+                data.tags["0"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 7.2, "end" : 18 };
+                data.tags["0"].structure["1"] = {"track" : "Audio", "type" : "fragment", "begin" : 10.5, "end" : 18 };
+                data.tags["0"].structure["2"] = {"track" : "Audio", "type" : "fragment", "begin" : 23.5, "end" : 34 };
+                data.tags["0"].structure["3"] = {"track" : "Audio", "type" : "fragment", "begin" : 41.5, "end" : 50 };
+                data.tags["0"].structure["4"] = {"track" : "Audio", "type" : "fragment", "begin" : 59, "end" : 70};
+                data.tags["0"].structure["5"] = {"track" : "Image", "type" : "fragment", "begin" : 25, "end" : 27 };
+                data.tags["0"].structure["6"] = {"track" : "Image", "type" : "fragment", "begin" : 32, "end" : 34 };
+                data.tags["0"].structure["7"] = {"track" : "Image", "type" : "flag", "begin" : 47, "end" : 50.5 };
+                data.tags["0"].structure["8"] = {"track" : "Image", "type" : "fragment", "begin" : 59, "end" : 60.6 };
+                data.tags["0"].structure["9"] = {"track" : "Image", "type" : "fragment", "begin" : 79, "end" : 81 };
+                data.tags["0"].structure["10"] = {"track" : "Image", "type" : "fragment", "begin" : 156, "end" : 165 };
+                data.tags["0"].structure["11"] = {"track" : "Audio", "type" : "fragment", "begin" : 154, "end" : 164};
+        data.tags["1"] = {};
+            data.tags["1"].name = "Directeur général";
+            data.tags["1"].id = "1011";
+            data.tags["1"].structure = {};
+                data.tags["1"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 84, "end" : 97 };
+                data.tags["1"].structure["1"] = {"track" : "Audio", "type" : "flag", "begin" : 117, "end" : 133 };
+                data.tags["1"].structure["2"] = {"track" : "Image", "type" : "fragment", "begin" : 15, "end" : 40 };
+    res.json(data);
+              
+              
+  })
+
 router.route('/productionsheet/:id')
   .get(function(req,res){
 
@@ -157,7 +193,7 @@ router.route('/technicalsheet/:id')
       technicalData.fileName = "Selma.mp4"
       technicalData.date = 2014;
       technicalData.fileSize = "700mo";
-      technicalData.hyperLink = "http￼/www.imdb.com/title/tt1020072/";
+      technicalData.hyperLink = "httpï¿¼/www.imdb.com/title/tt1020072/";
       technicalData.rights = "Warner Bros";
       technicalData.duration = "128";
       technicalData.importationDate = "2016-12-22";
