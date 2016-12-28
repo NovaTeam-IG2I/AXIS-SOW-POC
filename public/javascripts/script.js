@@ -1,3 +1,4 @@
+//function to open Tab in clip.html
 function openTab(evt, name) {
     // Declare all variables
     var i, tabcontent, tablinks;
