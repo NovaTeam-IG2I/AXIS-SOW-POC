@@ -91,6 +91,50 @@ router.route('/indexationdata/:id')
               
               
   })
+  
+router.route('/createSegment/')
+  .get(function(req,res){
+    var mediaId = req.param("mediaId", 0);
+    var trackName = req.param("trackName", null);
+    var tagId = req.param("tagId", 0);
+    var tagName = req.param("tagName", null);
+    var segType = req.param("segType", null);
+    var segBegin = req.param("segBegin", null);
+    var segEnd = req.param("segEnd", null);
+    
+    var result = {};
+    result.success = false;
+    result.message = "";          
+    if(mediaId == 0){
+        result.message += "The media has not been specified. ";
+    }else if(trackName == null){
+        result.message += "The track has not been specified. ";
+    }else if(segType == null){
+        result.message += "The type of segment has not been specified. ";
+    }else if(!(segType == "fragment" || segType == "flag" )){
+        result.message += "A segment can only be a fragment or a flag. ";            
+    }else if(segBegin == null){
+        result.message += "The beginning time has not been specified. ";
+    }else if(segType == "fragment" && segEnd == null){
+        result.message += "A fragment needs a ending time. ";
+    }else {   
+        if(segType == "flag")
+            segEnd = segBegin;
+        
+        ////////////////////////////////////////////////////////////////
+        //  Don't know if it is needed but we have the id of the tag  //
+        //   We can create the segment, we have all the needed data   //
+        ////////////////////////////////////////////////////////////////
+        result.success = true;
+        result.data = {
+          "track" : trackName,
+          "tag" : { "id" : tagId, "name" : tagName },
+          "segment" : {"type" : segType, "begin" : segBegin, "end" : segEnd}
+        };
+    }
+    res.json(result);
+              
+  })
 
 router.route('/productionsheet/:id')
   .get(function(req,res){

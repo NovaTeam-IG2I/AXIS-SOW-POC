@@ -18,8 +18,8 @@ View for listing all the informations about a clip
             <svg id="sequenceur" viewBox="0 0 {{sequenceurParams.width}} {{sequenceurParams.height}}" style="width : {{sequenceurParams.width}}px; height: {{sequenceurParams.height}}px;">
             </svg>
         </div>
-        <div class="row">
-            <md-button class="md-primary md-raised" ng-click="showIndexationDialog($event)">
+        <div class="row" ng-controller="indexationController" ng-cloak>
+            <md-button ng-click="showIndexationDialog(event)" class="md-raised">Add segment or create a tag/indexed track</md-button>
         </div>
     </div>
     <div class="col-md-8">

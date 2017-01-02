@@ -2,10 +2,32 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap']).service('sharedMedia', function () {
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap','ngMaterial' ]).service('sharedMedia', function () {
         var media = new Object();
-        media.id = 0;
+        media.id = 1;
         media.adress = "";
+
+        var indexationData = new Object();
+        
+        var sequenceurParams = {
+            "width": 0,
+            "height": 0,
+            "barwidth": 0,
+            /* space between the border of the sequenceur and the sequenceur itself */
+            "MARGIN": 10,
+            /*space between each element*/
+            "SPACE": 15,
+            /*Height of the line of a sequenceur. Should be at least 8*/
+            "LINE_HEIGHT": 20,
+            /*Width of the indexed tracks names*/
+            "INDEXED_TRACK_NAME_WIDTH": 100,
+            /* Ratio to determine the width of a bar */
+            "RATIO_POINT_TO_SECOND": 3,
+            /* Width of a flag tag */
+            "FLAG_WIDTH": 15
+        };
+        sequenceurParams.BAR_OFFSET = sequenceurParams.MARGIN + sequenceurParams.INDEXED_TRACK_NAME_WIDTH + sequenceurParams.SPACE;
+        
 
         return {
             getMediaID: function () {
@@ -19,6 +41,18 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap
             },
             setMediaAdress: function(adress) {
                 media.adress = adress;
+            },
+            setIndexationData: function(data){
+                indexationData = data;
+            },
+            getIndexationData: function(){
+                return indexationData;
+            },
+            setSequenceurParams: function(data){
+                sequenceurParams = data;
+            },
+            getSequenceurParams: function(){
+                return sequenceurParams;
             }
         };
       });
@@ -72,25 +106,12 @@ app.controller('listController', ['$scope', '$http', 'sharedMedia',function($sco
 }]);
 
 app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($scope, $http, sharedMedia) {
-    //TODO add the functions to control the clip view
-    $scope.sequenceurParams = {
-        "width": 0,
-        "height": 0,
-        "barwidth": 0,
-        /* space between the border of the sequenceur and the sequenceur itself */
-        "MARGIN": 10,
-        /*space between each element*/
-        "SPACE": 15,
-        /*Height of the line of a sequenceur. Should be at least 8*/
-        "LINE_HEIGHT": 20,
-        /*Width of the indexed tracks names*/
-        "INDEXED_TRACK_NAME_WIDTH": 100,
-        /* Ratio to determine the width of a bar */
-        "RATIO_POINT_TO_SECOND": 3,
-        /* Width of a flag tag */
-        "FLAG_WIDTH": 15
-    };
-    $scope.sequenceurParams.BAR_OFFSET = $scope.sequenceurParams.MARGIN + $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH + $scope.sequenceurParams.SPACE;
+    
+    /**
+     * Parameters to manipulate the sequenceur design
+     * DO NOT Modify the value in lower case
+     */
+    $scope.sequenceurParams = sharedMedia.getSequenceurParams();
 
     $scope.mediaID = sharedMedia.getMediaID();
     $scope.mediaAdress = sharedMedia.getMediaAdress();
@@ -99,24 +120,30 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
     $scope.getMediaProductions = "";
     $scope.getMediaTechnicals = "";
     $scope.getMediaClip = "";
-
-    $scope.indexationData = new Object();
+    
     $scope.productionData = new Object();
     $scope.technicalData = new Object();
     $scope.clipData = new Object();
 
 
 
-
+    /**
+     * Asynchronous request to get the segments and indexed tracks linked to the media
+     * Once the data are acquired, we create the timeline
+     */
     $http({
         method: 'GET',
         url: 'http://localhost:3000/api/indexationdata/' + $scope.mediaID
     }).then(function successCallback(response) {
         $scope.getMediaIndexations = "Succes";
-        $scope.indexationData = response.data;
-        $scope.indexationData.tags = formatIndexations($scope.indexationData);
-        $scope.indexationData.tags = preventSuperposition($scope.indexationData.tags);
-        paramSequenceur($scope.indexationData);
+        var data = response.data;
+        data = formatIndexations(data);
+        sharedMedia.setIndexationData(data);
+        data.tags = preventSuperposition(data.tags);
+        sharedMedia.setIndexationData(data);
+        paramSequenceur(data);
+        sharedMedia.setIndexationData(data);
+        console.log(data);
     }, function errorCallback(response) {
         $scope.getMediaIndexations = "Fail";
     });
@@ -164,36 +191,43 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
      * @param {type} data : data to format
      * @returns formatted data
      */
-    function formatIndexations(data)
-    {
+    function formatIndexations(dataToFormat){
         var id = 0;
-        var formattedData = {};
+        var dataFormatted = {};
+        dataFormatted.informations = dataToFormat.informations;
+        dataFormatted.duree = dataToFormat.duree;
+        dataFormatted.trackNames = new Array();
+        dataFormatted.tagNames = new Array();
+        dataFormatted.nbSegment = 0;
+        var dataTags = {};
         //Verification of the number of tags
-        if (Object.keys(data.tags).length > 0) {
-            for (var tagString in data.tags) {
-                var tag = data.tags[tagString];
+        if (Object.keys(dataToFormat.tags).length > 0) {
+            for (var tagString in dataToFormat.tags) {
+                var tag = dataToFormat.tags[tagString];
+                dataFormatted.tagNames.push({"name" : tag.name, "id" : tag.id});
                 //we take each structure of each tag
                 //we construct a line if it 
                 for (var structString in tag.structure) {
                     var struct = tag.structure[structString];
-                    id++;
+                    dataFormatted.nbSegment++;
                     //IF an indexed track DOES NOT exist
-                    if (!formattedData.hasOwnProperty(struct.track)) {
-                        formattedData[struct.track] = {};
+                    if (!dataTags.hasOwnProperty(struct.track)) {
+                        dataTags[struct.track] = {};
+                        dataFormatted.trackNames.push(struct.track);
                     }
                     //If an indexed track 
-                    if (!formattedData[struct.track].hasOwnProperty(tag.name)) {
-                        formattedData[struct.track][tag.name] = new Array();
+                    if (!dataTags[struct.track].hasOwnProperty(tag.name)) {
+                        dataTags[struct.track][tag.name] = new Array();
                     }
-                    formattedData[struct.track][tag.name].push({"type": struct.type, "begin": struct.begin, "end": struct.end, "name": tag.name, "idTag": tag.id, "id": id});
+                    dataTags[struct.track][tag.name].push({"type": struct.type, "begin": struct.begin, "end": struct.end, "name": tag.name, "idTag": tag.id, "id": dataFormatted.nbSegment});
                 }
             }
         }
-        return formattedData;
+        dataFormatted.tags = dataTags;
+        return dataFormatted;
     }
 
-    function preventSuperposition(formattedData)
-    {
+    function preventSuperposition(formattedData){
         var level = 0;
         var superimposed = false;
         var segbegin, segend, begin, end;
@@ -221,8 +255,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                     }
                     level = 0;
                     //test in correctedData
-                    for (var sublevel = 0; sublevel < correctedData[correctedData.length - 1].levels.length; sublevel++)
-                    {
+                    for (var sublevel = 0; sublevel < correctedData[correctedData.length - 1].levels.length; sublevel++){
                         superimposed = false;
                         for (var index = 0; index < correctedData[correctedData.length - 1].levels[sublevel].length && !superimposed; index++) {
                             var addedSegment = correctedData[correctedData.length - 1].levels[sublevel][index];
@@ -242,7 +275,6 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                         if (!superimposed)
                             break;
                     }
-
                     if (correctedData[correctedData.length - 1].levels.length <= level) {
                         correctedData[correctedData.length - 1].levels.push(new Array());
                     }
@@ -251,15 +283,16 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                 }
             }
         }
-
         return correctedData;
     }
     /**
      * function paramSequenceur
-     * Description : Change the frame and add the lines to the sequenceur
+     * Description : Change the frame and create the components of the sequenceur
      * @param {type} correctedData : data with the sublines system
      */
     function paramSequenceur(correctedData) {
+        var sequenceur = angular.element(document.querySelector('#sequenceur'));
+        sequenceur.empty();
 
         //Set the width params of the time bars and of the svg itself
         $scope.sequenceurParams.barwidth = correctedData.duree * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
@@ -270,7 +303,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         $scope.sequenceurParams.width += $scope.sequenceurParams.MARGIN;
 
         //set the height of the svg
-        $scope.sequenceurParams.height += $scope.sequenceurParams.MARGIN * 2;
+        $scope.sequenceurParams.height = $scope.sequenceurParams.MARGIN * 2;
         for (var ntrack = 0; ntrack < correctedData.tags.length; ntrack++) {
             for (var nline = 0; nline < correctedData.tags[ntrack].levels.length; nline++) {
                 $scope.sequenceurParams.height += ($scope.sequenceurParams.LINE_HEIGHT);
@@ -278,14 +311,30 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
             $scope.sequenceurParams.height += $scope.sequenceurParams.SPACE;
         }
         $scope.sequenceurParams.height -= $scope.sequenceurParams.SPACE;
-        createAllLines();
+        
+        sharedMedia.setSequenceurParams($scope.sequenceurParams);
+        
+        createAllComponents(correctedData);
     }
-
-    function createAllLines() {
+    
+    /**
+     * We need to stay aware if we need the reloading of the timeline
+     */
+    $scope.$on('reloadTimeline', function(event, data){
+        paramSequenceur(data);
+    });
+    
+    /**
+     * Function createAllComponents
+     * Description : Create all the SVG components of the timeline, the containers, the lines, the sublines, the segments and the cursor
+     * @param {type} indexationData
+     * @returns {undefined}
+     */
+    function createAllComponents(indexationData) {
         var sequenceur = angular.element(document.querySelector('#sequenceur'));
-        for (var i = 0; i < $scope.indexationData.tags.length; i++)
+        for (var i = 0; i < indexationData.tags.length; i++)
         {
-            var indexedTrack = $scope.indexationData.tags[i];
+            var indexedTrack = indexationData.tags[i];
             var line = createLine(indexedTrack, i);
             for (var j = 0; j < indexedTrack.levels.length; j++)
             {
@@ -305,7 +354,13 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         }
         addCursor();
     }
-
+    /**
+     * Function createLine
+     * Description : createLine creates an SVG container which represents a line and the SVG Rect components which represent the sublines  
+     * @param {type} track : indexed track (line) to be created
+     * @param {type} index : index of the indexed track in the track table
+     * @returns {Element}
+     */
     function createLine(track, index)
     {
         var line;
@@ -346,7 +401,13 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         }
         return line;
     }
-
+    /**
+     * Function createFragment
+     * Description : Create the component linked to a Fragment from the informations given to the line indicated
+     * @param {Integer} level : subline of the indexed track 
+     * @param {JSON} segment : segment which has to be created
+     * @param {SVG} currentLine : line to which the segment created has to be added
+     */
     function createFragment(level, segment, currentLine) {
         //We create the label
         var textProperties = {};
@@ -401,6 +462,13 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         currentLine.append(text);
     }
 
+    /**
+     * Function createFlag
+     * Description : Create the components linked to a Flag from the informations given to the line indicated
+     * @param {Integer} level : subline of the indexed track 
+     * @param {JSON} segment : segment which has to be created
+     * @param {SVG} currentLine : line to which the segment created has to be added
+     */
     function createFlag(level, segment, currentLine) {
 
         var timePointProperties = {};
@@ -461,8 +529,6 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                 }
             }
         });
-
-
         currentLine.append(timePoint);
         currentLine.append(flag);
         currentLine.append(text);
@@ -515,9 +581,10 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
      * @returns Coordinate Y of the line we wish to create
      */
     function computeYLine(index) {
+        var indexationData = sharedMedia.getIndexationData();
         var y = $scope.sequenceurParams.MARGIN;
-        for (var ntrack = 0; ntrack < $scope.indexationData.tags.length && ntrack < index; ntrack++) {
-            for (var nline = 0; nline < $scope.indexationData.tags[ntrack].levels.length; nline++) {
+        for (var ntrack = 0; ntrack < indexationData.tags.length && ntrack < index; ntrack++) {
+            for (var nline = 0; nline < indexationData.tags[ntrack].levels.length; nline++) {
                 y += ($scope.sequenceurParams.LINE_HEIGHT);
             }
             y += $scope.sequenceurParams.SPACE;
@@ -552,23 +619,41 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
       return x;
     }   
     
+    }]);    
+
+
+app.controller('indexationController', function($scope, $http, sharedMedia, $mdDialog) {
+    var selectedTrack = null;
+    var selectedTag = null;
+    
+    /**
+     * Function showIndexationDialog
+     * Description : show the popup to create a segment
+     */
     $scope.showIndexationDialog = function(event) {
       $mdDialog.show({
         controller: DialogController,
         templateUrl: 'template/addIndexation.html',
         parent: angular.element(document.body),
         targetEvent: event,
-        clickOutsideToClose:true,
-        fullscreen: $scope.customFullscreen // Only for -xs, -sm breakpoints.
+        clickOutsideToClose:true
       })
       .then(function(answer) {
+          console.log("envoie au serveur");
         $scope.status = 'You said the information was "' + answer + '".';
       }, function() {
+          console.log("annuler");
         $scope.status = 'You cancelled the dialog.';
       });
     };
-
+    
+    /**
+     * function DialogController
+     * Description : contains the main functions to manipulate the popup 
+     */
     function DialogController($scope, $mdDialog) {
+
+        
         $scope.hide = function() {
           $mdDialog.hide();
         };
@@ -577,14 +662,301 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
           $mdDialog.cancel();
         };
 
-        $scope.answer = function(answer) {
-          $mdDialog.hide(answer);
+        /**
+         * Function create
+         * Description : The user inputs are validated and then, a query is sent 
+         * to the server, if a segment is really created, we add it to the 
+         * timeline and reload to display the new segment. Else, a error message
+         * is displayed to the user indicating which input is wrongly filled. 
+         */
+        $scope.create = function() {
+            console.log("create");
+            var track = $scope.selectedTrack;
+            var tag = $scope.selectedTag;
+            var segType = indexationForm.segmentType.value;
+            var segBegin = indexationForm.segBegin.value;
+            var segEnd = indexationForm.segEnd.value;
+            var msg = "";
+            if(track == null || track == undefined)    
+                msg += "No track has been selected\n";
+            if(tag == null || tag == undefined)
+                msg += "No tag has been selected\n";
+            if(!(segType == "fragment" || segType == "flag"))
+                msg += "Wrong segment type\n";
+            if(!isFloat(segBegin))
+                msg += "segment beginning is not a float\n";
+            if(segType == "fragment" && !isFloat(segEnd))
+                msg += "segment end is not a float";
+            else if(segType == "fragment" && isFloat(segBegin) && isFloat(segEnd) && segEnd < segBegin)
+                msg += "segment end is before segment begin";
+            
+            if(msg.length > 0 )
+                alert(msg);
+            else{   
+                if(segType == "track")
+                {
+                    segBegin = parseFloat(segBegin);
+                    segEnd = parseFloat(segEnd);
+                }else if (segType == "flag"){
+                    segBegin = parseFloat(segBegin);
+                }
+                //we need to search for the id of each element (the media and the tag (if the tag has for id 0, it is a new one)
+                var mediaId = sharedMedia.getMediaID();
+                var tagId = searchTagId(tag);
+                $http({
+                    method: 'GET',
+                    url: 'http://localhost:3000/api/createSegment/',
+                    params : {"mediaId" : mediaId, "trackName": track,"tagId" : tagId, "tagName" : tag  ,"segType" : segType, "segBegin" : segBegin, "segEnd" : segEnd}
+                }).then(function successCallback(response) {
+                    var ans = response.data;
+                    if(ans.success){
+                        addSegment(ans.data);
+                    }
+                    else{
+                        alert(ans.message);
+                    }
+                }, function errorCallback(response) {
+                });                
+            }         
+            $mdDialog.hide();
         };
-    }   
-    
-    
-}]);
+        
+        /**
+         * Function searchType
+         * Description : query will constitute a regex. If type is a track, it will search the tracks which names correspond to the regex. If it is tag, it will search the tag names. Else, it will return an empty array
+         * @param {String} type
+         * @param {String} query
+         * @returns {Array[String]} items : tracks or tags matching the query 
+         */
+        $scope.searchType = function(type,query) {
+            console.log("searchType");
+            var items = new Array();
+            var regex = new RegExp(regexEscape(query), "i");
+            switch(type){
+                case "track" :
+                    var tracks = sharedMedia.getIndexationData().trackNames;
+                    if(query.length > 0){
+                        for(var i=0; i<tracks.length; i++){
+                            var track = tracks[i];
+                            if(track.search(regex) == 0){
+                                items.push(track);
+                            }
+                        }
+                    }                
+                    break;
+                case "tag" :
+                    var tags = sharedMedia.getIndexationData().tagNames;
+                    if(query.length > 0){
+                        for(var i=0; i<tags.length; i++){
+                            var tag = tags[i];
+                            if(tag.name.search(regex) == 0){
+                                items.push(tag.name);
+                            }
+                        }
+                    }                
+                    break;
+                default : return new Array(); 
+            }
+            return items;
+        };        
+        
+        /**
+         * function selectedTrackChange 
+         * Description : Affect to selectedTrack the value item which is the track that the user selects/or creates from the dropdown list
+         * @param {String} item
+         */
+        $scope.selectedTrackChange = function(item){
+            $scope.selectedTrack = item;
+        };
+        /**
+         * function selectedTagChange 
+         * Description : Affect to selectedTag the value item which is the tag that the user selects/or creates from the dropdown list
+         * @param {String} item
+         */
+        $scope.selectedTagChange = function(item){
+            $scope.selectedTag = item;
+        };
+        
+        
+        /**
+         * function searchTrackChange
+         * Description : set selectedTrack to null for validation purpose
+         */
+        $scope.searchTrackChange = function(){
+            $scope.selectedTrack = null;
+        }
+        
+        /**
+         * function searchTagChange
+         * Description : set selectedTag to null for validation purpose
+         */
+        $scope.searchTagChange = function(){
+            $scope.selectedTag = null;
+        }
 
+        /**
+        * function newTrack
+        * Description : it will call selectedTrackChange to affect the String track which will also have its special caracters escaped.
+        * @param {String} track
+        */
+        $scope.newTrack = function(track) {        
+            $scope.selectedTrackChange(track.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+        };
+        
+        /**
+        * function newTag
+        * Description : it will call selectedTagChange to affect the String tag which will also have its special caracters escaped.
+        * @param {String} tag
+        */
+        $scope.newTag = function($event,tag){
+            $scope.selectedTagChange(tag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+        };
+    }
+    
+
+    /**
+     * function regexEscape 
+     * Description : It will escape the string str which comes from the user to prevent malicious expectations
+     * @param {String} str
+     * @returns {String} str that has its special caracters escaped
+     */
+    function regexEscape(str) {
+        return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    };
+
+    /**
+    * function isFloat
+    * Param :
+    * - value : variable to test
+    * Description : test if a variable is a float, especially undefined and NaN variable.
+    */
+    function isFloat(value) {
+      var x;
+      if (isNaN(value)) {
+        return false;
+      }
+      x = parseFloat(value);
+      return x;
+    }   
+    /**
+     * function searchTagId
+     * description : return the ID of the tag if its name is matched by tagName from the data got from clipController
+     * @param {type} tagName
+     * @returns {Number} Id of the tag or 0 if it isn't found (which means it will have to be created).
+     */
+    function searchTagId(tagName){
+        var tags = sharedMedia.getIndexationData().tagNames;
+        for(var i=0; i<tags.length; i++){
+            var tag = tags[i];
+            if(String.toLowerCase(tag.name) == String.toLowerCase(tagName)){
+                return tag.id;
+            }
+        }
+        return 0;
+    }
+    /**
+     * Add a segment to the variable indexationData in the service and reload the timeline from the received data
+     * @param {JSON} data
+     */
+    function addSegment(data)
+    {
+        console.log("addSegment");
+        console.log(data);
+        var indexationData = sharedMedia.getIndexationData();
+        var sequenceurParams = sharedMedia.getSequenceurParams();
+        
+        //We increment nbSegment to have an "id" accessible from the DOM like the others
+        indexationData.nbSegment++;
+        
+        var newTrack = true;
+        var newTag = true;
+        var lastId = 0;
+        
+        for(var i = 0; i < indexationData.tagNames.length; i++){
+            console.log(indexationData.tagNames[i].name + " == " + data.tag.name);
+            if(indexationData.tagNames[i].name == data.tag.name)
+                newTag = false;
+        }
+        if(newTag){
+            console.log("C'est un nouveau tag");
+            indexationData.tagNames.push(data.tag);
+        }
+        
+        for(var i = 0; i< indexationData.trackNames.length; i++){
+            console.log(indexationData.trackNames[i] + " == " + data.track);
+            if(indexationData.trackNames[i] == data.track)
+                newTrack = false;
+        }
+        
+        if(newTrack){
+            console.log("C'est une nouvelle track");
+            indexationData.trackNames.push(data.track);
+            indexationData.tags.push({
+               "name" : data.track,
+               "levels" : [[{
+                        "begin" : data.segment.begin,
+                        "end" : data.segment.end,
+                        "id" : indexationData.nbSegment,
+                        "idTag" : data.tag.id,
+                        "name" : data.tag.name,
+                        "type" : data.segment.type
+                    }]]    
+            });
+        }else{
+            console.log("Parcours");
+            var segbegin = 0;
+            var segend = 0;
+            var testLevel = 0;
+            var superimposed = false;
+            if (data.segment.type == "flag") {
+                segbegin = parseFloat(data.segment.begin) - sequenceurParams.FLAG_WIDTH / 2;
+                segend = parseFloat(data.segment.begin) + sequenceurParams.FLAG_WIDTH / 2;
+            } else {
+                segbegin = data.segment.begin;
+                segend = data.segment.end;
+            }    
+            //We need to browse to prevent the superposition
+            for(var indexTrack = 0; indexTrack < indexationData.tags.length; indexTrack ++){
+                var track = indexationData.tags[indexTrack];
+                if(track.name == data.track){
+                    for(var level = 0; level < track.levels.length; level++){
+                        superimposed = false;
+                        var line = track.levels[level];
+                        for(var indexSegment = 0; indexSegment < line.length && !superimposed; indexSegment++){
+                            var segment = line[indexSegment];      
+                            //superposition test
+                            if (!((segbegin < segment.begin && segend <= segment.begin) || (segbegin >= segment.end && segend > segment.end))) {
+                                console.log("superimposed");
+                                testLevel++;
+                                superimposed = true;
+                            }
+                        }
+                    }
+                    if (track.levels.length <= testLevel) {
+                        track.levels.push(new Array());
+                    }
+                    console.log("ajout à " + track.name + " au level " + testLevel + " de " + data.tag.name);
+                    track.levels[testLevel].push({
+                        "begin" : segbegin,
+                        "end" : segend,
+                        "id" : indexationData.nbSegment,
+                        "idTag" : data.tag.id,
+                        "name" : data.tag.name,
+                        "type" : data.segment.type
+                    });
+                }
+            }
+        } 
+        
+        //We need to update the timeline now
+        sharedMedia.setIndexationData(indexationData);
+        $scope.$emit('reloadTimeline',indexationData);
+        console.log(indexationData);
+    }
+    
+    
+    
+});
 // Controller for the importation of a video mp4
 app.controller('importController', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
     $scope.uploadFiles = function(file, errFiles) {
