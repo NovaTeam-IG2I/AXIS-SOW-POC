@@ -59,3 +59,7 @@ fieldset legend{
 	padding:10px;
 }
 
+md-select {
+	margin-bottom:20px !important;
+}
+

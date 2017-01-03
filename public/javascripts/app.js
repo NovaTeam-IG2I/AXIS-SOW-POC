@@ -2,7 +2,7 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload']);
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ngMaterial']);
 
 app.config(function($routeProvider){
   $routeProvider
@@ -36,6 +36,11 @@ app.config(function($routeProvider){
       templateUrl: 'import.html',
       controller: 'importController'
     })
+    //the register manager
+    .when('/manageRegister', {
+      templateUrl: 'manageRegister.html',
+      controller: 'manageRegisterController'
+    })
     .otherwise({
             redirectTo: '/'
     });
@@ -56,6 +61,70 @@ app.controller('xmpController', function(){
 
 app.controller('mediaController', function(){
   //TODO add the functions to controll the media view
+});
+
+app.controller('manageRegisterController', function($scope) {
+  //TODO : replace with real data
+  $scope.categories =[
+    {
+      label:"Category1",
+      subClass:[
+      {
+        label:"subClass1-1",
+        subClass:[{
+          label:"subClass1-1-1",
+          subClass:[],
+          individuals:[
+          {
+            label:"i1"
+          },
+          {
+            label:"i2"
+          }]
+        }],
+        individuals:[
+          {label:"sdqsq"}
+        ]
+      },
+      {
+      label:"subClass1-2",
+      subClass:[],
+      individuals:[]
+      }]
+    },
+    {
+      label:"Category2",
+      subClass:[
+      {
+        label:"subClass2-1",
+        subClass:[],
+        individuals:[]
+      }],
+      individuals:[]
+    },
+    {
+      label:"Category3",
+      subClass:[],
+      individuals:[]
+    }
+  ];
+
+  $scope.selectedClass;
+  $scope.selectedIndividual;
+  $scope.getSelectedText = function() {
+    if ($scope.selectedClass !== undefined) {
+      return $scope.selectedClass;
+    } else {
+      return "Please select a class";
+    }
+  };
+  $scope.getSelectedInd = function() {
+    if ($scope.selectedIndividual !== undefined) {
+      return $scope.selectedIndividual;
+    } else {
+      return "Please select an individual";
+    }
+  };
 });
 
 // Controller for the importation of a video mp4
