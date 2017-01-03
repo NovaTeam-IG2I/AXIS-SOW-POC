@@ -143,7 +143,6 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         sharedMedia.setIndexationData(data);
         paramSequenceur(data);
         sharedMedia.setIndexationData(data);
-        console.log(data);
     }, function errorCallback(response) {
         $scope.getMediaIndexations = "Fail";
     });
@@ -409,6 +408,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
      * @param {SVG} currentLine : line to which the segment created has to be added
      */
     function createFragment(level, segment, currentLine) {
+        console.log(segment);
         //We create the label
         var textProperties = {};
         textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (segment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND);
@@ -639,11 +639,7 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
         clickOutsideToClose:true
       })
       .then(function(answer) {
-          console.log("envoie au serveur");
-        $scope.status = 'You said the information was "' + answer + '".';
       }, function() {
-          console.log("annuler");
-        $scope.status = 'You cancelled the dialog.';
       });
     };
     
@@ -670,7 +666,6 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
          * is displayed to the user indicating which input is wrongly filled. 
          */
         $scope.create = function() {
-            console.log("create");
             var track = $scope.selectedTrack;
             var tag = $scope.selectedTag;
             var segType = indexationForm.segmentType.value;
@@ -729,12 +724,18 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
          * @returns {Array[String]} items : tracks or tags matching the query 
          */
         $scope.searchType = function(type,query) {
-            console.log("searchType");
             var items = new Array();
             var regex = new RegExp(regexEscape(query), "i");
             switch(type){
                 case "track" :
-                    var tracks = sharedMedia.getIndexationData().trackNames;
+                    var tracksFromService = sharedMedia.getIndexationData().trackNames;
+                    var tracks = new Array();
+                    for(var i=0; i < tracksFromService.length; i++){
+                        tracks.push(tracksFromService[i]);
+                    }
+                    if($scope.selectedTrack != null)
+                        if(!containsTrack(tracks, $scope.selectedTrack))
+                            tracks.push($scope.selectedTrack);
                     if(query.length > 0){
                         for(var i=0; i<tracks.length; i++){
                             var track = tracks[i];
@@ -745,7 +746,14 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                     }                
                     break;
                 case "tag" :
-                    var tags = sharedMedia.getIndexationData().tagNames;
+                    var tagsFromService = sharedMedia.getIndexationData().tagNames;
+                    var tags = new Array();
+                    for(var i=0; i < tagsFromService.length; i++){
+                        tags.push(tagsFromService[i]);
+                    }
+                    if($scope.selectedTag != null)
+                        if(!containsTag(tags, $scope.selectedTag))
+                            tags.push({"name" : $scope.selectedTag, "id" : 0});
                     if(query.length > 0){
                         for(var i=0; i<tags.length; i++){
                             var tag = tags[i];
@@ -758,6 +766,7 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                 default : return new Array(); 
             }
             return items;
+
         };        
         
         /**
@@ -799,8 +808,10 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
         * Description : it will call selectedTrackChange to affect the String track which will also have its special caracters escaped.
         * @param {String} track
         */
-        $scope.newTrack = function(track) {        
-            $scope.selectedTrackChange(track.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+        $scope.newTrack = function(track) { 
+            track = regexEscape(track);
+            $scope.selectedTrackChange(track);
+            $scope.searchType("track", track);
         };
         
         /**
@@ -808,8 +819,10 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
         * Description : it will call selectedTagChange to affect the String tag which will also have its special caracters escaped.
         * @param {String} tag
         */
-        $scope.newTag = function($event,tag){
-            $scope.selectedTagChange(tag.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"));
+        $scope.newTag = function(tag){
+            tag = regexEscape(tag);
+            $scope.selectedTagChange(tag);
+            $scope.searchType("tag", tag);
         };
     }
     
@@ -822,8 +835,36 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
      */
     function regexEscape(str) {
         return str.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-    };
+    }
 
+
+    /**
+     * function containsTrack 
+     * @param {Array} a, String obj
+     */
+    function containsTrack(a, obj)
+    {
+        for (var i = 0; i < a.length; i++) {
+            if (a[i] === obj) {
+                return true;
+            }
+        }
+        return false;
+    }
+    /**
+     * function containsTag 
+     * @param {Array{"name","id"}} a, String obj
+     */
+    function containsTag(a, obj)
+    {
+        for (var i = 0; i < a.length; i++) {
+            if (a[i].name === obj) {
+                return true;
+            }
+        }
+        return false;
+    }    
+    
     /**
     * function isFloat
     * Param :
@@ -860,8 +901,6 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
      */
     function addSegment(data)
     {
-        console.log("addSegment");
-        console.log(data);
         var indexationData = sharedMedia.getIndexationData();
         var sequenceurParams = sharedMedia.getSequenceurParams();
         
@@ -873,23 +912,19 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
         var lastId = 0;
         
         for(var i = 0; i < indexationData.tagNames.length; i++){
-            console.log(indexationData.tagNames[i].name + " == " + data.tag.name);
             if(indexationData.tagNames[i].name == data.tag.name)
                 newTag = false;
         }
         if(newTag){
-            console.log("C'est un nouveau tag");
             indexationData.tagNames.push(data.tag);
         }
         
         for(var i = 0; i< indexationData.trackNames.length; i++){
-            console.log(indexationData.trackNames[i] + " == " + data.track);
             if(indexationData.trackNames[i] == data.track)
                 newTrack = false;
         }
         
         if(newTrack){
-            console.log("C'est une nouvelle track");
             indexationData.trackNames.push(data.track);
             indexationData.tags.push({
                "name" : data.track,
@@ -903,7 +938,6 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                     }]]    
             });
         }else{
-            console.log("Parcours");
             var segbegin = 0;
             var segend = 0;
             var testLevel = 0;
@@ -926,7 +960,6 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                             var segment = line[indexSegment];      
                             //superposition test
                             if (!((segbegin < segment.begin && segend <= segment.begin) || (segbegin >= segment.end && segend > segment.end))) {
-                                console.log("superimposed");
                                 testLevel++;
                                 superimposed = true;
                             }
@@ -935,7 +968,6 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                     if (track.levels.length <= testLevel) {
                         track.levels.push(new Array());
                     }
-                    console.log("ajout à " + track.name + " au level " + testLevel + " de " + data.tag.name);
                     track.levels[testLevel].push({
                         "begin" : segbegin,
                         "end" : segend,
@@ -951,7 +983,6 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
         //We need to update the timeline now
         sharedMedia.setIndexationData(indexationData);
         $scope.$emit('reloadTimeline',indexationData);
-        console.log(indexationData);
     }
     
     

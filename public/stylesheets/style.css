@@ -22,3 +22,15 @@ a {
 text.tagName:hover{
     cursor: pointer;
 }
+
+/*
+    CSS for Dialog of Segment Creation
+*/
+
+.dialogAlign{
+    text-align:  center;    
+}
+
+.alignLeft{
+    text-align: left;
+}
