@@ -20,10 +20,8 @@ router.route('/import')
       // Send the imported file to the middleware
       //
 
-      var postData = querystring.stringify({
-        'file' : req.file
-      });
-
+      var postData = querystring.stringify(req.file);
+      console.log(postData);
       var options = {
         hostname: 'localhost',
         port: 3000,
@@ -56,14 +54,14 @@ router.route('/import')
       request.end();
         })
 
-router.route('/productionsheet/:id')
+router.route('/productionsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all production metadata of a media
-      console.log("TODO get all the production metadata of a media : " + req.params.id);
+      console.log("TODO get all the production metadata of a media : " + req.params.uri);
 
       /*var postData = querystring.stringify({
-        'URI' : req.id
+        'URI' : req.params.uri
       });
 
       var options = {
@@ -112,14 +110,14 @@ router.route('/productionsheet/:id')
 
   })
 
-router.route('/technicalsheet/:id')
+router.route('/technicalsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all technical metadata of a media
-      console.log("TODO get all the technical metadata of a media : " + req.params.id);
+      console.log("TODO get all the technical metadata of a media : " + req.params.uri);
 
       /*var postData = querystring.stringify({
-        'URI' : req.id
+        'URI' : req.params.uri
       });
 
       var options = {
@@ -165,14 +163,14 @@ router.route('/technicalsheet/:id')
 
   })
 
-router.route('/clipsheet/:id')
+router.route('/clipsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all the metadata of a tag
-      console.log("TODO get all the metadata of a tag : " + req.params.id);
+      console.log("TODO get all the metadata of a tag : " + req.params.uri);
 
       /*var postData = querystring.stringify({
-        'URI' : req.id
+        'URI' : req.params.uri
       });
 
       var options = {
