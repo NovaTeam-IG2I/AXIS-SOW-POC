@@ -4,15 +4,15 @@
 
 var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ngMaterial','ui.bootstrap']).service('sharedMedia', function () {
         var media = new Object();
-        media.id = 0;
+        media.uri = 0;
         media.adress = "";
 
         return {
-            getMediaID: function () {
-                return media.id;
+            getMediaURI: function () {
+                return media.uri;
             },
-            setMediaID: function(id) {
-                media.id = id;
+            setMediaURI: function(uri) {
+                media.uri = uri;
             },
             getMediaAdress: function () {
                 return media.adress;
@@ -70,15 +70,15 @@ app.controller('listController', ['$scope', '$http', 'sharedMedia',function($sco
   }, function errorCallback(response) {
       $scope.getAllVideos = "Fail";
   });
-  $scope.onMediaSelected = function(id,adress){
-    sharedMedia.setMediaID(id);
+  $scope.onMediaSelected = function(uri,adress){
+    sharedMedia.setMediaURI(uri);
     sharedMedia.setMediaAdress(adress);
   };
 }]);
 
 app.controller('clipController', ['$scope','$http','sharedMedia',function($scope,$http,sharedMedia){
   //TODO add the functions to control the clip view
-  $scope.mediaID = sharedMedia.getMediaID();
+  $scope.mediaURI = sharedMedia.getMediaURI();
   $scope.mediaAdress = sharedMedia.getMediaAdress();
 
   $scope.getMediaProductions = "";
@@ -91,7 +91,7 @@ app.controller('clipController', ['$scope','$http','sharedMedia',function($scope
 
   $http({
     method: 'GET',
-    url: 'http://localhost:3000/api/productionsheet/' + $scope.mediaID
+    url: 'http://localhost:3000/api/productionsheet/' + $scope.mediaURI
   }).then(function successCallback(response) {
       $scope.getMediaProductions = "Succes";
       $scope.productionData = response.data;
@@ -101,7 +101,7 @@ app.controller('clipController', ['$scope','$http','sharedMedia',function($scope
 
   $http({
     method: 'GET',
-    url: 'http://localhost:3000/api/technicalsheet/' + $scope.mediaID
+    url: 'http://localhost:3000/api/technicalsheet/' + $scope.mediaURI
   }).then(function successCallback(response) {
       $scope.getMediaTechnicals = "Succes";
       $scope.technicalData = response.data;
@@ -109,15 +109,15 @@ app.controller('clipController', ['$scope','$http','sharedMedia',function($scope
       $scope.getMediaTechnicals = "Fail";
   });
 
-  $scope.getClipData = function(clipID){
+  $scope.getClipData = function(clipURI){
     $http({
       method: 'GET',
-      url: 'http://localhost:3000/api/clipsheet/' + clipID
+      url: 'http://localhost:3000/api/clipsheet/' + clipURI
     }).then(function successCallback(response) {
         $scope.getMediaClip= "Succes";
         console.log($scope.clipData);
-        if ($scope.clipData[clipID] == undefined){
-          $scope.clipData[clipID] = {"id" : clipID,"data" : response.data};
+        if ($scope.clipData[clipURI] == undefined){
+          $scope.clipData[clipURI] = {"uri" : clipURI,"data" : response.data};
         }
     }, function errorCallback(response) {
         $scope.getMediaClip = "Fail";
