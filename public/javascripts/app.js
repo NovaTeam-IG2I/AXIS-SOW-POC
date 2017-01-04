@@ -408,7 +408,6 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
      * @param {SVG} currentLine : line to which the segment created has to be added
      */
     function createFragment(level, segment, currentLine) {
-        console.log(segment);
         //We create the label
         var textProperties = {};
         textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (segment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND);

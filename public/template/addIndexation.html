@@ -1,0 +1,83 @@
+<md-dialog aria-label="Add segment" class="col-md-10">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Add segment</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                X
+            </md-button>
+        </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+        <div class="md-dialog-content col-md-12 middleAlign"> 
+            <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'fragment'">
+                <div class="col-md-3">
+                    <md-autocomplete
+                        id="autocompleteTrack"
+                        md-no-cache="noCache"
+                        md-selected-item="selectedItem" 
+                        md-selected-item-change="selectedTrackChange(item)"
+                        md-search-text="searchTrack"
+                        md-search-text-change="searchTrackChange()"
+                        md-items="item in searchType('track',searchTrack)" 
+                        md-item-text="item">
+                        <md-item-template>
+                            <span md-highlight-text="searchTrack">{{item}}</span>
+                        </md-item-template>
+                        <md-not-found class="col-md-4">
+                            <a ng-click="newTrack(searchTrack)">Create a new track</a>
+                        </md-not-found>                        
+                    </md-autocomplete>
+                </div>
+                <div class="col-md-3">
+                    <md-autocomplete
+                        id="autocompleteTag"
+                        md-no-cache="noCache"
+                        md-selected-item="selectedItem2" 
+                        md-selected-item-change="selectedTagChange(item2)" 
+                        md-search-text="searchTag" 
+                        md-search-text-change="searchTagChange()"
+                        md-items="item2 in searchType('tag',searchTag)" 
+                        md-item-text="item2">
+                        <md-item-template>
+                            <span md-highlight-text="searchTag">{{item2}}</span>
+                        </md-item-template>
+                        <md-not-found class="col-md-4">
+                            <a ng-click="newTag(searchTag)">Create a new tag</a>
+                        </md-not-found>                        
+                    </md-autocomplete>
+                </div>          
+                <div class="col-md-2 dialogAlign">
+                    <span>Type of indexation : </span>
+                    <br />
+                    <label for="fragmentIn">Fragment</label>
+                    <input id="fragmentIn" type="radio" name="segmentType" ng-model="radioValue" value="fragment" >
+                    <br />
+                    <label for="flagIn">Flag</label>
+                    <input id="flagIn" type="radio" name="segmentType" ng-model="radioValue" value="flag">
+                </div>
+
+                <div class="col-md-4">
+                    <div class="row">
+                        <input name="segBegin" placeholder="tmp begin {{radioValue}}" ng-model="segBegin" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
+                        <span>Correct value? {{indexationForm.segBegin.$valid}}</span>                        
+
+                    </div>
+                    <br />
+                    <div class="row" ng-show="radioValue == 'fragment'">
+                        <input name="segEnd" placeholder="tmp end {{radioValue}}" ng-model="segEnd" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
+                        <span>Correct Value? {{indexationForm.segEnd.$valid}}</span>    
+                    </div>
+                </div>
+            </form>    
+        </div>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+        <md-button ng-click="create()">
+            Créer indexation
+        </md-button>
+    </md-dialog-actions>
+</md-dialog>
+
