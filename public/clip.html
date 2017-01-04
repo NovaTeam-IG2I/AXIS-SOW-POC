@@ -28,7 +28,7 @@ View for listing all the informations about a clip
 			</uib-tab>
 			<uib-tab index="$index + 2" ng-repeat="clip in clipData track by $index"
 			disable="tab.disabled" heading="Données du tag {{clip.uri}}">
-				<div class="framework" >{{clip.uri}}</div>
+				<div class="framework" >{{clip.data}}</div>
 			</uib-tab>
 		</uib-tabset>
 
