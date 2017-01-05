@@ -177,18 +177,51 @@ router.route('/productionsheet/:id')
       request.write(postData);
       request.end();*/
 
-      var productionData = new Object();
-      productionData.title = "Titanic";
-      productionData.theme1 = "Drama";
-      productionData.theme2 = "Love";
-      productionData.theme3 = "Disaster";
-      productionData.release = 1997;
-      productionData.duration = 194;
-      productionData.country = "USA";
-      productionData.author = "James Cameron";
-      productionData.director = "James Cameron";
-      productionData.society = "20th Century Fox";
-      res.json(productionData);
+      var productionDataUnparsed = new Object();
+      productionDataUnparsed.title = "Titanic";
+      productionDataUnparsed.theme1 = "Drama";
+      productionDataUnparsed.theme2 = "Love";
+      productionDataUnparsed.theme3 = "Disaster";
+      productionDataUnparsed.release = 1997;
+      productionDataUnparsed.duration = 194;
+      productionDataUnparsed.country = "USA";
+      productionDataUnparsed.author = "James Cameron";
+      productionDataUnparsed.director = "James Cameron";
+      productionDataUnparsed.society = "20th Century Fox";
+      
+      
+      var productionDataParsed = {};
+      for(var key in productionDataUnparsed)
+      {
+          productionDataParsed[searchKey(key)] = productionDataUnparsed[key];
+      }
+      
+      
+      function searchKey(query){
+        var traduction = {};
+        traduction["title"] = "Title";
+        traduction["theme1"] = "Theme 1";
+        traduction["theme2"] = "Theme 2";
+        traduction["theme3"] = "Theme 3";
+        traduction["theme4"] = "Theme 4";
+        traduction["theme5"] = "Theme 5";
+        traduction["theme6"] = "Theme 6";
+        traduction["release date"] = "Date";
+        traduction["duration"] = "Duration";
+        traduction["country"] = "Country";
+        traduction["author"] = "Author";
+        traduction["director"] = "Director";
+        traduction["society"] = "Society";
+
+        var regex = new RegExp(query,"gi");
+        for(var key in traduction){
+            if(key.search(regex) != -1)
+                return traduction[key];
+        }      
+        return query;
+      }
+      
+      res.json(productionDataParsed);
 
   })
 
@@ -233,15 +266,42 @@ router.route('/technicalsheet/:id')
       request.write(postData);
       request.end();*/
 
-      var technicalData = new Object();
-      technicalData.fileName = "Selma.mp4"
-      technicalData.date = 2014;
-      technicalData.fileSize = "700mo";
-      technicalData.hyperLink = "httpï¿¼/www.imdb.com/title/tt1020072/";
-      technicalData.rights = "Warner Bros";
-      technicalData.duration = "128";
-      technicalData.importationDate = "2016-12-22";
-      res.json(technicalData);
+      var technicalDataUnparsed = new Object();
+      technicalDataUnparsed.fileName = "Selma.mp4"
+      technicalDataUnparsed.date = 2014;
+      technicalDataUnparsed.fileSize = "700mo";
+      technicalDataUnparsed.hyperLink = "httpï¿¼/www.imdb.com/title/tt1020072/";
+      technicalDataUnparsed.rights = "Warner Bros";
+      technicalDataUnparsed.duration = "128";
+      technicalDataUnparsed.importationDate = "2016-12-22";
+                  
+      var technicalDataParsed = {};
+      for(var key in technicalDataUnparsed)
+      {
+          technicalDataParsed[searchKey(key)] = technicalDataUnparsed[key];
+      }
+      
+      
+      function searchKey(query){
+        var traduction = {};
+        traduction["filename"] = "File name";
+        traduction["date"] = "Date";
+        traduction["datetime"] = "Date";
+        traduction["filesize"] = "File Size";
+        traduction["hyperlink"] = "Hyperlink";
+        traduction["rights"] = "Rights";
+        traduction["duration"] = "Duration";
+        traduction["importationdate"] = "Importation Date";
+
+        var regex = new RegExp(query,"gi");
+        for(var key in traduction){
+            if(key.search(regex) != -1)
+                return traduction[key];
+        }      
+        return query;
+      }
+      
+      res.json(technicalDataParsed);
 
   })
 

@@ -7,11 +7,6 @@ a {
   color: #00B7FF;
 }
 
-.framework{
-  display:block;
-  word-wrap: break-word;
-}
-
 #sequenceurContainer{
     overflow-x: scroll;
     -moz-user-select: none;
@@ -33,4 +28,28 @@ text.tagName:hover{
 
 .alignLeft{
     text-align: left;
+}
+
+.tab-pane{
+    margin-top : 10px;
+}
+
+
+.framework{
+  display:block;
+  word-wrap: break-word;
+  margin-bottom : 10px;
+}
+
+span.categoryName{
+    display : inline-block; 
+    float: left;
+    width : 150px;
+    text-decoration: underline; 
+    font-weight: bold;
+   
+}
+
+span.categoryValue{
+
 }
