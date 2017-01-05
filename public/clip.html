@@ -12,7 +12,7 @@ View for listing all the informations about a clip
 			<source ng-src="{{mediaAdress}}" type="video/mp4">
 			Your browser does not support the video tag.
 			</video>
-			<div> Visualisation du media dont l'URI est {{mediaURI}} .</div>
+			<div> Visualization of the video with URI {{mediaURI}}.</div>
 		</div>
 		<div class="row">
 		</div>
@@ -26,7 +26,7 @@ View for listing all the informations about a clip
 			<uib-tab index="1" heading="Données générales">
 				<div class="framework" >{{productionData}}</div>
 			</uib-tab>
-			<uib-tab index="$index + 2" ng-repeat="clip in clipData"
+			<uib-tab index="$index + 2" ng-repeat="clip in clipData track by $index"
 			disable="tab.disabled" heading="Données du tag {{clip.uri}}">
 				<div class="framework" >{{clip.data}}</div>
 			</uib-tab>
