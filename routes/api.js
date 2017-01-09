@@ -95,18 +95,51 @@ router.route('/productionsheet/:uri')
       request.write(postData);
       request.end();*/
 
-      var productionData = new Object();
-      productionData.title = "Titanic";
-      productionData.theme1 = "Drama";
-      productionData.theme2 = "Love";
-      productionData.theme3 = "Disaster";
-      productionData.release = 1997;
-      productionData.duration = 194;
-      productionData.country = "USA";
-      productionData.author = "James Cameron";
-      productionData.director = "James Cameron";
-      productionData.society = "20th Century Fox";
-      res.json(productionData);
+      var productionDataUnparsed = new Object();
+      productionDataUnparsed.title = "Titanic";
+      productionDataUnparsed.theme1 = "Drama";
+      productionDataUnparsed.theme2 = "Love";
+      productionDataUnparsed.theme3 = "Disaster";
+      productionDataUnparsed.release = 1997;
+      productionDataUnparsed.duration = 194;
+      productionDataUnparsed.country = "USA";
+      productionDataUnparsed.author = "James Cameron";
+      productionDataUnparsed.director = "James Cameron";
+      productionDataUnparsed.society = "20th Century Fox";
+      
+      
+      var productionDataParsed = {};
+      for(var key in productionDataUnparsed)
+      {
+          productionDataParsed[searchKey(key)] = productionDataUnparsed[key];
+      }
+      
+      
+      function searchKey(query){
+        var traduction = {};
+        traduction["title"] = "Title";
+        traduction["theme1"] = "Theme 1";
+        traduction["theme2"] = "Theme 2";
+        traduction["theme3"] = "Theme 3";
+        traduction["theme4"] = "Theme 4";
+        traduction["theme5"] = "Theme 5";
+        traduction["theme6"] = "Theme 6";
+        traduction["release date"] = "Date";
+        traduction["duration"] = "Duration";
+        traduction["country"] = "Country";
+        traduction["author"] = "Author";
+        traduction["director"] = "Director";
+        traduction["society"] = "Society";
+
+        var regex = new RegExp(query,"gi");
+        for(var key in traduction){
+            if(key.search(regex) != -1)
+                return traduction[key];
+        }      
+        return query;
+      }
+      
+      res.json(productionDataParsed);
 
   })
 
@@ -151,15 +184,42 @@ router.route('/technicalsheet/:uri')
       request.write(postData);
       request.end();*/
 
-      var technicalData = new Object();
-      technicalData.fileName = "Selma.mp4"
-      technicalData.date = 2014;
-      technicalData.fileSize = "700mo";
-      technicalData.hyperLink = "http￼/www.imdb.com/title/tt1020072/";
-      technicalData.rights = "Warner Bros";
-      technicalData.duration = "128";
-      technicalData.importationDate = "2016-12-22";
-      res.json(technicalData);
+      var technicalDataUnparsed = new Object();
+      technicalDataUnparsed.fileName = "Selma.mp4"
+      technicalDataUnparsed.date = 2014;
+      technicalDataUnparsed.fileSize = "700mo";
+      technicalDataUnparsed.hyperLink = "httpï¿¼/www.imdb.com/title/tt1020072/";
+      technicalDataUnparsed.rights = "Warner Bros";
+      technicalDataUnparsed.duration = "128";
+      technicalDataUnparsed.importationDate = "2016-12-22";
+                  
+      var technicalDataParsed = {};
+      for(var key in technicalDataUnparsed)
+      {
+          technicalDataParsed[searchKey(key)] = technicalDataUnparsed[key];
+      }
+      
+      
+      function searchKey(query){
+        var traduction = {};
+        traduction["filename"] = "File name";
+        traduction["date"] = "Date";
+        traduction["datetime"] = "Date";
+        traduction["filesize"] = "File Size";
+        traduction["hyperlink"] = "Hyperlink";
+        traduction["rights"] = "Rights";
+        traduction["duration"] = "Duration";
+        traduction["importationdate"] = "Importation Date";
+
+        var regex = new RegExp(query,"gi");
+        for(var key in traduction){
+            if(key.search(regex) != -1)
+                return traduction[key];
+        }      
+        return query;
+      }
+      
+      res.json(technicalDataParsed);
 
   })
 
@@ -267,6 +327,87 @@ router.route('/cliplist')
       res.json(clipList);
 
   })
+  
+  router.route('/indexationdata/:id')
+  .get(function(req,res){
+
+      //TODO create a get method to get all the indexation of a media
+    var data = {};
+    data.informations = {};
+    data.duree = 171;
+    data.tags = {};
+        data.tags["0"] = {};
+            data.tags["0"].name = "Président";
+            data.tags["0"].id = "1";
+            data.tags["0"].structure = {};
+                data.tags["0"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 7.2, "end" : 18 };
+                data.tags["0"].structure["1"] = {"track" : "Audio", "type" : "fragment", "begin" : 10.5, "end" : 18 };
+                data.tags["0"].structure["2"] = {"track" : "Audio", "type" : "fragment", "begin" : 23.5, "end" : 34 };
+                data.tags["0"].structure["3"] = {"track" : "Audio", "type" : "fragment", "begin" : 41.5, "end" : 50 };
+                data.tags["0"].structure["4"] = {"track" : "Audio", "type" : "fragment", "begin" : 59, "end" : 70};
+                data.tags["0"].structure["5"] = {"track" : "Image", "type" : "fragment", "begin" : 25, "end" : 27 };
+                data.tags["0"].structure["6"] = {"track" : "Image", "type" : "fragment", "begin" : 32, "end" : 34 };
+                data.tags["0"].structure["7"] = {"track" : "Image", "type" : "flag", "begin" : 47, "end" : 50.5 };
+                data.tags["0"].structure["8"] = {"track" : "Image", "type" : "fragment", "begin" : 59, "end" : 60.6 };
+                data.tags["0"].structure["9"] = {"track" : "Image", "type" : "fragment", "begin" : 79, "end" : 81 };
+                data.tags["0"].structure["10"] = {"track" : "Image", "type" : "fragment", "begin" : 156, "end" : 165 };
+                data.tags["0"].structure["11"] = {"track" : "Audio", "type" : "fragment", "begin" : 154, "end" : 164};
+        data.tags["1"] = {};
+            data.tags["1"].name = "Directeur général";
+            data.tags["1"].id = "2";
+            data.tags["1"].structure = {};
+                data.tags["1"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 84, "end" : 97 };
+                data.tags["1"].structure["1"] = {"track" : "Audio", "type" : "flag", "begin" : 117, "end" : 133 };
+                data.tags["1"].structure["2"] = {"track" : "Image", "type" : "fragment", "begin" : 15, "end" : 40 };
+    res.json(data);
+              
+              
+  })
+  
+router.route('/createSegment/')
+  .get(function(req,res){
+    var mediaId = req.param("mediaId", 0);
+    var trackName = req.param("trackName", null);
+    var tagId = req.param("tagId", 0);
+    var tagName = req.param("tagName", null);
+    var segType = req.param("segType", null);
+    var segBegin = req.param("segBegin", null);
+    var segEnd = req.param("segEnd", null);
+    
+    var result = {};
+    result.success = false;
+    result.message = "";          
+    if(mediaId == 0){
+        result.message += "The media has not been specified. ";
+    }else if(trackName == null){
+        result.message += "The track has not been specified. ";
+    }else if(segType == null){
+        result.message += "The type of segment has not been specified. ";
+    }else if(!(segType == "fragment" || segType == "flag" )){
+        result.message += "A segment can only be a fragment or a flag. ";            
+    }else if(segBegin == null){
+        result.message += "The beginning time has not been specified. ";
+    }else if(segType == "fragment" && segEnd == null){
+        result.message += "A fragment needs a ending time. ";
+    }else {   
+        if(segType == "flag")
+            segEnd = segBegin;
+        
+        ////////////////////////////////////////////////////////////////
+        //  Don't know if it is needed but we have the id of the tag  //
+        //   We can create the segment, we have all the needed data   //
+        ////////////////////////////////////////////////////////////////
+        result.success = true;
+        result.data = {
+          "track" : trackName,
+          "tag" : { "id" : tagId, "name" : tagName },
+          "segment" : {"type" : segType, "begin" : segBegin, "end" : segEnd}
+        };
+    }
+    res.json(result);
+              
+  })
+
 
 // allow us to use this routing configuration in other files as 'router'
 module.exports = router;

@@ -2,3 +2,4 @@
 npm-debug.log
 uploads/*
 node_modules/*
+public/video/test.mp4
