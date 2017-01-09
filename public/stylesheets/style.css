@@ -19,7 +19,7 @@ text.tagName:hover{
 }
 
 /*
-    CSS for Dialog of Segment Creation
+    CSS for Dialog of fragment Creation
 */
 
 .dialogAlign{
@@ -48,8 +48,4 @@ span.categoryName{
     text-decoration: underline; 
     font-weight: bold;
    
-}
-
-span.categoryValue{
-
 }

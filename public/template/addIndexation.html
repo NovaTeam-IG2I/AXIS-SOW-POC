@@ -1,7 +1,7 @@
-<md-dialog aria-label="Add segment" class="col-md-10">
+<md-dialog aria-label="Add fragment" class="col-md-10">
     <md-toolbar>
         <div class="md-toolbar-tools">
-            <h2>Add segment</h2>
+            <h2>Add fragment</h2>
             <span flex></span>
             <md-button class="md-icon-button" ng-click="cancel()">
                 X
@@ -11,7 +11,7 @@
 
     <md-dialog-content>
         <div class="md-dialog-content col-md-12 middleAlign"> 
-            <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'fragment'">
+            <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'segment'">
                 <div class="col-md-3">
                     <md-autocomplete
                         id="autocompleteTrack"
@@ -51,23 +51,23 @@
                 <div class="col-md-2 dialogAlign">
                     <span>Type of indexation : </span>
                     <br />
-                    <label for="fragmentIn">Fragment</label>
-                    <input id="fragmentIn" type="radio" name="segmentType" ng-model="radioValue" value="fragment" >
+                    <label for="segmentIn">Segment</label>
+                    <input id="segmentIn" type="radio" name="fragmentType" ng-model="radioValue" value="segment" >
                     <br />
-                    <label for="flagIn">Flag</label>
-                    <input id="flagIn" type="radio" name="segmentType" ng-model="radioValue" value="flag">
+                    <label for="pointIn">Point</label>
+                    <input id="pointIn" type="radio" name="fragmentType" ng-model="radioValue" value="point">
                 </div>
 
                 <div class="col-md-4">
                     <div class="row">
-                        <input name="segBegin" placeholder="tmp begin {{radioValue}}" ng-model="segBegin" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
-                        <span>Correct value? {{indexationForm.segBegin.$valid}}</span>                        
+                        <input name="fragBegin" placeholder="tmp begin {{radioValue}}" ng-model="fragBegin" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
+                        <span>Correct value? {{indexationForm.fragBegin.$valid}}</span>                        
 
                     </div>
                     <br />
-                    <div class="row" ng-show="radioValue == 'fragment'">
-                        <input name="segEnd" placeholder="tmp end {{radioValue}}" ng-model="segEnd" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
-                        <span>Correct Value? {{indexationForm.segEnd.$valid}}</span>    
+                    <div class="row" ng-show="radioValue == 'segment'">
+                        <input name="fragEnd" placeholder="tmp end {{radioValue}}" ng-model="fragEnd" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
+                        <span>Correct Value? {{indexationForm.fragEnd.$valid}}</span>    
                     </div>
                 </div>
             </form>    

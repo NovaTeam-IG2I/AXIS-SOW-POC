@@ -23,8 +23,8 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap
             "INDEXED_TRACK_NAME_WIDTH": 100,
             /* Ratio to determine the width of a bar */
             "RATIO_POINT_TO_SECOND": 3,
-            /* Width of a flag tag */
-            "FLAG_WIDTH": 15
+            /* Width of a point tag */
+            "POINT_WIDTH": 15
         };
         sequenceurParams.BAR_OFFSET = sequenceurParams.MARGIN + sequenceurParams.INDEXED_TRACK_NAME_WIDTH + sequenceurParams.SPACE;
         
@@ -128,7 +128,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
 
 
     /**
-     * Asynchronous request to get the segments and indexed tracks linked to the media
+     * Asynchronous request to get the fragments and indexed tracks linked to the media
      * Once the data are acquired, we create the timeline
      */
     $http({
@@ -138,6 +138,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         $scope.getMediaIndexations = "Succes";
         var data = response.data;
         data = formatIndexations(data);
+        console.log(data);
         sharedMedia.setIndexationData(data);
         data.tags = preventSuperposition(data.tags);
         sharedMedia.setIndexationData(data);
@@ -193,11 +194,10 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
     function formatIndexations(dataToFormat){
         var id = 0;
         var dataFormatted = {};
-        dataFormatted.informations = dataToFormat.informations;
         dataFormatted.duree = dataToFormat.duree;
         dataFormatted.trackNames = new Array();
         dataFormatted.tagNames = new Array();
-        dataFormatted.nbSegment = 0;
+        dataFormatted.nbFragment = 0;
         var dataTags = {};
         //Verification of the number of tags
         if (Object.keys(dataToFormat.tags).length > 0) {
@@ -208,7 +208,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                 //we construct a line if it 
                 for (var structString in tag.structure) {
                     var struct = tag.structure[structString];
-                    dataFormatted.nbSegment++;
+                    dataFormatted.nbFragment++;
                     //IF an indexed track DOES NOT exist
                     if (!dataTags.hasOwnProperty(struct.track)) {
                         dataTags[struct.track] = {};
@@ -218,7 +218,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                     if (!dataTags[struct.track].hasOwnProperty(tag.name)) {
                         dataTags[struct.track][tag.name] = new Array();
                     }
-                    dataTags[struct.track][tag.name].push({"type": struct.type, "begin": struct.begin, "end": struct.end, "name": tag.name, "idTag": tag.id, "id": dataFormatted.nbSegment});
+                    dataTags[struct.track][tag.name].push({"type": struct.type, "begin": struct.begin, "end": struct.end, "name": tag.name, "idTag": tag.id, "id": dataFormatted.nbFragment});
                 }
             }
         }
@@ -229,7 +229,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
     function preventSuperposition(formattedData){
         var level = 0;
         var superimposed = false;
-        var segbegin, segend, begin, end;
+        var fragbegin, fragend, begin, end;
         var correctedData = new Array();
         //for each track, we verify the superposition
         for (var trackString in formattedData) {
@@ -244,29 +244,29 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
             for (var tagString in track) {
                 var tags = track[tagString];
                 for (var i = 0; i < tags.length; i++) {
-                    var segment = tags[i];
-                    if (segment.type == "flag") {
-                        segbegin = segment.begin - $scope.sequenceurParams.FLAG_WIDTH / 2;
-                        segend = segment.begin + $scope.sequenceurParams.FLAG_WIDTH / 2;
+                    var fragment = tags[i];
+                    if (fragment.type == "point") {
+                        fragbegin = fragment.begin - $scope.sequenceurParams.POINT_WIDTH / 2;
+                        fragend = fragment.begin + $scope.sequenceurParams.POINT_WIDTH / 2;
                     } else {
-                        segbegin = segment.begin;
-                        segend = segment.end;
+                        fragbegin = fragment.begin;
+                        fragend = fragment.end;
                     }
                     level = 0;
                     //test in correctedData
                     for (var sublevel = 0; sublevel < correctedData[correctedData.length - 1].levels.length; sublevel++){
                         superimposed = false;
                         for (var index = 0; index < correctedData[correctedData.length - 1].levels[sublevel].length && !superimposed; index++) {
-                            var addedSegment = correctedData[correctedData.length - 1].levels[sublevel][index];
-                            if (addedSegment.type == "flag") {
-                                begin = addedSegment - $scope.sequenceurParams.FLAG_WIDTH / 2;
-                                end = addedSegment.begin + $scope.sequenceurParams.FLAG_WIDTH / 2;
+                            var addedFragment = correctedData[correctedData.length - 1].levels[sublevel][index];
+                            if (addedFragment.type == "point") {
+                                begin = addedFragment - $scope.sequenceurParams.POINT_WIDTH / 2;
+                                end = addedFragment.begin + $scope.sequenceurParams.POINT_WIDTH / 2;
                             } else {
-                                begin = addedSegment.begin;
-                                end = addedSegment.end;
+                                begin = addedFragment.begin;
+                                end = addedFragment.end;
                             }
                             //superposition test
-                            if (!((segbegin < begin && segend <= end) || (segbegin >= end && segend > end))) {
+                            if (!((fragbegin < begin && fragend <= end) || (fragbegin >= end && fragend > end))) {
                                 level++;
                                 superimposed = true;
                             }
@@ -277,7 +277,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                     if (correctedData[correctedData.length - 1].levels.length <= level) {
                         correctedData[correctedData.length - 1].levels.push(new Array());
                     }
-                    correctedData[correctedData.length - 1].levels[level].push(segment);
+                    correctedData[correctedData.length - 1].levels[level].push(fragment);
 
                 }
             }
@@ -292,7 +292,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
     function paramSequenceur(correctedData) {
         var sequenceur = angular.element(document.querySelector('#sequenceur'));
         sequenceur.empty();
-
+        console.log(correctedData.duree);
         //Set the width params of the time bars and of the svg itself
         $scope.sequenceurParams.barwidth = correctedData.duree * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
         $scope.sequenceurParams.width = $scope.sequenceurParams.MARGIN;
@@ -325,7 +325,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
     
     /**
      * Function createAllComponents
-     * Description : Create all the SVG components of the timeline, the containers, the lines, the sublines, the segments and the cursor
+     * Description : Create all the SVG components of the timeline, the containers, the lines, the sublines, the fragments and the cursor
      * @param {type} indexationData
      * @returns {undefined}
      */
@@ -341,12 +341,12 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                 var subline = indexedTrack.levels[j];
                 for (var k = 0; k < subline.length; k++)
                 {
-                    var segment = subline[k];
+                    var fragment = subline[k];
                     var el;
-                    if (segment.type == "fragment")
-                        el = createFragment(j, segment, line);
-                    else if (segment.type == "flag")
-                        el = createFlag(j, segment, line);
+                    if (fragment.type == "segment")
+                        el = createSegment(j, fragment, line);
+                    else if (fragment.type == "point")
+                        el = createPoint(j, fragment, line);
                 }
             }
             sequenceur.append(line);
@@ -372,7 +372,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         lineProperties.track = track.name;
         line = createSVGElement("svg", lineProperties);
 
-        //Now we need to create the label and the container for the segment
+        //Now we need to create the label and the container for the fragment
         //We create the label
         var textProperties = {};
         textProperties.y = "75%";
@@ -401,30 +401,30 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         return line;
     }
     /**
-     * Function createFragment
-     * Description : Create the component linked to a Fragment from the informations given to the line indicated
+     * Function createSegment
+     * Description : Create the component linked to a segment from the informations given to the line indicated
      * @param {Integer} level : subline of the indexed track 
-     * @param {JSON} segment : segment which has to be created
-     * @param {SVG} currentLine : line to which the segment created has to be added
+     * @param {JSON} fragment : fragment which has to be created
+     * @param {SVG} currentLine : line to which the fragment created has to be added
      */
-    function createFragment(level, segment, currentLine) {
+    function createSegment(level, fragment, currentLine) {
         //We create the label
         var textProperties = {};
-        textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (segment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND);
+        textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND);
         textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.75);
-        textProperties.id = segment.id + "_text";
+        textProperties.id = fragment.id + "_text";
         textProperties.nline = level;
-        textProperties.textLength = (segment.end - segment.begin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        textProperties.textLength = (fragment.end - fragment.begin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
         textProperties.lengthAdjust = "spacingAndGlyphs";
         textProperties.fill = "#FFF";
         textProperties.class = "tagName";
-        textProperties.begin = segment.begin;
+        textProperties.begin = fragment.begin;
         var text = createSVGElement("text", textProperties);
-        text.innerHTML = segment.name;
+        text.innerHTML = fragment.name;
 
         text.addEventListener("click",function(event){
             event.preventDefault();
-            //left click will start the video at the beginning of the segment
+            //left click will start the video at the beginning of the fragment
             if(event.which == 1){
                 var video = angular.element(document.querySelector('#video'));
                 video[0].pause();
@@ -443,37 +443,37 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
             }
         });   
 
-        var fragmentProperties = {};
-        fragmentProperties.type = "fragment";
-        fragmentProperties.id = segment.id;
-        fragmentProperties.idTag = segment.idTag;
-        fragmentProperties.nline = level;
-        fragmentProperties.begin = segment.begin;
-        fragmentProperties.end = segment.end;
-        fragmentProperties.fill = "black";
-        fragmentProperties.x = $scope.sequenceurParams.BAR_OFFSET + segment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-        fragmentProperties.y = $scope.sequenceurParams.LINE_HEIGHT * level;
-        fragmentProperties.width = (segment.end - segment.begin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-        fragmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
-        var fragment = createSVGElement("rect", fragmentProperties);
+        var segmentProperties = {};
+        segmentProperties.type = "segment";
+        segmentProperties.id = fragment.id;
+        segmentProperties.idTag = fragment.idTag;
+        segmentProperties.nline = level;
+        segmentProperties.begin = fragment.begin;
+        segmentProperties.end = fragment.end;
+        segmentProperties.fill = "black";
+        segmentProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        segmentProperties.y = $scope.sequenceurParams.LINE_HEIGHT * level;
+        segmentProperties.width = (fragment.end - fragment.begin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
+        var segment = createSVGElement("rect", segmentProperties);
 
-        currentLine.append(fragment);
+        currentLine.append(segment);
         currentLine.append(text);
     }
 
     /**
-     * Function createFlag
-     * Description : Create the components linked to a Flag from the informations given to the line indicated
+     * Function createPoint
+     * Description : Create the components linked to a Point from the informations given to the line indicated
      * @param {Integer} level : subline of the indexed track 
-     * @param {JSON} segment : segment which has to be created
-     * @param {SVG} currentLine : line to which the segment created has to be added
+     * @param {JSON} fragment : fragment which has to be created
+     * @param {SVG} currentLine : line to which the fragment created has to be added
      */
-    function createFlag(level, segment, currentLine) {
+    function createPoint(level, fragment, currentLine) {
 
         var timePointProperties = {};
-        timePointProperties.id = segment.id + "_line";
-        timePointProperties.x1 = $scope.sequenceurParams.BAR_OFFSET + segment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-        timePointProperties.x2 = $scope.sequenceurParams.BAR_OFFSET + segment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        timePointProperties.id = fragment.id + "_line";
+        timePointProperties.x1 = $scope.sequenceurParams.BAR_OFFSET + fragment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        timePointProperties.x2 = $scope.sequenceurParams.BAR_OFFSET + fragment.begin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
         timePointProperties.y1 = $scope.sequenceurParams.LINE_HEIGHT * level;
         timePointProperties.y2 = $scope.sequenceurParams.LINE_HEIGHT * (level+1);
         timePointProperties.nline = level;
@@ -481,36 +481,36 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         timePointProperties["stroke-width"] = $scope.sequenceurParams.RATIO_POINT_TO_SECOND / 2;
         var timePoint = createSVGElement("line", timePointProperties);
 
-        var flagProperties = {};
-        flagProperties.type = "flag";
-        flagProperties.id = segment.id;
-        flagProperties.idTag = segment.idTag;
-        flagProperties.begin = segment.begin;
-        flagProperties.nline = level;
-        flagProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.25);
-        flagProperties.x = $scope.sequenceurParams.BAR_OFFSET + (segment.begin - $scope.sequenceurParams.FLAG_WIDTH / 2) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-        flagProperties.width = $scope.sequenceurParams.FLAG_WIDTH * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-        flagProperties.height = 0.5 * $scope.sequenceurParams.LINE_HEIGHT;
-        flagProperties.fill = "grey";
-        var flag = createSVGElement("rect", flagProperties);
+        var pointProperties = {};
+        pointProperties.type = "point";
+        pointProperties.id = fragment.id;
+        pointProperties.idTag = fragment.idTag;
+        pointProperties.begin = fragment.begin;
+        pointProperties.nline = level;
+        pointProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.25);
+        pointProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.begin - $scope.sequenceurParams.POINT_WIDTH / 2) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        pointProperties.width = $scope.sequenceurParams.POINT_WIDTH * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        pointProperties.height = 0.5 * $scope.sequenceurParams.LINE_HEIGHT;
+        pointProperties.fill = "grey";
+        var point = createSVGElement("rect", pointProperties);
 
         //We create the label
         var textProperties = {};
-        textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (segment.begin - $scope.sequenceurParams.FLAG_WIDTH / 2) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+        textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.begin - $scope.sequenceurParams.POINT_WIDTH / 2) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
         textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.75);
         textProperties.nline = level;
-        textProperties.id = segment.id + "_text";
-        textProperties.textLength = flagProperties.width;
+        textProperties.id = fragment.id + "_text";
+        textProperties.textLength = pointProperties.width;
         textProperties.lengthAdjust = "spacingAndGlyphs";
         textProperties.fill = "#FFF";
         textProperties.class = "tagName";
-        textProperties.begin = segment.begin;
+        textProperties.begin = fragment.begin;
         var text = createSVGElement("text", textProperties);
-        text.innerHTML = segment.name;
+        text.innerHTML = fragment.name;
 
         text.addEventListener("click",function(event){
             event.preventDefault();
-            //left click will start the video at the beginning of the segment
+            //left click will start the video at the beginning of the fragment
             if(event.which == 1){
                 var video = angular.element(document.querySelector('#video'));
                 video[0].pause();
@@ -529,7 +529,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
             }
         });
         currentLine.append(timePoint);
-        currentLine.append(flag);
+        currentLine.append(point);
         currentLine.append(text);
     }
 
@@ -627,7 +627,7 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
     
     /**
      * Function showIndexationDialog
-     * Description : show the popup to create a segment
+     * Description : show the popup to create a fragment
      */
     $scope.showIndexationDialog = function(event) {
       $mdDialog.show({
@@ -660,51 +660,51 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
         /**
          * Function create
          * Description : The user inputs are validated and then, a query is sent 
-         * to the server, if a segment is really created, we add it to the 
-         * timeline and reload to display the new segment. Else, a error message
+         * to the server, if a fragment is really created, we add it to the 
+         * timeline and reload to display the new fragment. Else, a error message
          * is displayed to the user indicating which input is wrongly filled. 
          */
         $scope.create = function() {
             var track = $scope.selectedTrack;
             var tag = $scope.selectedTag;
-            var segType = indexationForm.segmentType.value;
-            var segBegin = indexationForm.segBegin.value;
-            var segEnd = indexationForm.segEnd.value;
+            var fragType = indexationForm.fragmentType.value;
+            var fragBegin = indexationForm.fragBegin.value;
+            var fragEnd = indexationForm.fragEnd.value;
             var msg = "";
             if(track == null || track == undefined)    
                 msg += "No track has been selected\n";
             if(tag == null || tag == undefined)
                 msg += "No tag has been selected\n";
-            if(!(segType == "fragment" || segType == "flag"))
-                msg += "Wrong segment type\n";
-            if(!isFloat(segBegin))
-                msg += "segment beginning is not a float\n";
-            if(segType == "fragment" && !isFloat(segEnd))
-                msg += "segment end is not a float";
-            else if(segType == "fragment" && isFloat(segBegin) && isFloat(segEnd) && segEnd < segBegin)
-                msg += "segment end is before segment begin";
+            if(!(fragType == "segment" || fragType == "point"))
+                msg += "Wrong fragment type\n";
+            if(!isFloat(fragBegin))
+                msg += "fragment beginning is not a float\n";
+            if(fragType == "segment" && !isFloat(fragEnd))
+                msg += "fragment end is not a float";
+            else if(fragType == "segment" && isFloat(fragBegin) && isFloat(fragEnd) && fragEnd < fragBegin)
+                msg += "fragment end is before fragment begin";
             
             if(msg.length > 0 )
                 alert(msg);
             else{   
-                if(segType == "track")
+                if(fragType == "track")
                 {
-                    segBegin = parseFloat(segBegin);
-                    segEnd = parseFloat(segEnd);
-                }else if (segType == "flag"){
-                    segBegin = parseFloat(segBegin);
+                    fragBegin = parseFloat(fragBegin);
+                    fragEnd = parseFloat(fragEnd);
+                }else if (fragType == "point"){
+                    fragBegin = parseFloat(fragBegin);
                 }
                 //we need to search for the id of each element (the media and the tag (if the tag has for id 0, it is a new one)
                 var mediaId = sharedMedia.getMediaID();
                 var tagId = searchTagId(tag);
                 $http({
                     method: 'GET',
-                    url: 'http://localhost:3000/api/createSegment/',
-                    params : {"mediaId" : mediaId, "trackName": track,"tagId" : tagId, "tagName" : tag  ,"segType" : segType, "segBegin" : segBegin, "segEnd" : segEnd}
+                    url: 'http://localhost:3000/api/createFragment/',
+                    params : {"mediaId" : mediaId, "trackName": track,"tagId" : tagId, "tagName" : tag  ,"fragType" : fragType, "fragBegin" : fragBegin, "fragEnd" : fragEnd}
                 }).then(function successCallback(response) {
                     var ans = response.data;
                     if(ans.success){
-                        addSegment(ans.data);
+                        addFragment(ans.data);
                     }
                     else{
                         alert(ans.message);
@@ -895,16 +895,16 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
         return 0;
     }
     /**
-     * Add a segment to the variable indexationData in the service and reload the timeline from the received data
+     * Add a fragment to the variable indexationData in the service and reload the timeline from the received data
      * @param {JSON} data
      */
-    function addSegment(data)
+    function addFragment(data)
     {
         var indexationData = sharedMedia.getIndexationData();
         var sequenceurParams = sharedMedia.getSequenceurParams();
         
-        //We increment nbSegment to have an "id" accessible from the DOM like the others
-        indexationData.nbSegment++;
+        //We increment nbFragment to have an "id" accessible from the DOM like the others
+        indexationData.nbFragment++;
         
         var newTrack = true;
         var newTag = true;
@@ -928,25 +928,25 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
             indexationData.tags.push({
                "name" : data.track,
                "levels" : [[{
-                        "begin" : data.segment.begin,
-                        "end" : data.segment.end,
-                        "id" : indexationData.nbSegment,
+                        "begin" : data.fragment.begin,
+                        "end" : data.fragment.end,
+                        "id" : indexationData.nbFragment,
                         "idTag" : data.tag.id,
                         "name" : data.tag.name,
-                        "type" : data.segment.type
+                        "type" : data.fragment.type
                     }]]    
             });
         }else{
-            var segbegin = 0;
-            var segend = 0;
+            var fragbegin = 0;
+            var fragend = 0;
             var testLevel = 0;
             var superimposed = false;
-            if (data.segment.type == "flag") {
-                segbegin = parseFloat(data.segment.begin) - sequenceurParams.FLAG_WIDTH / 2;
-                segend = parseFloat(data.segment.begin) + sequenceurParams.FLAG_WIDTH / 2;
+            if (data.fragment.type == "point") {
+                fragbegin = parseFloat(data.fragment.begin) - sequenceurParams.POINT_WIDTH / 2;
+                fragend = parseFloat(data.fragment.begin) + sequenceurParams.POINT_WIDTH / 2;
             } else {
-                segbegin = data.segment.begin;
-                segend = data.segment.end;
+                fragbegin = data.fragment.begin;
+                fragend = data.fragment.end;
             }    
             //We need to browse to prevent the superposition
             for(var indexTrack = 0; indexTrack < indexationData.tags.length; indexTrack ++){
@@ -955,10 +955,10 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                     for(var level = 0; level < track.levels.length; level++){
                         superimposed = false;
                         var line = track.levels[level];
-                        for(var indexSegment = 0; indexSegment < line.length && !superimposed; indexSegment++){
-                            var segment = line[indexSegment];      
+                        for(var indexfragment = 0; indexfragment < line.length && !superimposed; indexfragment++){
+                            var fragment = line[indexfragment];      
                             //superposition test
-                            if (!((segbegin < segment.begin && segend <= segment.begin) || (segbegin >= segment.end && segend > segment.end))) {
+                            if (!((fragbegin < fragment.begin && fragend <= fragment.begin) || (fragbegin >= fragment.end && fragend > fragment.end))) {
                                 testLevel++;
                                 superimposed = true;
                             }
@@ -968,12 +968,12 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                         track.levels.push(new Array());
                     }
                     track.levels[testLevel].push({
-                        "begin" : segbegin,
-                        "end" : segend,
-                        "id" : indexationData.nbSegment,
+                        "begin" : fragbegin,
+                        "end" : fragend,
+                        "id" : indexationData.nbfragment,
                         "idTag" : data.tag.id,
                         "name" : data.tag.name,
-                        "type" : data.segment.type
+                        "type" : data.fragment.type
                     });
                 }
             }
