@@ -56,54 +56,43 @@ router.route('/import')
       request.end();
         })
 
-router.route('/indexationdata/:id')
+router.route('/indexationdata/:uri')
   .get(function(req,res){
-
       //TODO create a get method to get all the indexation of a media
     var data = {};
-    /*data.indexedTracks = [];
-    data.indexedTracks[0] = {};
-    data.indexedTracks[0].name = "Image";*/
-    
-    data.tags = {};
-        data.duree = 171;
-        data.tags["0"] = {};
-            data.tags["0"].name = "Président";
-            data.tags["0"].id = "1";
-            data.tags["0"].structure = {};
-                data.tags["0"].structure["0"] = {"track" : "Image", "type" : "segment", "begin" : 7.2, "end" : 18 };
-                data.tags["0"].structure["1"] = {"track" : "Audio", "type" : "segment", "begin" : 10.5, "end" : 18 };
-                data.tags["0"].structure["2"] = {"track" : "Audio", "type" : "segment", "begin" : 23.5, "end" : 34 };
-                data.tags["0"].structure["3"] = {"track" : "Audio", "type" : "segment", "begin" : 41.5, "end" : 50 };
-                data.tags["0"].structure["4"] = {"track" : "Audio", "type" : "segment", "begin" : 59, "end" : 70};
-                data.tags["0"].structure["5"] = {"track" : "Image", "type" : "segment", "begin" : 25, "end" : 27 };
-                data.tags["0"].structure["6"] = {"track" : "Image", "type" : "segment", "begin" : 32, "end" : 34 };
-                data.tags["0"].structure["7"] = {"track" : "Image", "type" : "point", "begin" : 47, "end" : 50.5 };
-                data.tags["0"].structure["8"] = {"track" : "Image", "type" : "segment", "begin" : 59, "end" : 60.6 };
-                data.tags["0"].structure["9"] = {"track" : "Image", "type" : "segment", "begin" : 79, "end" : 81 };
-                data.tags["0"].structure["10"] = {"track" : "Image", "type" : "segment", "begin" : 156, "end" : 165 };
-                data.tags["0"].structure["11"] = {"track" : "Audio", "type" : "segment", "begin" : 154, "end" : 164};
-        data.tags["1"] = {};
-            data.tags["1"].name = "Directeur général";
-            data.tags["1"].id = "2";
-            data.tags["1"].structure = {};
-                data.tags["1"].structure["0"] = {"track" : "Image", "type" : "segment", "begin" : 84, "end" : 97 };
-                data.tags["1"].structure["1"] = {"track" : "Audio", "type" : "flag", "begin" : 117, "end" : 133 };
-                data.tags["1"].structure["2"] = {"track" : "Image", "type" : "segment", "begin" : 15, "end" : 40 };
-                
-                
-                
-                
-    res.json(data);
-              
-              
+    data.duree = 171;
+    data.indexedTracks = [];
+        data.indexedTracks[0] = {};
+        data.indexedTracks[0].name = "Image";
+        data.indexedTracks[0].uri = "URI Image";
+        data.indexedTracks[0].fragments = [];
+            data.indexedTracks[0].fragments[0] = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président", "name" : "Président" };
+            data.indexedTracks[0].fragments[1] = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président", "name" : "Président" };
+            data.indexedTracks[0].fragments[2] = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président", "name" : "Président" };
+            data.indexedTracks[0].fragments[3] = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président", "name" : "Président" };
+            data.indexedTracks[0].fragments[4] = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président", "name" : "Président" };
+            data.indexedTracks[0].fragments[5] = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président", "name" : "Président" };
+            data.indexedTracks[0].fragments[6] = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président", "name" : "Président" };
+            data.indexedTracks[0].fragments[7] = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG", "name" : "Directeur général"};
+            data.indexedTracks[0].fragments[8] = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG", "name" : "Directeur général"};
+    data.indexedTracks[1] = {};
+        data.indexedTracks[1].name = "Audio";
+        data.indexedTracks[1].uri = "URI Audio";
+        data.indexedTracks[1].fragments = [];
+            data.indexedTracks[1].fragments[0] = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président" ,"name" : "Président" };
+            data.indexedTracks[1].fragments[1] = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président" ,"name" : "Président" };
+            data.indexedTracks[1].fragments[2] = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG" ,"name" : "Directeur général" };
+            data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG" ,"name" : "Directeur général" };
+            data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG" ,"name" : "Directeur général" };
+            data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG" ,"name" : "Directeur général" };
+    res.json(data);       
   })
   
 router.route('/createFragment/')
   .get(function(req,res){
     var mediaId = req.param("mediaId", 0);
     var trackName = req.param("trackName", null);
-    var tagId = req.param("tagId", 0);
+    var tagURI = req.param("tagURI", 0);
     var tagName = req.param("tagName", null);
     var fragType = req.param("fragType", null);
     var fragBegin = req.param("fragBegin", null);
@@ -118,14 +107,14 @@ router.route('/createFragment/')
         result.message += "The track has not been specified. ";
     }else if(fragType == null){
         result.message += "The type of fragment has not been specified. ";
-    }else if(!(fragType == "segment" || fragType == "flag" )){
+    }else if(!(fragType == "segment" || fragType == "point" )){
         result.message += "A fragment can only be a segment or a flag. ";            
     }else if(fragBegin == null){
         result.message += "The beginning time has not been specified. ";
     }else if(fragType == "segment" && fragEnd == null){
         result.message += "A segment needs an ending time. ";
     }else {   
-        if(fragType == "flag")
+        if(fragType == "point")
             fragEnd = fragBegin;
         
         ////////////////////////////////////////////////////////////////
@@ -135,7 +124,7 @@ router.route('/createFragment/')
         result.success = true;
         result.data = {
           "track" : trackName,
-          "tag" : { "id" : tagId, "name" : tagName },
+          "tag" : { "uri" : tagURI, "name" : tagName },
           "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
         };
     }
@@ -312,15 +301,17 @@ router.route('/technicalsheet/:id')
 
   })
 
-router.route('/clipsheet/:id')
+router.route('/clipsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all the metadata of a tag
       console.log("TODO get all the metadata of a tag : " + req.params.id);
 
-      /*var postData = querystring.stringify({
-        'URI' : req.id
+      /*
+      var postData = querystring.stringify({
+        'URI' : req.uri
       });
+
 
       var options = {
         hostname: 'localhost',
@@ -352,14 +343,26 @@ router.route('/clipsheet/:id')
       // write data to request body
       request.write(postData);
       request.end();*/
-
       var tagData = new Object();
+      if(req.uri == "URI Président")
+      {
+      
       tagData.start = "00:17:56";
       tagData.end = "00:21:23";
-      tagData.subject = "Discussion between protagonists";
+      tagData.subject = "Ché eul' président heun!";
       tagData.track = "Video";
-      tagData.media = "Titanic";
-      res.json(tagData);
+      tagData.media = "dirlo";
+      }
+      else
+      {
+       tagData.start = "00:40:56";
+       tagData.end = "00:21:23";
+       tagData.subject = "Ché ki chtilo?";
+       tagData.track = "Video";
+       tagData.media = "Vice dirlo";         
+          
+      }
+    res.json(tagData);
 
   })
 
