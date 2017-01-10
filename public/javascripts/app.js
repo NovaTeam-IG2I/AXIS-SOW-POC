@@ -2,9 +2,10 @@
 // Front routing file associating Views and Controllers
 //
 
-var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap','ngMaterial' ]).service('sharedMedia', function () {
+var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ngMaterial','ui.bootstrap']).service('sharedMedia', function () {
         var media = new Object();
-        media.id = 1;
+        
+        media.uri = 0;
         media.adress = "";
 
         var indexationData = new Object();
@@ -30,11 +31,11 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute','ngFileUpload','ui.bootstrap
         
 
         return {
-            getMediaID: function () {
-                return media.id;
+            getMediaURI: function () {
+                return media.uri;
             },
-            setMediaID: function(id) {
-                media.id = id;
+            setMediaURI: function(uri) {
+                media.uri = uri;
             },
             getMediaAdress: function () {
                 return media.adress;
@@ -79,6 +80,11 @@ app.config(function($routeProvider){
       templateUrl: 'import.html',
       controller: 'importController'
     })
+    //the register manager
+    .when('/manageRegister', {
+      templateUrl: 'manageRegister.html',
+      controller: 'manageRegisterController'
+    })
     .otherwise({
             redirectTo: '/'
     });
@@ -99,22 +105,19 @@ app.controller('listController', ['$scope', '$http', 'sharedMedia',function($sco
   }, function errorCallback(response) {
       $scope.getAllVideos = "Fail";
   });
-  $scope.onMediaSelected = function(id,adress){
-    sharedMedia.setMediaID(id);
+  $scope.onMediaSelected = function(uri,adress){
+    sharedMedia.setMediaURI(uri);
     sharedMedia.setMediaAdress(adress);
   };
 }]);
 
 app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($scope, $http, sharedMedia) {
-    
-    /**
-     * Parameters to manipulate the sequenceur design
-     * DO NOT Modify the value in lower case
-     */
-    $scope.sequenceurParams = sharedMedia.getSequenceurParams();
-
-    $scope.mediaID = sharedMedia.getMediaID();
+  //TODO add the functions to control the clip view
+    $scope.mediaURI = sharedMedia.getMediaURI();
     $scope.mediaAdress = sharedMedia.getMediaAdress();
+
+    
+    $scope.sequenceurParams = sharedMedia.getSequenceurParams();
 
     $scope.getMediaIndexations = "";
     $scope.getMediaProductions = "";
@@ -125,7 +128,40 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
     $scope.technicalData = new Object();
     $scope.clipData = new Object();
 
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/productionsheet/' + $scope.mediaURI
+  }).then(function successCallback(response) {
+      $scope.getMediaProductions = "Succes";
+      $scope.productionData = response.data;
+  }, function errorCallback(response) {
+      $scope.getMediaProductions = "Fail";
+  });
 
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/technicalsheet/' + $scope.mediaURI
+  }).then(function successCallback(response) {
+      $scope.getMediaTechnicals = "Succes";
+      $scope.technicalData = response.data;
+  }, function errorCallback(response) {
+      $scope.getMediaTechnicals = "Fail";
+  });
+
+  $scope.getClipData = function(clipURI){
+    $http({
+      method: 'GET',
+      url: 'http://localhost:3000/api/clipsheet/' + clipURI
+    }).then(function successCallback(response) {
+        $scope.getMediaClip= "Succes";
+        console.log($scope.clipData);
+        if ($scope.clipData[clipURI] == undefined){
+          $scope.clipData[clipURI] = {"uri" : clipURI,"data" : response.data};
+        }
+    }, function errorCallback(response) {
+        $scope.getMediaClip = "Fail";
+    });
+  };
 
     /**
      * Asynchronous request to get the fragments and indexed tracks linked to the media
@@ -133,7 +169,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
      */
     $http({
         method: 'GET',
-        url: 'http://localhost:3000/api/indexationdata/' + $scope.mediaID
+        url: 'http://localhost:3000/api/indexationdata/' + $scope.mediaURI
     }).then(function successCallback(response) {
         $scope.getMediaIndexations = "Succes";
         var data = response.data;
@@ -145,41 +181,6 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
     }, function errorCallback(response) {
         $scope.getMediaIndexations = "Fail";
     });
-
-    $http({
-        method: 'GET',
-        url: 'http://localhost:3000/api/productionsheet/' + $scope.mediaID
-    }).then(function successCallback(response) {
-        $scope.getMediaProductions = "Succes";
-        $scope.productionData = response.data;
-    }, function errorCallback(response) {
-        $scope.getMediaProductions = "Fail";
-    });
-
-    $http({
-        method: 'GET',
-        url: 'http://localhost:3000/api/technicalsheet/' + $scope.mediaID
-    }).then(function successCallback(response) {
-        $scope.getMediaTechnicals = "Succes";
-        $scope.technicalData = response.data;
-    }, function errorCallback(response) {
-        $scope.getMediaTechnicals = "Fail";
-    });
-
-    $scope.getClipData = function (clipID) {
-        $http({
-            method: 'GET',
-            url: 'http://localhost:3000/api/clipsheet/' + clipID
-        }).then(function successCallback(response) {
-            $scope.getMediaClip = "Succes";
-            console.log("clipdata" + $scope.clipData);
-            if ($scope.clipData[clipID] == undefined) {
-                $scope.clipData[clipID] = {"id": clipID, "data": response.data};
-            }
-        }, function errorCallback(response) {
-            $scope.getMediaClip = "Fail";
-        });
-    };
 
     /**
      * function formatIndexations
@@ -971,6 +972,71 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
     
     
 });
+
+app.controller('manageRegisterController', function($scope) {
+  //TODO : replace with real data
+  $scope.categories =[
+    {
+      label:"Category1",
+      subClass:[
+      {
+        label:"subClass1-1",
+        subClass:[{
+          label:"subClass1-1-1",
+          subClass:[],
+          individuals:[
+          {
+            label:"i1"
+          },
+          {
+            label:"i2"
+          }]
+        }],
+        individuals:[
+          {label:"sdqsq"}
+        ]
+      },
+      {
+      label:"subClass1-2",
+      subClass:[],
+      individuals:[]
+      }]
+    },
+    {
+      label:"Category2",
+      subClass:[
+      {
+        label:"subClass2-1",
+        subClass:[],
+        individuals:[]
+      }],
+      individuals:[]
+    },
+    {
+      label:"Category3",
+      subClass:[],
+      individuals:[]
+    }
+  ];
+
+  $scope.selectedClass;
+  $scope.selectedIndividual;
+  $scope.getSelectedText = function() {
+    if ($scope.selectedClass !== undefined) {
+      return $scope.selectedClass;
+    } else {
+      return "Please select a class";
+    }
+  };
+  $scope.getSelectedInd = function() {
+    if ($scope.selectedIndividual !== undefined) {
+      return $scope.selectedIndividual;
+    } else {
+      return "Please select an individual";
+    }
+  };
+});
+
 // Controller for the importation of a video mp4
 app.controller('importController', ['$scope', 'Upload', '$timeout', function ($scope, Upload, $timeout) {
     $scope.uploadFiles = function(file, errFiles) {

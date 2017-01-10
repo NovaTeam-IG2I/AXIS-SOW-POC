@@ -8,17 +8,18 @@ Main template for the interface : act as a layout
 		<title><%= title %></title>
     <script src="/javascripts/angular.min.js"></script>
     <script src="/javascripts/angular-route.min.js"></script>
-  <script src="/javascripts/angular-animate-1.5.5.min.js"></script>
-  <script src="/javascripts/angular-aria-1.5.5.min.js"></script>
-  <script src="/javascripts/angular-messages-1.5.5.min.js"></script>
-    <script src="/javascripts/angular-material-1.1.0.min.js"></script>
     <script src="/javascripts/ng-file-upload.min.js"></script>
-		<script src="javascripts/app.js"></script>
     <script src="javascripts/ui-bootstrap.js"></script>
     <script src="javascripts/ui-bootstrap-tpls.js"></script>
-		<link rel="stylesheet" href="stylesheets/angular-material-1.1.0.min.css">
-		<link rel="stylesheet" href="stylesheets/bootstrap-3.3.2.min.css">
-		<link rel="stylesheet" href="stylesheets/style.css">
+    <script src="javascripts/angular-animate.min.js"></script>
+    <script src="javascripts/angular-aria.min.js"></script>
+    <script src="javascripts/angular-messages.min.js"></script>
+    <script src="javascripts/angular-material.min.js"></script>
+    <script src="javascripts/app.js"></script>
+
+    <link rel="stylesheet" href="stylesheets/angular-material-1.1.0.min.css">
+    <link rel="stylesheet" href="stylesheets/bootstrap-3.3.2.min.css">
+    <link rel="stylesheet" href="stylesheets/style.css">
 	</head>
 	<body ng-app="AXIS-SOW-POC">
 		<div id='main' class="container">
@@ -27,7 +28,7 @@ Main template for the interface : act as a layout
 					<a class="navbar-brand" href="#/"> <%= title %> </a>
 					<p class="navbar-text"> Proof of concept </p>
 
-        			<p class="navbar-right navbar-text" ng-hide="authenticated"><a href="#/list">View gallery</a> / <a href="#/import">Import a media</a></p>
+        			<p class="navbar-right navbar-text" ng-hide="authenticated"><a href="#/list">View gallery</a> / <a href="#/import">Import a media</a> / <a href="#/manageRegister">Manage register</a></p>
 				</div>
 			</nav>
 			<div class="col-md-12">
