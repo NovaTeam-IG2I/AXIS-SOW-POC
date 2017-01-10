@@ -305,7 +305,7 @@ router.route('/clipsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all the metadata of a tag
-      console.log("TODO get all the metadata of a tag : " + req.params.id);
+      console.log("TODO get all the metadata of a tag : " + req.params.uri);
 
       /*
       var postData = querystring.stringify({
@@ -343,26 +343,48 @@ router.route('/clipsheet/:uri')
       // write data to request body
       request.write(postData);
       request.end();*/
-      var tagData = new Object();
-      if(req.uri == "URI Président")
+      var tagDataUnparsed = new Object();
+      if(req.params.uri == "URI Président")
       {
       
-      tagData.start = "00:17:56";
-      tagData.end = "00:21:23";
-      tagData.subject = "Ché eul' président heun!";
-      tagData.track = "Video";
-      tagData.media = "dirlo";
+      tagDataUnparsed.start = "00:17:56";
+      tagDataUnparsed.end = "00:21:23";
+      tagDataUnparsed.subject = "Ché eul' président heun!";
+      tagDataUnparsed.track = "Video";
+      tagDataUnparsed.media = "dirlo";
       }
       else
       {
-       tagData.start = "00:40:56";
-       tagData.end = "00:21:23";
-       tagData.subject = "Ché ki chtilo?";
-       tagData.track = "Video";
-       tagData.media = "Vice dirlo";         
+       tagDataUnparsed.start = "00:40:56";
+       tagDataUnparsed.end = "00:21:23";
+       tagDataUnparsed.subject = "Ché ki chtilo?";
+       tagDataUnparsed.track = "Video";
+       tagDataUnparsed.media = "Vice dirlo";         
           
       }
-    res.json(tagData);
+      var tagDataParsed = {};
+      for(var key in tagDataUnparsed)
+      {
+          tagDataParsed[searchKey(key)] = tagDataUnparsed[key];
+      }
+      
+      function searchKey(query){
+        var traduction = {};
+        traduction["start"] = "Start";
+        traduction["end"] = "End";
+        traduction["subject"] = "Subject";
+        traduction["track"] = "Indexed Track";
+        traduction["media"] = "Indexed Media";
+
+        var regex = new RegExp(query,"gi");
+        for(var key in traduction){
+            if(key.search(regex) != -1)
+                return traduction[key];
+        }      
+        return query;
+      }      
+        
+      res.json(tagDataParsed);
 
   })
 
