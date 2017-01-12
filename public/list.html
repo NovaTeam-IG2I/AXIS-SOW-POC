@@ -9,13 +9,14 @@ View for listing all the clips of the database
                 <h1 class="page-header">Video Thumbnail Gallery</h1>
 								<div> {{numberOfVideos}} video are currently available.</div>
             </div>
-						<div ng-repeat="video in videos">
+						<div ng-repeat="video in videos track by $index">
 							<div class="col-lg-3 col-md-4 col-xs-6 thumb">
 	                <a class="thumbnail" href="/#/clip">
-	                    <img class="img-responsive" ng-src="{{video.thumbnail}}"
-											alt="" ng-click="onMediaSelected(video.uri,video.adress)">
+	                    <img class="img-responsive" ng-src="{{thumbnail}}"
+											alt="" ng-click="onMediaSelected(video.uri,'dedede')">
 	                </a>
-									<div> URI : {{video.uri}} VIDEO : {{video.adress}}</div>
+									<div> URI : {{video.uri}} 	<br>
+												VIDEO : {{video.title}}</div>
 	            </div>
 						</div>
 	</div>

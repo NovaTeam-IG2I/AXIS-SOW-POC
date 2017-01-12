@@ -106,15 +106,15 @@ router.route('/productionsheet/:uri')
       productionDataUnparsed.author = "James Cameron";
       productionDataUnparsed.director = "James Cameron";
       productionDataUnparsed.society = "20th Century Fox";
-      
-      
+
+
       var productionDataParsed = {};
       for(var key in productionDataUnparsed)
       {
           productionDataParsed[searchKey(key)] = productionDataUnparsed[key];
       }
-      
-      
+
+
       function searchKey(query){
         var traduction = {};
         traduction["title"] = "Title";
@@ -135,10 +135,10 @@ router.route('/productionsheet/:uri')
         for(var key in traduction){
             if(key.search(regex) != -1)
                 return traduction[key];
-        }      
+        }
         return query;
       }
-      
+
       res.json(productionDataParsed);
 
   })
@@ -192,14 +192,14 @@ router.route('/technicalsheet/:uri')
       technicalDataUnparsed.rights = "Warner Bros";
       technicalDataUnparsed.duration = "128";
       technicalDataUnparsed.importationDate = "2016-12-22";
-                  
+
       var technicalDataParsed = {};
       for(var key in technicalDataUnparsed)
       {
           technicalDataParsed[searchKey(key)] = technicalDataUnparsed[key];
       }
-      
-      
+
+
       function searchKey(query){
         var traduction = {};
         traduction["filename"] = "File name";
@@ -215,10 +215,10 @@ router.route('/technicalsheet/:uri')
         for(var key in traduction){
             if(key.search(regex) != -1)
                 return traduction[key];
-        }      
+        }
         return query;
       }
-      
+
       res.json(technicalDataParsed);
 
   })
@@ -266,7 +266,7 @@ router.route('/clipsheet/:uri')
       var tagDataUnparsed = new Object();
       if(req.params.uri == "URI Président")
       {
-      
+
       tagDataUnparsed.start = "00:17:56";
       tagDataUnparsed.end = "00:21:23";
       tagDataUnparsed.subject = "Ché eul' président heun!";
@@ -279,15 +279,15 @@ router.route('/clipsheet/:uri')
        tagDataUnparsed.end = "00:21:23";
        tagDataUnparsed.subject = "Ché ki chtilo?";
        tagDataUnparsed.track = "Video";
-       tagDataUnparsed.media = "Vice dirlo";         
-          
+       tagDataUnparsed.media = "Vice dirlo";
+
       }
       var tagDataParsed = {};
       for(var key in tagDataUnparsed)
       {
           tagDataParsed[searchKey(key)] = tagDataUnparsed[key];
       }
-      
+
       function searchKey(query){
         var traduction = {};
         traduction["start"] = "Start";
@@ -300,10 +300,10 @@ router.route('/clipsheet/:uri')
         for(var key in traduction){
             if(key.search(regex) != -1)
                 return traduction[key];
-        }      
+        }
         return query;
-      }      
-        
+      }
+
       res.json(tagDataParsed);
 
   })
@@ -314,41 +314,45 @@ router.route('/cliplist')
       //TODO create a get method to get all the URI of all the clips
       console.log("TODO get all the URI of all the clips");
 
-      /*var postData = querystring.stringify({
-      });
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/list', (result) => {
+        const statusCode = result.statusCode;
+        const contentType = result.headers['content-type'];
 
-      var options = {
-        hostname: 'localhost',
-        port: 3000,
-        path: '/api/productionsheet/test',
-        method: 'GET',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Content-Length': Buffer.byteLength(postData)
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed.\n` +
+                        `Status Code: ${statusCode}`);
+        } else if (!/^application\/json/.test(contentType)) {
+          error = new Error(`Invalid content-type.\n` +
+                        `Expected application/json but received ${contentType}`);
         }
-      };
+        if (error) {
+          console.log(error.message);
+          // consume response data to free up memory
+          result.resume();
+          return;
+        }
 
-      var request = http.request(options, (result) => {
-        console.log(`STATUS: ${result.statusCode}`);
-        console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
         result.setEncoding('utf8');
-        result.on('data', (chunk) => {
-          console.log(`BODY: ${chunk}`);
-        });
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
-          console.log('No more data in response.');
+          try {
+            let parsedData = JSON.parse(rawData);
+            let sendData = new Object();
+            sendData.videos = parsedData.videos;
+            sendData.thumbnail = "http://placehold.it/400x300";
+            sendData.number = sendData.videos.length;
+            res.json(sendData);
+          } catch (e) {
+            console.log(e.message);
+          }
         });
+      }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
       });
 
-      request.on('error', (e) => {
-        console.log('problem with request: ${e.message}');
-      });
-
-      // write data to request body
-      request.write(postData);
-      request.end();*/
-
-      var clipList = new Object();
+      /*var clipList = new Object();
       clipList.number = 6;
       clipList.videos = [
         {"uri" : 1 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
@@ -358,10 +362,10 @@ router.route('/cliplist')
         {"uri" : 5 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
         {"uri" : 6 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"}
       ];
-      res.json(clipList);
+      res.json(clipList);*/
 
   })
-  
+
   router.route('/indexationdata/:id')
   .get(function(req,res){
 
@@ -394,10 +398,10 @@ router.route('/cliplist')
                 data.tags["1"].structure["1"] = {"track" : "Audio", "type" : "flag", "begin" : 117, "end" : 133 };
                 data.tags["1"].structure["2"] = {"track" : "Image", "type" : "fragment", "begin" : 15, "end" : 40 };
     res.json(data);
-              
-              
+
+
   })
-  
+
 router.route('/createSegment/')
   .get(function(req,res){
     var mediaId = req.param("mediaId", 0);
@@ -407,10 +411,10 @@ router.route('/createSegment/')
     var segType = req.param("segType", null);
     var segBegin = req.param("segBegin", null);
     var segEnd = req.param("segEnd", null);
-    
+
     var result = {};
     result.success = false;
-    result.message = "";          
+    result.message = "";
     if(mediaId == 0){
         result.message += "The media has not been specified. ";
     }else if(trackName == null){
@@ -418,15 +422,15 @@ router.route('/createSegment/')
     }else if(segType == null){
         result.message += "The type of segment has not been specified. ";
     }else if(!(segType == "fragment" || segType == "flag" )){
-        result.message += "A segment can only be a fragment or a flag. ";            
+        result.message += "A segment can only be a fragment or a flag. ";
     }else if(segBegin == null){
         result.message += "The beginning time has not been specified. ";
     }else if(segType == "fragment" && segEnd == null){
         result.message += "A fragment needs a ending time. ";
-    }else {   
+    }else {
         if(segType == "flag")
             segEnd = segBegin;
-        
+
         ////////////////////////////////////////////////////////////////
         //  Don't know if it is needed but we have the id of the tag  //
         //   We can create the segment, we have all the needed data   //
@@ -439,7 +443,7 @@ router.route('/createSegment/')
         };
     }
     res.json(result);
-              
+
   })
 
 router.route('/indexationdata/:uri')
@@ -471,9 +475,9 @@ router.route('/indexationdata/:uri')
             data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG" ,"name" : "Directeur général" };
             data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG" ,"name" : "Directeur général" };
             data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG" ,"name" : "Directeur général" };
-    res.json(data);       
+    res.json(data);
   })
-  
+
 router.route('/createFragment/')
   .get(function(req,res){
     var mediaId = req.param("mediaId", 0);
@@ -483,10 +487,10 @@ router.route('/createFragment/')
     var fragType = req.param("fragType", null);
     var fragBegin = req.param("fragBegin", null);
     var fragEnd = req.param("fragEnd", null);
-    
+
     var result = {};
     result.success = false;
-    result.message = "";          
+    result.message = "";
     if(mediaId == 0){
         result.message += "The media has not been specified. ";
     }else if(trackName == null){
@@ -494,15 +498,15 @@ router.route('/createFragment/')
     }else if(fragType == null){
         result.message += "The type of fragment has not been specified. ";
     }else if(!(fragType == "segment" || fragType == "point" )){
-        result.message += "A fragment can only be a segment or a flag. ";            
+        result.message += "A fragment can only be a segment or a flag. ";
     }else if(fragBegin == null){
         result.message += "The beginning time has not been specified. ";
     }else if(fragType == "segment" && fragEnd == null){
         result.message += "A segment needs an ending time. ";
-    }else {   
+    }else {
         if(fragType == "point")
             fragEnd = fragBegin;
-        
+
         ////////////////////////////////////////////////////////////////
         //  Don't know if it is needed but we have the id of the tag  //
         //   We can create the fragment, we have all the needed data   //
@@ -515,7 +519,7 @@ router.route('/createFragment/')
         };
     }
     res.json(result);
-              
+
   })
 
 
