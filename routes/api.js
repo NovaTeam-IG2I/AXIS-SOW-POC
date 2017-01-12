@@ -58,7 +58,7 @@ router.route('/productionsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all production metadata of a media
-      console.log("TODO get all the production metadata of a media : " + req.params.uri);
+      console.log("TODO get all the production metadata of a media");
 
       /*var postData = querystring.stringify({
         'URI' : req.params.uri
@@ -147,7 +147,7 @@ router.route('/technicalsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all technical metadata of a media
-      console.log("TODO get all the technical metadata of a media : " + req.params.uri);
+      console.log("TODO get all the technical metadata of a media.");
 
       /*var postData = querystring.stringify({
         'URI' : req.params.uri
@@ -227,7 +227,7 @@ router.route('/clipsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all the metadata of a tag
-      console.log("TODO get all the metadata of a tag : " + req.params.uri);
+      console.log("TODO get all the metadata of a tag.");
 
       /*var postData = querystring.stringify({
         'URI' : req.params.uri
@@ -352,19 +352,43 @@ router.route('/cliplist')
         console.log(`Got error: ${e.message}`);
       });
 
-      /*var clipList = new Object();
-      clipList.number = 6;
-      clipList.videos = [
-        {"uri" : 1 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
-        {"uri" : 2 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
-        {"uri" : 3 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
-        {"uri" : 4 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
-        {"uri" : 5 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"},
-        {"uri" : 6 , "adress" : "/video/salameche.mp4" , "thumbnail" : "http://placehold.it/400x300"}
-      ];
-      res.json(clipList);*/
-
   })
+
+  router.route('/mediavideo/:uri')
+    .get(function(req,res){
+
+        //TODO create a get method to get all the URI of all the clips
+        console.log("TODO get the video of a media by his URI");
+
+        http.get('http://localhost:8080/AXIS-SOW-POC-backend/video?uri=' + encodeURIComponent(req.params.uri), (result) => {
+          const statusCode = result.statusCode;
+          const contentType = result.headers['content-type'];
+          let error;
+          if (statusCode !== 200) {
+            error = new Error(`Request Failed.\n` +
+                          `Status Code: ${statusCode}`);
+          }
+          if (error) {
+            console.log(error.message);
+            // consume response data to free up memory
+            result.resume();
+            return;
+          }
+          result.setEncoding('utf8');
+          let rawData = '';
+          result.on('data', (chunk) => rawData += chunk);
+          result.on('end', () => {
+            try {
+              res.send('http://localhost:8080/AXIS-SOW-POC-backend/video?uri=' + encodeURIComponent(req.params.uri));
+            } catch (e) {
+              console.log(e.message);
+            }
+          });
+        }).on('error', (e) => {
+          console.log(`Got error: ${e.message}`);
+        });
+
+    })
 
   router.route('/indexationdata/:id')
   .get(function(req,res){
