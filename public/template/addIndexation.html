@@ -11,7 +11,7 @@
 
     <md-dialog-content>
         <div class="md-dialog-content col-md-12 middleAlign"> 
-            <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'segment'">
+            <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'segment'" novalidate class="css-form">
                 <div class="col-md-3">
                     <md-autocomplete
                         id="autocompleteTrack"
@@ -21,7 +21,10 @@
                         md-search-text="searchTrack"
                         md-search-text-change="searchTrackChange()"
                         md-items="item in searchType('track',searchTrack)" 
-                        md-item-text="item">
+                        md-item-text="item"
+                        md-floating-label="Please enter the indexed track"
+                        required
+                        >
                         <md-item-template>
                             <span md-highlight-text="searchTrack">{{item}}</span>
                         </md-item-template>
@@ -39,7 +42,10 @@
                         md-search-text="searchTag" 
                         md-search-text-change="searchTagChange()"
                         md-items="item2 in searchType('tag',searchTag)" 
-                        md-item-text="item2">
+                        md-item-text="item2"
+                        md-floating-label="Please enter the tag"
+                        required
+                        >
                         <md-item-template>
                             <span md-highlight-text="searchTag">{{item2}}</span>
                         </md-item-template>
@@ -48,26 +54,23 @@
                         </md-not-found>                        
                     </md-autocomplete>
                 </div>          
-                <div class="col-md-2 dialogAlign">
+                <div class="col-md-3 dialogAlign">
                     <span>Type of indexation : </span>
                     <br />
                     <label for="segmentIn">Segment</label>
-                    <input id="segmentIn" type="radio" name="fragmentType" ng-model="radioValue" value="segment" >
+                    <input id="segmentIn" type="radio" name="fragmentType" ng-model="radioValue" value="segment" ngStyle="{{styleFragBegin}}">
                     <br />
                     <label for="pointIn">Point</label>
-                    <input id="pointIn" type="radio" name="fragmentType" ng-model="radioValue" value="point">
+                    <input id="pointIn" type="radio" name="fragmentType" ng-model="radioValue" value="point" ngStyle="{{styleFragEnd}}">
                 </div>
 
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="row">
-                        <input name="fragBegin" placeholder="tmp begin {{radioValue}}" ng-model="fragBegin" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
-                        <span>Correct value? {{indexationForm.fragBegin.$valid}}</span>                        
-
+                        <input type="text" name="fragBegin" placeholder="tmp begin {{radioValue}}" ng-model="fragBegin" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" required />                    
                     </div>
                     <br />
                     <div class="row" ng-show="radioValue == 'segment'">
-                        <input name="fragEnd" placeholder="tmp end {{radioValue}}" ng-model="fragEnd" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" />
-                        <span>Correct Value? {{indexationForm.fragEnd.$valid}}</span>    
+                        <input type="text" name="fragEnd" placeholder="tmp end {{radioValue}}" ng-model="fragEnd" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" required />   
                     </div>
                 </div>
             </form>    

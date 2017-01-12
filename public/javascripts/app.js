@@ -174,7 +174,6 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         $scope.getMediaIndexations = "Succes";
         var data = response.data;
         data = formatIndexations(data);
-        console.log(data);
         sharedMedia.setIndexationData(data);
         paramSequenceur(data);
         sharedMedia.setIndexationData(data);
@@ -229,7 +228,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                         shouldAddFragToTag = false;
                 }
                 if(shouldAddFragToTag)
-                    dataFormatted.tagNames.push({"name" : fragment.name, "uri" : fragment.uri});
+                    dataFormatted.tagNames.push({"name" : fragment.name, "uri" : fragment.uri, "nature" : fragment.nature});
                 //We need to test the superposition
                 for(var z = 0; z< dataFormatted.indexedTracks[i].levels.length; z++){
                     shouldAddFragToLevel = true;
@@ -306,11 +305,10 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                 var subline = indexedTrack.levels[j];
                 for (var k=0; k <subline.length; k++){
                     var fragment = subline[k];
-                    console.log(fragment);
                     if (fragment.type == "segment")
-                        createSegment(j, fragment, line);
+                        createSegment(i, j, k, fragment, line);
                     else if (fragment.type == "point")
-                        createPoint(j, fragment, line);
+                        createPoint(i, j, k, fragment, line);
                 }
             }
             sequenceur.append(line);
@@ -371,12 +369,18 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
      * @param {JSON} fragment : fragment which has to be created
      * @param {SVG} currentLine : line to which the fragment created has to be added
      */
-    function createSegment(level, fragment, currentLine) {
+    function createSegment(indexIndexedTrack, level, indexFragment, fragment, currentLine) {
         //We create the label
         var textProperties = {};
         textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND);
         textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.75);
+        
+        //Information from fragment
         textProperties.uri = fragment.uri;
+        textProperties.indexIndexedTrack = indexIndexedTrack;
+        textProperties.level = level;
+        textProperties.indexFragment = indexFragment;
+        
         textProperties.textLength = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
         textProperties.lengthAdjust = "spacingAndGlyphs";
         textProperties.fill = "#FFF";
@@ -425,7 +429,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
      * @param {JSON} fragment : fragment which has to be created
      * @param {SVG} currentLine : line to which the fragment created has to be added
      */
-    function createPoint(level, fragment, currentLine) {
+    function createPoint(indexIndexedTrack, level, indexFragment, fragment, currentLine) {
 
         var timePointProperties = {};
         timePointProperties.x1 = $scope.sequenceurParams.BAR_OFFSET + fragment.start * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
@@ -449,7 +453,13 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
         var textProperties = {};
         textProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
         textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.75);
+        
+        //information from fragment
         textProperties.uri = fragment.uri;
+        textProperties.indexIndexedTrack = indexIndexedTrack;
+        textProperties.level = level;
+        textProperties.indexFragment = indexFragment;        
+        
         textProperties.textLength = pointProperties.width;
         textProperties.lengthAdjust = "spacingAndGlyphs";
         textProperties.fill = "#FFF";
@@ -463,7 +473,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
             //left click will start the video at the beginning of the fragment
             if(event.which == 1){
                 var video = angular.element(document.querySelector('#video'));
-                var time = event.target.getAttribute("start");
+                var time = fragment.start;//event.target.getAttribute("start");
                 if(time != undefined){
                     video[0].pause();
                     video[0].currentTime = time;
@@ -471,7 +481,7 @@ app.controller('clipController', ['$scope', '$http', 'sharedMedia', function ($s
                 }
                 if(event.ctrlKey){
                    //if right click, we open the dialog for the right tag               
-                    var uri = event.target.getAttribute("uri");
+                    var uri = fragment.name;//event.target.getAttribute("uri");
                     if(uri != undefined)
                         $scope.getClipData(uri);
                 }
@@ -614,54 +624,71 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
          * is displayed to the user indicating which input is wrongly filled. 
          */
         $scope.create = function() {
+            var indexationData = sharedMedia.getIndexationData();
             var track = $scope.selectedTrack;
             var tag = $scope.selectedTag;
             var fragType = indexationForm.fragmentType.value;
             var fragBegin = indexationForm.fragBegin.value;
-            var fragEnd = indexationForm.fragEnd.value;
+            var fragEnd = indexationForm.fragEnd.value;       
             var msg = "";
-            if(track == null || track == undefined)    
+            
+            if(track == null || track == undefined)
                 msg += "No track has been selected\n";
+            
             if(tag == null || tag == undefined)
                 msg += "No tag has been selected\n";
+            
             if(!(fragType == "segment" || fragType == "point"))
                 msg += "Wrong fragment type\n";
+            
             if(!isFloat(fragBegin))
                 msg += "fragment beginning is not a float\n";
-            if(fragType == "segment" && !isFloat(fragEnd))
-                msg += "fragment end is not a float";
-            else if(fragType == "segment" && isFloat(fragBegin) && isFloat(fragEnd) && fragEnd < fragBegin)
-                msg += "fragment end is before fragment begin";
+            else if(parseFloat(fragBegin) > indexationData.duree)
+                msg += "fragment beginning is superior to the video duration\n";
+            
+            if(fragType == "segment"){
+                if(!isFloat(fragEnd))
+                    msg += "fragment end is not a float\n";
+                else if(fragEnd >= indexationData.duree)
+                    msg += "fragment end is superior to the duration of the video\n";
+                else if(isFloat(fragBegin) && parseFloat(fragEnd) < parseFloat(fragBegin))
+                   msg += "fragment end is before fragment begin\n";
+            }
             
             if(msg.length > 0 )
                 alert(msg);
             else{   
-                if(fragType == "track")
+                if(fragType == "segment")
                 {
                     fragBegin = parseFloat(fragBegin);
                     fragEnd = parseFloat(fragEnd);
-                }else if (fragType == "point"){
-                    fragBegin = parseFloat(fragBegin);
-                }
+                }else{
+                    fragEnd = parseFloat(fragBegin);
+                }      
+                
+                
+                
                 //we need to search for the id of each element (the media and the tag (if the tag has for id 0, it is a new one)
-                var mediaId = sharedMedia.getMediaID();
-                var tagURI = searchTagURI(tag);
+                var mediaURI = sharedMedia.getMediaURI();
+                //We don't need the start time nor the end time but we need the uri and the nature of the tag
+                var partialFragment = searchTagByName(tag);
                 $http({
                     method: 'GET',
                     url: 'http://localhost:3000/api/createFragment/',
-                    params : {"mediaId" : mediaId, "trackName": track,"tagURI" : tagURI, "tagName" : tag  ,"fragType" : fragType, "fragBegin" : fragBegin, "fragEnd" : fragEnd}
+                    params : {"mediaURI" : mediaURI, "trackName": track,"tagURI" : partialFragment.uri, "tagName" : partialFragment.name  , "tagNature" : partialFragment.nature, "fragType" : fragType, "fragBegin" : fragBegin, "fragEnd" : fragEnd}
                 }).then(function successCallback(response) {
                     var ans = response.data;
                     if(ans.success){
                         addFragment(ans.data);
+                        $mdDialog.hide();
                     }
                     else{
                         alert(ans.message);
                     }
                 }, function errorCallback(response) {
-                });                
+                });       
             }         
-            $mdDialog.hide();
+            
         };
         
         /**
@@ -723,6 +750,8 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
          * @param {String} item
          */
         $scope.selectedTrackChange = function(item){
+            var elem = angular.element(document.getElementById("autocompleteTrack"));
+            elem[0].querySelector("input").style.border = "1px solid green";
             $scope.selectedTrack = item;
         };
         /**
@@ -731,6 +760,8 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
          * @param {String} item
          */
         $scope.selectedTagChange = function(item){
+            var elem = angular.element(document.getElementById("autocompleteTag"));
+            elem[0].querySelector("input").style.border = "1px solid green";
             $scope.selectedTag = item;
         };
         
@@ -741,6 +772,8 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
          */
         $scope.searchTrackChange = function(){
             $scope.selectedTrack = null;
+            var elem = angular.element(document.getElementById("autocompleteTrack"));
+            elem[0].querySelector("input").style.border = "";
         }
         
         /**
@@ -749,8 +782,9 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
          */
         $scope.searchTagChange = function(){
             $scope.selectedTag = null;
+            var elem = angular.element(document.getElementById("autocompleteTag"));
+            elem[0].querySelector("input").style.border = "";
         }
-
         /**
         * function newTrack
         * Description : it will call selectedTrackChange to affect the String track which will also have its special caracters escaped.
@@ -772,6 +806,24 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
             $scope.selectedTagChange(tag);
             $scope.searchType("tag", tag);
         };
+        
+        /**
+         * function searchTagByNae
+         * description : return the name, uri and nature of the tag if its name is matched by tagName from the data got from clipController
+         * @param {type} tagName
+         * @returns {JSON} {name, uri, nature}
+         */
+        function searchTagByName(tagName){
+            var indexationData = sharedMedia.getIndexationData();
+            for(var i=0; i<indexationData.tagNames.length; i++){
+                var tag = indexationData.tagNames[i];
+                if(String.toLowerCase(tag.name) == String.toLowerCase(tagName)){
+                    return tag;
+                }
+            }
+            return {"name" : tagName, "uri" : "", "nature" : ""};
+        }        
+        
     }
     
 
@@ -820,29 +872,12 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
     * Description : test if a variable is a float, especially undefined and NaN variable.
     */
     function isFloat(value) {
-      var x;
-      if (isNaN(value)) {
+      if (isNaN(value) || value == "" || parseFloat(value)< 0) {
         return false;
       }
-      x = parseFloat(value);
-      return x;
+      return true;
     }   
-    /**
-     * function searchTagId
-     * description : return the ID of the tag if its name is matched by tagName from the data got from clipController
-     * @param {type} tagName
-     * @returns {Number} Id of the tag or 0 if it isn't found (which means it will have to be created).
-     */
-    function searchTagURI(tagName){
-        var tags = sharedMedia.getIndexationData().tagNames;
-        for(var i=0; i<tags.length; i++){
-            var tag = tags[i];
-            if(String.toLowerCase(tag.name) == String.toLowerCase(tagName)){
-                return tag.uri;
-            }
-        }
-        return 0;
-    }
+
     /**
      * Add a fragment to the variable indexationData in the service and reload the timeline from the received data
      * @param {JSON} data

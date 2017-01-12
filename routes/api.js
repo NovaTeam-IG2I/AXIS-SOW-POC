@@ -361,86 +361,6 @@ router.route('/cliplist')
       res.json(clipList);
 
   })
-  
-  router.route('/indexationdata/:id')
-  .get(function(req,res){
-
-      //TODO create a get method to get all the indexation of a media
-    var data = {};
-    data.informations = {};
-    data.duree = 171;
-    data.tags = {};
-        data.tags["0"] = {};
-            data.tags["0"].name = "Président";
-            data.tags["0"].id = "1";
-            data.tags["0"].structure = {};
-                data.tags["0"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 7.2, "end" : 18 };
-                data.tags["0"].structure["1"] = {"track" : "Audio", "type" : "fragment", "begin" : 10.5, "end" : 18 };
-                data.tags["0"].structure["2"] = {"track" : "Audio", "type" : "fragment", "begin" : 23.5, "end" : 34 };
-                data.tags["0"].structure["3"] = {"track" : "Audio", "type" : "fragment", "begin" : 41.5, "end" : 50 };
-                data.tags["0"].structure["4"] = {"track" : "Audio", "type" : "fragment", "begin" : 59, "end" : 70};
-                data.tags["0"].structure["5"] = {"track" : "Image", "type" : "fragment", "begin" : 25, "end" : 27 };
-                data.tags["0"].structure["6"] = {"track" : "Image", "type" : "fragment", "begin" : 32, "end" : 34 };
-                data.tags["0"].structure["7"] = {"track" : "Image", "type" : "flag", "begin" : 47, "end" : 50.5 };
-                data.tags["0"].structure["8"] = {"track" : "Image", "type" : "fragment", "begin" : 59, "end" : 60.6 };
-                data.tags["0"].structure["9"] = {"track" : "Image", "type" : "fragment", "begin" : 79, "end" : 81 };
-                data.tags["0"].structure["10"] = {"track" : "Image", "type" : "fragment", "begin" : 156, "end" : 165 };
-                data.tags["0"].structure["11"] = {"track" : "Audio", "type" : "fragment", "begin" : 154, "end" : 164};
-        data.tags["1"] = {};
-            data.tags["1"].name = "Directeur général";
-            data.tags["1"].id = "2";
-            data.tags["1"].structure = {};
-                data.tags["1"].structure["0"] = {"track" : "Image", "type" : "fragment", "begin" : 84, "end" : 97 };
-                data.tags["1"].structure["1"] = {"track" : "Audio", "type" : "flag", "begin" : 117, "end" : 133 };
-                data.tags["1"].structure["2"] = {"track" : "Image", "type" : "fragment", "begin" : 15, "end" : 40 };
-    res.json(data);
-              
-              
-  })
-  
-router.route('/createSegment/')
-  .get(function(req,res){
-    var mediaId = req.param("mediaId", 0);
-    var trackName = req.param("trackName", null);
-    var tagId = req.param("tagId", 0);
-    var tagName = req.param("tagName", null);
-    var segType = req.param("segType", null);
-    var segBegin = req.param("segBegin", null);
-    var segEnd = req.param("segEnd", null);
-    
-    var result = {};
-    result.success = false;
-    result.message = "";          
-    if(mediaId == 0){
-        result.message += "The media has not been specified. ";
-    }else if(trackName == null){
-        result.message += "The track has not been specified. ";
-    }else if(segType == null){
-        result.message += "The type of segment has not been specified. ";
-    }else if(!(segType == "fragment" || segType == "flag" )){
-        result.message += "A segment can only be a fragment or a flag. ";            
-    }else if(segBegin == null){
-        result.message += "The beginning time has not been specified. ";
-    }else if(segType == "fragment" && segEnd == null){
-        result.message += "A fragment needs a ending time. ";
-    }else {   
-        if(segType == "flag")
-            segEnd = segBegin;
-        
-        ////////////////////////////////////////////////////////////////
-        //  Don't know if it is needed but we have the id of the tag  //
-        //   We can create the segment, we have all the needed data   //
-        ////////////////////////////////////////////////////////////////
-        result.success = true;
-        result.data = {
-          "track" : trackName,
-          "tag" : { "id" : tagId, "name" : tagName },
-          "segment" : {"type" : segType, "begin" : segBegin, "end" : segEnd}
-        };
-    }
-    res.json(result);
-              
-  })
 
 router.route('/indexationdata/:uri')
   .get(function(req,res){
@@ -452,34 +372,35 @@ router.route('/indexationdata/:uri')
         data.indexedTracks[0].name = "Image";
         data.indexedTracks[0].uri = "URI Image";
         data.indexedTracks[0].fragments = [];
-            data.indexedTracks[0].fragments[0] = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président", "name" : "Président" };
-            data.indexedTracks[0].fragments[1] = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président", "name" : "Président" };
-            data.indexedTracks[0].fragments[2] = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président", "name" : "Président" };
-            data.indexedTracks[0].fragments[3] = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président", "name" : "Président" };
-            data.indexedTracks[0].fragments[4] = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président", "name" : "Président" };
-            data.indexedTracks[0].fragments[5] = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président", "name" : "Président" };
-            data.indexedTracks[0].fragments[6] = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président", "name" : "Président" };
-            data.indexedTracks[0].fragments[7] = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG", "name" : "Directeur général"};
-            data.indexedTracks[0].fragments[8] = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG", "name" : "Directeur général"};
+            data.indexedTracks[0].fragments[0] = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[0].fragments[1] = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[0].fragments[2] = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[0].fragments[3] = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[0].fragments[4] = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[0].fragments[5] = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[0].fragments[6] = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[0].fragments[7] = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG", "nature" : "Personne", "name" : "Directeur général"};
+            data.indexedTracks[0].fragments[8] = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG", "nature" : "Personne", "name" : "Directeur général"};
     data.indexedTracks[1] = {};
         data.indexedTracks[1].name = "Audio";
         data.indexedTracks[1].uri = "URI Audio";
         data.indexedTracks[1].fragments = [];
-            data.indexedTracks[1].fragments[0] = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président" ,"name" : "Président" };
-            data.indexedTracks[1].fragments[1] = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président" ,"name" : "Président" };
-            data.indexedTracks[1].fragments[2] = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG" ,"name" : "Directeur général" };
-            data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG" ,"name" : "Directeur général" };
-            data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG" ,"name" : "Directeur général" };
-            data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG" ,"name" : "Directeur général" };
+            data.indexedTracks[1].fragments[0] = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président" ,  "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[1].fragments[1] = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président" ,  "nature" : "Personne", "name" : "Président" };
+            data.indexedTracks[1].fragments[2] = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
+            data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
+            data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
+            data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
     res.json(data);       
-  })
+})
   
 router.route('/createFragment/')
   .get(function(req,res){
-    var mediaId = req.param("mediaId", 0);
+    var mediaURI = req.param("mediaURI", null);
     var trackName = req.param("trackName", null);
-    var tagURI = req.param("tagURI", 0);
+    var tagURI = req.param("tagURI", null);
     var tagName = req.param("tagName", null);
+    var tagNature = req.param("tagNature", null);
     var fragType = req.param("fragType", null);
     var fragBegin = req.param("fragBegin", null);
     var fragEnd = req.param("fragEnd", null);
@@ -487,7 +408,7 @@ router.route('/createFragment/')
     var result = {};
     result.success = false;
     result.message = "";          
-    if(mediaId == 0){
+    if(mediaURI == null){
         result.message += "The media has not been specified. ";
     }else if(trackName == null){
         result.message += "The track has not been specified. ";
@@ -501,18 +422,23 @@ router.route('/createFragment/')
         result.message += "A segment needs an ending time. ";
     }else {   
         if(fragType == "point")
-            fragEnd = fragBegin;
-        
-        ////////////////////////////////////////////////////////////////
-        //  Don't know if it is needed but we have the id of the tag  //
-        //   We can create the fragment, we have all the needed data   //
-        ////////////////////////////////////////////////////////////////
-        result.success = true;
-        result.data = {
-          "track" : trackName,
-          "tag" : { "uri" : tagURI, "name" : tagName },
-          "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
-        };
+            fragEnd = fragBegin; 
+        if(result.message == "")
+        {
+            ////////////////////////////////////////////////////////////////
+            //  Don't know if it is needed but we have the id of the tag  //
+            //   We can create the fragment, we have all the needed data   //
+            ////////////////////////////////////////////////////////////////
+            result.success = true;
+            result.data = {
+              "track" : trackName,
+              "tag" : { "uri" : tagURI, "name" : tagName, "nature" : tagNature },
+              "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
+            };
+        }
+        else{
+            result.data = {};
+        }
     }
     res.json(result);
               

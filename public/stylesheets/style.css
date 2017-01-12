@@ -48,3 +48,11 @@ span.categoryName{
     text-decoration: underline; 
     font-weight: bold;
 }
+
+.css-form input[type="text"].ng-invalid.ng-touched {
+  border: 1px solid #FA787E;
+}
+
+.css-form input[type="text"].ng-valid.ng-touched {
+  border:  1px solid #78FA89;
+}
