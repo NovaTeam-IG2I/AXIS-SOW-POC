@@ -3,49 +3,38 @@ View for listing all the informations about a clip
 -->
 
 <div class="clearfix">
-	<h4>Visualize the tracks, video and tags of the clip.</h4>
-
-	<div class="col-md-4">
-		<div class="row">
-			<!--Video media player-->
-			<video width="320" height="240" controls>
-			<source src="video/salameche.mp4" type="video/mp4">
-			Your browser does not support the video tag.
-			</video>
-		</div>
-		<div class="row">
-		</div>
-	</div>
-	<div class="col-md-8">
-		<ul class="tab">
-			<li><a href="javascript:void(0)" class="tablinks active" onload="openTab(event, 'Media')" onclick="openTab(event, 'Media')">Media</a></li>
-			<li><a href="javascript:void(0)" class="tablinks" onclick="openTab(event, 'XML')">XML</a></li>
-		</ul>
-
-
-		<!--XML Tab need to be replaced with dynamic tab creation -->
-		<div id="XML" class="tabcontent">
-		  	<div><p>Ligne xmp1</p>
-		  		<p>Ligne xmp2</p>
-		  	</div>
-		</div>
-
-		<!--Media Tab-->
-		<div id="Media" class="tabcontent" style="display:block;">
-			<fieldset>
-				<legend>Informations générales</legend>
-				<p><b>Nom du média:</b></p>
-				<p><b>Extension:</b></p>
-				<p><b>Auteur:</b></p>
-				<p><b>Date de création:</b></p>
-				<p><b>Dernière date de modification:</b></p>
-				<p><b>Personne qui l'a importé:</b></p>
-			</fieldset>
-			<fieldset>
-				<legend>Informations associées</legend>
-				<p><b>Personnes:</b> </br>
-				<p><b>Lieu:</b></p>
-			</fieldset>
-		</div>
-	</div>
+    <h4>Visualize the tracks, video and tags of the clip.</h4>
+    <div class="col-md-4">
+        <div class="row">
+            <!--Video media player-->
+            <video id="video" width="100%" height="100%" controls>
+                <source ng-src="{{mediaAdress}}" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div> Visualization of the video with URI {{mediaURI}}.</div>
+        </div>
+        <div id="sequenceurContainer" class="row">
+            <svg id="sequenceur" viewBox="0 0 {{sequenceurParams.width}} {{sequenceurParams.height}}"
+            style="width : {{sequenceurParams.width}}px; height: {{sequenceurParams.height}}px;">
+            </svg>
+        </div>
+        <div class="row" ng-controller="indexationController" ng-cloak>
+            <md-button ng-click="showIndexationDialog(event)" class="md-raised">
+              Add fragment or create a tag/indexed track</md-button>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <uib-tabset active="active">
+                <uib-tab index="0" heading="Données techniques">
+                    <div class="framework" ng-repeat="(key, value) in technicalData"><span class="categoryName" >
+                      {{key}} :</span><span class="categoryValue" >{{value}}</span></div>
+                </uib-tab>
+                <uib-tab index="1" heading="Données générales">
+                    <div class="framework"><div ng-repeat="(key, value) in productionData"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
+                </uib-tab>
+                <uib-tab index="$index + 2" ng-repeat="clip in clipData" disable="tab.disabled" heading="{{clip.uri}}">
+                    <div class="framework"><div ng-repeat="(key, value) in clip.data"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
+                </uib-tab>
+        </uib-tabset>
+    </div>
 </div>
