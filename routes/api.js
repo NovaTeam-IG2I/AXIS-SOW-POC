@@ -269,17 +269,17 @@ router.route('/clipsheet/:uri')
       
       tagDataUnparsed.start = "00:17:56";
       tagDataUnparsed.end = "00:21:23";
-      tagDataUnparsed.subject = "Ché eul' président heun!";
+      tagDataUnparsed.subject = "Présentation du président de l'entreprise";
       tagDataUnparsed.track = "Video";
-      tagDataUnparsed.media = "dirlo";
+      tagDataUnparsed.media = "SVS presentation";
       }
       else
       {
        tagDataUnparsed.start = "00:40:56";
        tagDataUnparsed.end = "00:21:23";
-       tagDataUnparsed.subject = "Ché ki chtilo?";
+       tagDataUnparsed.subject = "Présentation par le vice-directeur";
        tagDataUnparsed.track = "Video";
-       tagDataUnparsed.media = "Vice dirlo";         
+       tagDataUnparsed.media = "SVS présentation";         
           
       }
       var tagDataParsed = {};
