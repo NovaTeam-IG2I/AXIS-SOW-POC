@@ -250,13 +250,8 @@ router.route('/clipsheet/:uri')
        tagDataUnparsed.end = "00:21:23";
        tagDataUnparsed.subject = "Présentation par le vice-directeur";
        tagDataUnparsed.track = "Video";
-<<<<<<< HEAD
        tagDataUnparsed.media = "SVS présentation";
 
-=======
-       tagDataUnparsed.media = "Vice dirlo";
-
->>>>>>> feature-integration
       }
       var tagDataParsed = {};
       for(var key in tagDataUnparsed)

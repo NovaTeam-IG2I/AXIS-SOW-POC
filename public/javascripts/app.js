@@ -127,6 +127,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
   }).then(function successCallback(response) {
       $scope.getMediaVideo = "Succes";
       $scope.mediaAdress = $sce.trustAsResourceUrl(response.data);
+      var refSurVideo = angular.element(document.getElementById("video"))[0];
+      refSurVideo.load();
   }, function errorCallback(response) {
       $scope.getMediaVideo = "Fail";
   });
@@ -403,12 +405,12 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     video[0].currentTime = time;
                     video[0].play();
                 }
-                if(event.ctrlKey){
+                //if(event.ctrlKey){
                    //if right click, we open the dialog for the right tag
                     var uri = event.target.getAttribute("uri");
                     if(uri != undefined)
                         $scope.getClipData(uri);
-                }
+                //}
             }
         });
 
@@ -482,17 +484,14 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     video[0].currentTime = time;
                     video[0].play();
                 }
-                if(event.ctrlKey){
-<<<<<<< HEAD
+                //if(event.ctrlKey){
+
                    //if right click, we open the dialog for the right tag
-                    var uri = fragment.name;//event.target.getAttribute("uri");
-=======
-                   //if right click, we open the dialog for the right tag
-                    var uri = event.target.getAttribute("uri");
->>>>>>> feature-integration
+                    var uri = fragment.uri;//event.target.getAttribute("uri");
+
                     if(uri != undefined)
                         $scope.getClipData(uri);
-                }
+                //}
             }
         });
         currentLine.append(timePoint);
@@ -639,10 +638,7 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
             var fragBegin = indexationForm.fragBegin.value;
             var fragEnd = indexationForm.fragEnd.value;
             var msg = "";
-<<<<<<< HEAD
 
-=======
->>>>>>> feature-integration
             if(track == null || track == undefined)
                 msg += "No track has been selected\n";
 
@@ -654,7 +650,7 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
 
             if(!isFloat(fragBegin))
                 msg += "fragment beginning is not a float\n";
-<<<<<<< HEAD
+
             else if(parseFloat(fragBegin) > indexationData.duree)
                 msg += "fragment beginning is superior to the video duration\n";
 
@@ -671,17 +667,7 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                 alert(msg);
             else{
                 if(fragType == "segment")
-=======
-            if(fragType == "segment" && !isFloat(fragEnd))
-                msg += "fragment end is not a float";
-            else if(fragType == "segment" && isFloat(fragBegin) && isFloat(fragEnd) && fragEnd < fragBegin)
-                msg += "fragment end is before fragment begin";
 
-            if(msg.length > 0 )
-                alert(msg);
-            else{
-                if(fragType == "track")
->>>>>>> feature-integration
                 {
                     fragBegin = parseFloat(fragBegin);
                     fragEnd = parseFloat(fragEnd);
@@ -709,15 +695,8 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
                         alert(ans.message);
                     }
                 }, function errorCallback(response) {
-<<<<<<< HEAD
                 });
             }
-
-=======
-                });
-            }
-            $mdDialog.hide();
->>>>>>> feature-integration
         };
 
         /**
