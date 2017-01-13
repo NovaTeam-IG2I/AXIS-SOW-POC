@@ -4,54 +4,25 @@
 
 var express = require('express');
 var router = express.Router();
-var multer = require('multer')
+var FormData = require('form-data');
+var fs = require('fs');
 var querystring = require('querystring');
 var http = require('http');
-var upload = multer({ dest: 'uploads/' })
 //  Some implementation....
 
 router.route('/import')
-  .post(upload.single('file'),function(req,res){
+  .post(function(req,res){
 
       //TODO create an deplacement method to deplace a clip to a particular place
       req.header("Content-Type", "multipart/form-data");
 
-      //
-      // Send the imported file to the middleware
-      //
-
-      var postData = querystring.stringify(req.file);
-      console.log(postData);
-      var options = {
-        hostname: 'localhost',
-        port: 3000,
-        path: '/api/productionsheet/test',
-        method: 'GET',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Content-Length': Buffer.byteLength(postData)
-        }
-      };
-
-      var request = http.request(options, (result) => {
-        console.log(`STATUS: ${result.statusCode}`);
-        console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
-        result.setEncoding('utf8');
-        result.on('data', (chunk) => {
-          console.log(`BODY: ${chunk}`);
-        });
-        result.on('end', () => {
-          console.log('No more data in response.');
-        });
+      var form = new FormData();
+      form.append('title',req.body.title);
+      form.append('file', fs.createReadStream("/Users/adriendeprez/code/PRPT/AXIS-SOW-POC/uploads/" + req.body.file));
+      form.submit('http://localhost:8080/AXIS-SOW-POC-backend/import', function(err, res) {
+        // res – response object (http.IncomingMessage)  //
+        res.resume();
       });
-
-      request.on('error', (e) => {
-        console.log('problem with request: ${e.message}');
-      });
-
-      // write data to request body
-      request.write(postData);
-      request.end();
         })
 
 router.route('/productionsheet/:uri')
