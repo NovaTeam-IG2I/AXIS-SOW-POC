@@ -8,6 +8,7 @@ var FormData = require('form-data');
 var fs = require('fs');
 var querystring = require('querystring');
 var http = require('http');
+
 //  Some implementation....
 
 router.route('/import')
@@ -18,7 +19,7 @@ router.route('/import')
 
       var form = new FormData();
       form.append('title',req.body.title);
-      form.append('file', fs.createReadStream("/Users/adriendeprez/code/PRPT/AXIS-SOW-POC/uploads/" + req.body.file));
+      form.append('file', fs.createReadStream('./uploads/'+ req.body.file));
       form.submit('http://localhost:8080/AXIS-SOW-POC-backend/import', function(err, res) {
         // res – response object (http.IncomingMessage)  //
         res.resume();
