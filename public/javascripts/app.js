@@ -20,11 +20,20 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute', 'ngFileUpload', 'ngMaterial
         /*Height of the line of a sequenceur. Should be at least 8*/
         "LINE_HEIGHT": 20,
         /*Width of the indexed tracks names*/
-        "INDEXED_TRACK_NAME_WIDTH": 100,
+        "INDEXED_TRACK_NAME_WIDTH": 50,
         /* Ratio to determine the width of a bar */
         "RATIO_POINT_TO_SECOND": 3,
         /* Width of a point tag */
-        "POINT_WIDTH": 15
+        "POINT_WIDTH": 15,
+        /*CSS of Elements*/
+        "BACKGROUND_COLOR_LABEL" : "darkgrey",
+        "BACKGROUND_COLOR_SEGMENT" : "darkblue",
+        "BACKGROUND_COLOR_POINT" : "indigo",
+        "BACKGROUND_COLOR_INDEXED_TRACK" : "lightblue",
+        "FOREGROUND_COLOR_LABEL" : "white",
+        "FOREGROUND_COLOR_SEGMENT" : "white",
+        "FOREGROUND_COLOR_POINT" : "white",
+        "FOREGROUND_COLOR_INDEXED_TRACK" : "white"
     };
     sequenceurParams.BAR_OFFSET = sequenceurParams.MARGIN + sequenceurParams.INDEXED_TRACK_NAME_WIDTH + sequenceurParams.SPACE;
 
@@ -313,11 +322,9 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
          */
         function createAllComponents(indexationData) {
             var sequenceur = angular.element(document.getElementById('sequenceur'))[0];
-            console.log(sequenceur);
             for (var i = 0; i < indexationData.indexedTracks.length; i++) {
                 var indexedTrack = indexationData.indexedTracks[i];
                 var line = createLine(indexedTrack, i);
-                console.log("createAllComponents 3");
                 for (var j = 0; j < indexedTrack.levels.length; j++) {
                     var subline = indexedTrack.levels[j];
                     for (var k = 0; k < subline.length; k++) {
@@ -328,7 +335,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                             createPoint(i, j, k, fragment, line);
                     }
                 }
-                console.log("createAllComponents 1");
                 sequenceur.appendChild(line);
             }
             addCursor();
@@ -348,16 +354,20 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             lineProperties.x = 0;
             lineProperties.width = $scope.sequenceurParams.width;
             lineProperties.height = $scope.sequenceurParams.LINE_HEIGHT * track.levels.length;
+            lineProperties.style = "background-color : blue;fill : blue; background : blue";
             lineProperties.track = track.name;
             line = createSVGElement("svg", lineProperties);
 
             //Now we need to create the label and the container for the fragment
             //We create the label
             var textProperties = {};
-            textProperties.y = "75%";
+            textProperties.x = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.26;
+            textProperties.y = "50%";
             textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
             textProperties.lengthAdjust = "spacingAndGlyphs";
-            textProperties.fill = "#000";
+            textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
+            textProperties["dominant-baseline"] = "central";
+            textProperties["alignment-baseline"] = "central";            
             var text = createSVGElement("text", textProperties);
             text.innerHTML = track.name;
             line.appendChild(text);
@@ -369,7 +379,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 tagContainerProperties.y = $scope.sequenceurParams.LINE_HEIGHT * i;
                 tagContainerProperties.width = $scope.sequenceurParams.barwidth;
                 tagContainerProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
-                tagContainerProperties.fill = "#F0F0F0";
+                tagContainerProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_INDEXED_TRACK;
                 tagContainerProperties.type = "tagContainer";
                 tagContainerProperties.class = "tagContainer";
                 tagContainerProperties.nline = i;
@@ -387,10 +397,19 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
          * @param {SVG} currentLine : line to which the fragment created has to be added
          */
         function createSegment(indexIndexedTrack, level, indexFragment, fragment, currentLine) {
+            var segmentProperties = {};
+            segmentProperties.type = "segment";
+            segmentProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_SEGMENT;
+            segmentProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+            segmentProperties.y = $scope.sequenceurParams.LINE_HEIGHT * level;
+            segmentProperties.width = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+            segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
+            var segment = createSVGElement("rect", segmentProperties);
+            
             //We create the label
             var textProperties = {};
-            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND);
-            textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.75);
+            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.seqBegin + (segmentProperties.width * 0.01)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+            textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.5);
 
             //Information from fragment
             textProperties.uri = fragment.uri;
@@ -398,9 +417,11 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             textProperties.level = level;
             textProperties.indexFragment = indexFragment;
 
-            textProperties.textLength = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+            textProperties["dominant-baseline"] = "central";
+            textProperties["alignment-baseline"] = "central";
+            textProperties.textLength = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND * 0.90;
             textProperties.lengthAdjust = "spacingAndGlyphs";
-            textProperties.fill = "#FFF";
+            textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_SEGMENT;
             textProperties.class = "tagName";
             textProperties.start = fragment.start;
             var text = createSVGElement("text", textProperties);
@@ -426,15 +447,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 }
             });
 
-            var segmentProperties = {};
-            segmentProperties.type = "segment";
-            segmentProperties.fill = "black";
-            segmentProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-            segmentProperties.y = $scope.sequenceurParams.LINE_HEIGHT * level;
-            segmentProperties.width = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-            segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
-            var segment = createSVGElement("rect", segmentProperties);
-
             currentLine.appendChild(segment);
             currentLine.appendChild(text);
         }
@@ -453,7 +465,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             timePointProperties.x2 = $scope.sequenceurParams.BAR_OFFSET + fragment.start * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             timePointProperties.y1 = $scope.sequenceurParams.LINE_HEIGHT * level;
             timePointProperties.y2 = $scope.sequenceurParams.LINE_HEIGHT * (level + 1);
-            timePointProperties.stroke = "red";
+            timePointProperties.stroke = $scope.sequenceurParams.BACKGROUND_COLOR_POINT;
             timePointProperties["stroke-width"] = $scope.sequenceurParams.RATIO_POINT_TO_SECOND / 2;
             var timePoint = createSVGElement("line", timePointProperties);
 
@@ -463,23 +475,25 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             pointProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             pointProperties.width = $scope.sequenceurParams.POINT_WIDTH * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             pointProperties.height = 0.5 * $scope.sequenceurParams.LINE_HEIGHT;
-            pointProperties.fill = "grey";
+            pointProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_POINT;
             var point = createSVGElement("rect", pointProperties);
 
             //We create the label
             var textProperties = {};
-            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
-            textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.75);
+            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.seqBegin + (pointProperties.width * 0.01)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+            textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.5);
 
             //information from fragment
             textProperties.uri = fragment.uri;
             textProperties.indexIndexedTrack = indexIndexedTrack;
             textProperties.level = level;
             textProperties.indexFragment = indexFragment;
-
-            textProperties.textLength = pointProperties.width;
+            textProperties["font-size"] = $scope.sequenceurParams.LINE_HEIGHT / 4;
+            textProperties["dominant-baseline"] = "central";
+            textProperties["alignment-baseline"] = "central";
+            textProperties.textLength = pointProperties.width * 0.90;
             textProperties.lengthAdjust = "spacingAndGlyphs";
-            textProperties.fill = "#FFF";
+            textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_POINT;
             textProperties.class = "tagName";
             textProperties.start = fragment.start;
             var text = createSVGElement("text", textProperties);
