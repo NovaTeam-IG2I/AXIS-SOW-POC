@@ -301,7 +301,11 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 }
                 $scope.sequenceurParams.height += $scope.sequenceurParams.SPACE;
             }
-            $scope.sequenceurParams.height -= $scope.sequenceurParams.SPACE;
+            
+            //we need to add the empty line
+            $scope.sequenceurParams.height += $scope.sequenceurParams.LINE_HEIGHT;
+            //Because of the empty line, we don't need to minus a space len.
+            //$scope.sequenceurParams.height -= $scope.sequenceurParams.SPACE;
             sharedMedia.setSequenceurParams($scope.sequenceurParams);
             console.log("paramSequenceur");
             createAllComponents(correctedData);
@@ -337,6 +341,17 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 }
                 sequenceur.appendChild(line);
             }
+            
+            //We need to add an empty line to allow the creation of the various
+            //elements by the user
+            
+            var emptyLine = createLine({
+                "name" : "NEW",
+                "levels" : [[]]
+            }, indexationData.indexedTracks.length);
+            
+            sequenceur.appendChild(emptyLine);
+            
             addCursor();
         }
         /**
@@ -354,7 +369,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             lineProperties.x = 0;
             lineProperties.width = $scope.sequenceurParams.width;
             lineProperties.height = $scope.sequenceurParams.LINE_HEIGHT * track.levels.length;
-            lineProperties.style = "background-color : blue;fill : blue; background : blue";
             lineProperties.track = track.name;
             line = createSVGElement("svg", lineProperties);
 
