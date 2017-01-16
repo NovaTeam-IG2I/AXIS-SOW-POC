@@ -375,7 +375,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             //Now we need to create the label and the container for the fragment
             //We create the label
             var textProperties = {};
-            textProperties.x = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.26;
+            textProperties.x = $scope.sequenceurParams.MARGIN + $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.10;
             textProperties.y = "50%";
             textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
             textProperties.lengthAdjust = "spacingAndGlyphs";
