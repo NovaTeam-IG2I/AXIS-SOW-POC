@@ -1,0 +1,26 @@
+<md-dialog aria-label="Add Track" class="col-md-3">
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h2>Add fragment</h2>
+            <span flex></span>
+            <md-button class="md-icon-button" ng-click="cancel()">
+                X
+            </md-button>
+        </div>
+    </md-toolbar>
+
+    <md-dialog-content>
+        <div class="md-dialog-content col-md-12 middleAlign"> 
+            <form name="indexationTrackForm" ng-submit="$event.preventDefault()" class="css-form2">
+                <label>Track : <input type="text" ng-model="trackname" placeholder="Please enter the track"/></label>
+            </form>    
+        </div>
+    </md-dialog-content>
+
+    <md-dialog-actions layout="row">
+        <md-button ng-click="createTrack(trackname)">
+            Create the track
+        </md-button>
+    </md-dialog-actions>
+</md-dialog>
+

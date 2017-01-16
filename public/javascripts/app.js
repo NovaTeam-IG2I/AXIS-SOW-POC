@@ -22,7 +22,7 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute', 'ngFileUpload', 'ngMaterial
         /*Width of the indexed tracks names*/
         "INDEXED_TRACK_NAME_WIDTH": 50,
         /* Ratio to determine the width of a bar */
-        "RATIO_POINT_TO_SECOND": 3,
+        "RATIO_POINT_TO_SECOND": 4,
         /* Width of a point tag */
         "POINT_WIDTH": 15,
         /*CSS of Elements*/
@@ -30,6 +30,7 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute', 'ngFileUpload', 'ngMaterial
         "BACKGROUND_COLOR_SEGMENT" : "darkblue",
         "BACKGROUND_COLOR_POINT" : "indigo",
         "BACKGROUND_COLOR_INDEXED_TRACK" : "lightblue",
+        "BACKGROUND_COLOR_BUTTON" : "lightgrey",
         "FOREGROUND_COLOR_LABEL" : "white",
         "FOREGROUND_COLOR_SEGMENT" : "white",
         "FOREGROUND_COLOR_POINT" : "white",
@@ -113,7 +114,7 @@ app.controller('listController', ['$scope', '$http', 'sharedMedia', function ($s
         };
     }]);
 
-app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', function ($sce, $scope, $http, sharedMedia) {
+app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$mdDialog', function ($sce, $scope, $http, sharedMedia, $mdDialog) {
         //TODO add the functions to control the clip view
         $scope.mediaURI = sharedMedia.getMediaURI();
         $scope.mediaAdress = "";
@@ -345,11 +346,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             //We need to add an empty line to allow the creation of the various
             //elements by the user
             
-            var emptyLine = createLine({
-                "name" : "NEW",
-                "levels" : [[]]
-            }, indexationData.indexedTracks.length);
-            
+            var emptyLine = createEmptyLine("NEW", indexationData.indexedTracks.length);
             sequenceur.appendChild(emptyLine);
             
             addCursor();
@@ -377,7 +374,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             var textProperties = {};
             textProperties.x = $scope.sequenceurParams.MARGIN + $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.10;
             textProperties.y = "50%";
-            textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
+            textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.80 ;
             textProperties.lengthAdjust = "spacingAndGlyphs";
             textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
             textProperties["dominant-baseline"] = "central";
@@ -401,8 +398,119 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 line.appendChild(tagContainer);
             }
             return line;
-
         }
+        
+        /**
+         * Function createEmptyLine
+         * Description : Because of a lack of time, the code has not been
+         * refactored. It keeps the same meaning as createLine but in addition,
+         * it adds the possibility to create a track by clicking on the label
+         * Or to add a fragment by clicking on the line
+         * @param {String} track : name for the empty label
+         * @param {type} index : index for locating where on the sequenceur 
+         * this line should be
+         * @returns {Element}
+         */
+        function createEmptyLine(track, index)
+        {
+            var emptyLine;
+            var lineProperties = {};
+            lineProperties.y = computeYLine(index);
+            lineProperties.x = 0;
+            lineProperties.width = $scope.sequenceurParams.width;
+            lineProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
+            lineProperties.track = track;
+            emptyLine = createSVGElement("svg", lineProperties);
+            console.log(emptyLine);
+            //To add a button like look
+            var rectangleProperties = {};
+            rectangleProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_BUTTON;
+            rectangleProperties.x = $scope.sequenceurParams.MARGIN;
+            rectangleProperties.y = $scope.sequenceurParams.LINE_HEIGHT * 0.10;
+            rectangleProperties.width = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
+            rectangleProperties.height = $scope.sequenceurParams.LINE_HEIGHT * 0.80;
+            var rectangle = createSVGElement("rect", rectangleProperties);            
+            emptyLine.appendChild(rectangle);
+
+            //Now we need to create the label and the container for the fragment
+            //We create the label
+            var textProperties = {};
+            textProperties.x = $scope.sequenceurParams.MARGIN + $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.10;
+            textProperties.y = "50%";
+            textProperties.class = "cursor";
+            textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.8;
+            textProperties.lengthAdjust = "spacingAndGlyphs";
+            textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
+            textProperties["dominant-baseline"] = "central";
+            textProperties["alignment-baseline"] = "central";            
+            var text = createSVGElement("text", textProperties);
+            text.innerHTML = track;
+            //when we click on the text "NEW" or "ADD", we open a popup to create a track.
+            text.addEventListener("click", function(event){
+                event.preventDefault(); 
+                if(event.which == 1)
+                    showIndexationTrackDialog(event);
+            });
+            emptyLine.appendChild(text);
+
+            //We create the "rectangle" which is the length of the video
+            var tagContainerProperties = {};
+            tagContainerProperties.x = $scope.sequenceurParams.BAR_OFFSET;
+            tagContainerProperties.y = 0;
+            tagContainerProperties.width = $scope.sequenceurParams.barwidth;
+            tagContainerProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
+            tagContainerProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_INDEXED_TRACK;
+            tagContainerProperties.type = "tagContainer";
+            tagContainerProperties.class = "tagContainer";
+            var tagContainer = createSVGElement("rect", tagContainerProperties);
+            emptyLine.appendChild(tagContainer);
+            return emptyLine;
+        }
+      
+        function showIndexationTrackDialog(event){
+            $mdDialog.show({
+                controller: DialogTrackController,
+                templateUrl: 'template/addTrack.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                clickOutsideToClose: false
+            });  
+        }
+        
+        /**
+         * function DialogTrackController
+         * Description : Contains the main function to manipulate the dialog to create a track
+         */
+        function DialogTrackController($scope, $mdDialog){
+            
+            $scope.hide = function () {
+                $mdDialog.hide();
+            };
+
+            $scope.cancel = function () {
+                $mdDialog.cancel();
+            };
+        
+            $scope.createTrack = function(track){
+                var trackname = angular.copy(track);
+                if(trackname == undefined || trackname.length < 3)
+                    alert("Please enter a valid name for the track");
+                else{
+                    //need ajax to do
+                    alert("On envoie une requete asynchrone avec " + trackname + " comme track");
+                    var indexationData = sharedMedia.getIndexationData();
+                    var lastIndex = indexationData.indexedTracks.length;
+                    indexationData.indexedTracks.push({});
+                    indexationData.indexedTracks[lastIndex].name = trackname;
+                    indexationData.indexedTracks[lastIndex].levels = [];
+                    indexationData.indexedTracks[lastIndex].levels.push([]);
+                    sharedMedia.setIndexationData(indexationData);
+                    $mdDialog.hide();
+                    paramSequenceur(indexationData);
+                }
+            }
+        }
+        
         /**
          * Function createSegment
          * Description : Create the component linked to a segment from the informations given to the line indicated

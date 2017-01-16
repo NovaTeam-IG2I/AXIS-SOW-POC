@@ -18,7 +18,7 @@ a {
     background-color : #343434;
 }
 
-text.tagName:hover{
+text.tagName:hover, text.cursor{
     cursor: pointer;
 }
 
@@ -51,6 +51,11 @@ span.categoryName{
     width : 150px;
     text-decoration: underline; 
     font-weight: bold;
+}
+
+.css-form2{
+    margin : auto;
+    float : left;
 }
 
 .css-form input[type="text"].ng-invalid.ng-touched {
