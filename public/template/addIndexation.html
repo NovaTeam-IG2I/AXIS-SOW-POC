@@ -13,9 +13,9 @@
         <div class="md-dialog-content col-md-12 middleAlign"> 
             <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'segment'" novalidate class="css-form">
                 <div class="col-md-3">
-                    <md-input-container>
+                    <md-input-container class="col-md-12">
                         <label>Track :</label>
-                        <md-select ng-model="selectedTrack">
+                        <md-select ng-model="selectedTrack" required>
                             <md-option ng-value="track" ng-repeat="track in tracks">{{ track}}</md-option>
                         </md-select>
                     </md-input-container>                
