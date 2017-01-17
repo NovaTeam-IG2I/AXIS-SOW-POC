@@ -423,7 +423,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             lineProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
             lineProperties.track = track;
             emptyLine = createSVGElement("svg", lineProperties);
-            console.log(emptyLine);
             //To add a button like look
             var rectangleProperties = {};
             rectangleProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_BUTTON;
@@ -938,8 +937,6 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                 var mediaURI = sharedMedia.getMediaURI();
                 //We don't need the start time nor the end time but we need the uri and the nature of the tag
                 var partialFragment = searchTagByName(tag);
-                
-                console.log(trackURI);
                 $http({
                     method: 'GET',
                     url: 'http://localhost:3000/api/createFragment/',
