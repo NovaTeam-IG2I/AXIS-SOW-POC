@@ -138,7 +138,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             $scope.getMediaVideo = "Succes";
             //$scope.mediaAdress = $sce.trustAsResourceUrl(response.data);
             $scope.mediaAdress = response.data;
-            console.log($scope.mediaAdress);
             var video = angular.element(document.getElementById("video"))[0];
             var source = document.createElement("source");
             source.src = $scope.mediaAdress;
@@ -157,10 +156,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     var data = response.data;
                     data = formatIndexations(data);
                     sharedMedia.setIndexationData(data);
-                    console.log(data);
                     paramSequenceur(data);
-                    sharedMedia.setIndexationData(data);
-                    console.log(data);
+                    sharedMedia.setIndexationData(data);                 
                 }, function errorCallback(response) {
                     $scope.getMediaIndexations = "Fail";
                 });
@@ -190,17 +187,15 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             $scope.getMediaTechnicals = "Fail";
         });
 
-        $scope.getClipData = function (clipURI, clipName) {
-            console.log(clipURI);
+        $scope.getClipData = function (clipURI, clipName, fragmentID) {
             if(clipURI != null && clipURI != ""){
                 $http({
                     method: 'GET',
                     url: 'http://localhost:3000/api/clipsheet/' + encodeURIComponent(clipURI)
                 }).then(function successCallback(response) {
                     $scope.getMediaClip = "Succes";
-                    console.log($scope.clipData);
                     if ($scope.clipData[clipURI] == undefined) {
-                        $scope.clipData[clipURI] = {"uri": clipURI, "name" : clipName, "data": response.data};
+                        $scope.clipData[clipURI] = {"uri": clipURI, "fragID" : fragmentID, "name" : clipName, "data": response.data};
                     }
                 }, function errorCallback(response) {
                     $scope.getMediaClip = "Fail";
@@ -223,8 +218,10 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             dataFormatted.trackNames = new Array();
             dataFormatted.tagNames = new Array();
             dataFormatted.indexedTracks = [];
-
-
+            
+            //idFragment will be usefull to access each fragment later
+            //for example, to hightlight it
+            var idFragment = 0;
             var shouldAddFragToTag = true;
             var shouldAddFragToLevel = true;
             var levelToAddFragment = 0;
@@ -241,6 +238,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 //Add the name of the indexedTrack for futur autocompletion
                 dataFormatted.trackNames.push(indexedTrack.name);
                 for (var j = 0; j < indexedTrack.fragments.length; j++) {
+                    //increment the idFragment
+                    idFragment++;
                     //get the current fragment
                     var fragment = indexedTrack.fragments[j];
                     //We need to manipulate the fragment to put some more information
@@ -248,7 +247,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     var seqEnd = (fragment.type == "point") ? (fragment.start + $scope.sequenceurParams.POINT_WIDTH / 2) : fragment.end;
                     fragment.seqBegin = seqBegin;
                     fragment.seqEnd = seqEnd;
-
+                    fragment.id = idFragment;
                     //We need to check for no doublon case
                     shouldAddFragToTag = true;
                     for (var k = 0; k < dataFormatted.tagNames.length; k++) {
@@ -311,7 +310,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             //Because of the empty line, we don't need to minus a space len.
             //$scope.sequenceurParams.height -= $scope.sequenceurParams.SPACE;
             sharedMedia.setSequenceurParams($scope.sequenceurParams);
-            console.log("paramSequenceur");
             createAllComponents(correctedData);
         }
 
@@ -528,7 +526,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             segmentProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_SEGMENT;
             segmentProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.y = $scope.sequenceurParams.LINE_HEIGHT * level;
-            
+            segmentProperties.id = fragment.id;
             segmentProperties.width = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
             var segment = createSVGElement("rect", segmentProperties);
@@ -560,22 +558,44 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 if (event.which == 1) {
                     var video = angular.element(document.getElementById('video'))[0];
                     var time = event.target.getAttribute("start");
-                    console.log(time);
                     if (time != undefined) {
                         video.pause();
                         video.currentTime = parseFloat(time);
                         video.play();
-                        console.log(video);
                     }
                     //if(event.ctrlKey){
                     //if right click, we open the dialog for the right tag
                     var uri = event.target.getAttribute("uri");
                     if (uri != undefined)
-                        $scope.getClipData(uri, fragment.name);
+                        $scope.getClipData(uri, fragment.name, fragment.id);
                     //}
                 }
             });
-
+            text.addEventListener("mouseenter", function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    if(tab[0].classList.contains('active')){
+                        tab[0].blur();                        
+                        tab[0].classList.toggle('active');
+                        tab[0].wasActive = "true";
+                    }
+                    tab[0].style = "background-color : black";
+                    tab[0].childNodes[0].style = "background-color : black";
+                    
+                }
+            });
+            text.addEventListener("mouseleave",function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    tab[0].removeAttribute('style');
+                    if(tab[0].hasOwnProperty("wasActive")){
+                        tab[0].removeAttribute("wasActive");
+                        tab[0].classList.toggle('active');
+                    }
+                }
+            });
             currentLine.appendChild(segment);
             currentLine.appendChild(text);
         }
@@ -596,6 +616,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             timePointProperties.y2 = $scope.sequenceurParams.LINE_HEIGHT * (level + 1);
             timePointProperties.stroke = $scope.sequenceurParams.BACKGROUND_COLOR_POINT;
             timePointProperties["stroke-width"] = $scope.sequenceurParams.RATIO_POINT_TO_SECOND / 2;
+            timePointProperties.id = "point_" + fragment.id;
             var timePoint = createSVGElement("line", timePointProperties);
 
             var pointProperties = {};
@@ -605,6 +626,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             pointProperties.width = $scope.sequenceurParams.POINT_WIDTH * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             pointProperties.height = 0.5 * $scope.sequenceurParams.LINE_HEIGHT;
             pointProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_POINT;
+            pointProperties.id = fragment.id;
             var point = createSVGElement("rect", pointProperties);
 
             //We create the label
@@ -645,8 +667,31 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     var uri = fragment.uri;//event.target.getAttribute("uri");
 
                     if (uri != undefined)
-                        $scope.getClipData(uri, fragment.name);
+                        $scope.getClipData(uri, fragment.name, fragment.id);
                     //}
+                }
+            });  
+            text.addEventListener("mouseenter", function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    if(tab[0].classList.contains('active')){
+                        tab[0].blur();
+                        tab[0].classList.toggle('active');
+                        tab[0].wasActive = "true";
+                    }
+                    tab[0].style = "background-color : black";
+                }
+            });
+            text.addEventListener("mouseleave",function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    tab[0].removeAttribute('style');
+                    if(tab[0].hasOwnProperty("wasActive")){
+                        tab[0].removeAttribute("wasActive");
+                        tab[0].classList.toggle('active');
+                    }
                 }
             });
             currentLine.appendChild(timePoint);
@@ -711,6 +756,36 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             }
             return y;
         }
+        
+        
+        /**
+         * Function : highlightFragment
+         * Description : Search inside the indexationData the fragment with the corresponding URI
+         * If found, it hightlights it.
+         * @param {String} fragmentURI
+         */
+        $scope.highlightFragment = function(fragmentID){
+            var rect = angular.element(document.getElementById(fragmentID))[0];
+            rect.setAttributeNS(null, 'stroke', "yellow");
+            rect.setAttributeNS(null, 'stroke-width', "4");
+            rect.setAttributeNS(null, 'stroke-linecap', "round");
+            rect.setAttributeNS(null, 'stroke-linejoin', "round");
+        };
+        
+        /**
+         * Function : shadowFragment
+         * Description : Cast a bloom on an already highlighted fragment
+         * @param {type} fragmentURI
+         * @returns {undefined}
+         */
+        $scope.shadowFragment = function(fragmentID){
+            var rect = angular.element(document.getElementById(fragmentID))[0];
+            rect.removeAttributeNS(null, 'stroke');
+            rect.removeAttributeNS(null, 'stroke-width');
+            rect.removeAttributeNS(null, 'stroke-linecap');
+            rect.removeAttributeNS(null, 'stroke-linejoin');
+        };
+        
         /**
          *function : createSVGElement
          *params :
