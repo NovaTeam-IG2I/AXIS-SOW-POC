@@ -190,19 +190,22 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             $scope.getMediaTechnicals = "Fail";
         });
 
-        $scope.getClipData = function (clipURI) {
-            $http({
-                method: 'GET',
-                url: 'http://localhost:3000/api/clipsheet/' + encodeURIComponent(clipURI)
-            }).then(function successCallback(response) {
-                $scope.getMediaClip = "Succes";
-                console.log($scope.clipData);
-                if ($scope.clipData[clipURI] == undefined) {
-                    $scope.clipData[clipURI] = {"uri": clipURI, "data": response.data};
-                }
-            }, function errorCallback(response) {
-                $scope.getMediaClip = "Fail";
-            });
+        $scope.getClipData = function (clipURI, clipName) {
+            console.log(clipURI);
+            if(clipURI != null && clipURI != ""){
+                $http({
+                    method: 'GET',
+                    url: 'http://localhost:3000/api/clipsheet/' + encodeURIComponent(clipURI)
+                }).then(function successCallback(response) {
+                    $scope.getMediaClip = "Succes";
+                    console.log($scope.clipData);
+                    if ($scope.clipData[clipURI] == undefined) {
+                        $scope.clipData[clipURI] = {"uri": clipURI, "name" : clipName, "data": response.data};
+                    }
+                }, function errorCallback(response) {
+                    $scope.getMediaClip = "Fail";
+                });
+            }
         };
 
 
@@ -429,6 +432,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             rectangleProperties.y = $scope.sequenceurParams.LINE_HEIGHT * 0.10;
             rectangleProperties.width = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
             rectangleProperties.height = $scope.sequenceurParams.LINE_HEIGHT * 0.80;
+            
             var rectangle = createSVGElement("rect", rectangleProperties);            
             emptyLine.appendChild(rectangle);
 
@@ -524,13 +528,14 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             segmentProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_SEGMENT;
             segmentProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.y = $scope.sequenceurParams.LINE_HEIGHT * level;
+            
             segmentProperties.width = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
             var segment = createSVGElement("rect", segmentProperties);
             
             //We create the label
             var textProperties = {};
-            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.seqBegin + (segmentProperties.width * 0.01)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (0.95 * parseFloat(fragment.seqBegin) + 0.05 * parseFloat(fragment.seqEnd)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.5);
 
             //Information from fragment
@@ -555,16 +560,18 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 if (event.which == 1) {
                     var video = angular.element(document.getElementById('video'))[0];
                     var time = event.target.getAttribute("start");
+                    console.log(time);
                     if (time != undefined) {
                         video.pause();
-                        video.currentTime = time;
+                        video.currentTime = parseFloat(time);
                         video.play();
+                        console.log(video);
                     }
                     //if(event.ctrlKey){
                     //if right click, we open the dialog for the right tag
                     var uri = event.target.getAttribute("uri");
                     if (uri != undefined)
-                        $scope.getClipData(uri);
+                        $scope.getClipData(uri, fragment.name);
                     //}
                 }
             });
@@ -629,7 +636,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     var time = fragment.start;//event.target.getAttribute("start");
                     if (time != undefined) {
                         video.pause();
-                        video.currentTime = time;
+                        video.currentTime = parseFloat(time);
                         video.play();
                     }
                     //if(event.ctrlKey){
@@ -638,7 +645,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     var uri = fragment.uri;//event.target.getAttribute("uri");
 
                     if (uri != undefined)
-                        $scope.getClipData(uri);
+                        $scope.getClipData(uri, fragment.name);
                     //}
                 }
             });
@@ -973,7 +980,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
             var indexationData = sharedMedia.getIndexationData();
             for (var i = 0; i < indexationData.tagNames.length; i++) {
                 var tag = indexationData.tagNames[i];
-                if (String.toLowerCase(tag.name) == String.toLowerCase(tagName)) {
+                if (tag.name.toLowerCase() == tagName.toLowerCase()) {
                     return tag;
                 }
             }
@@ -1133,12 +1140,12 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                         track.levels[testLevel].push({
                             "seqBegin": fragbegin,
                             "seqEnd": fragend,
-                            "start": fragbegin,
+                            "start": data.fragment.begin,
                             "end": fragend,
                             "uri": data.tag.uri,
                             "name": data.tag.name,
                             "type": data.fragment.type
-                        });
+                        }); 
                     } else {
                         track.levels[testLevel].push({
                             "seqBegin": fragbegin,
@@ -1148,13 +1155,12 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                             "uri": data.tag.uri,
                             "name": data.tag.name,
                             "type": data.fragment.type
-                        });
+                        });                    
                     }
 
                 }
             }
         }
-
         //We need to update the timeline now
         sharedMedia.setIndexationData(indexationData);
         $scope.$emit('reloadTimeline', indexationData);

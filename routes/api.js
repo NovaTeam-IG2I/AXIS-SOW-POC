@@ -235,7 +235,61 @@ router.route('/clipsheet/:uri')
       // write data to request body
       request.write(postData);
       request.end();*/
-      var tagDataUnparsed = new Object();
+      var tagDataUnparsed;
+      switch(req.params.uri)
+      {
+          case "URI Président 1":
+            tagDataUnparsed = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 2":
+            tagDataUnparsed = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président 2", "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 3":
+            tagDataUnparsed = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président 3", "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 4":
+            tagDataUnparsed = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président 4", "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 5":
+            tagDataUnparsed = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président 5", "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 6":
+            tagDataUnparsed = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président 6", "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 7":
+            tagDataUnparsed = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président 7", "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 8":
+            tagDataUnparsed = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président 8" ,  "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI Président 9":
+            tagDataUnparsed = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président 9" ,  "nature" : "Personne", "name" : "Président" };
+            break;
+          case "URI DG 1":
+            tagDataUnparsed = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG 1", "nature" : "Personne", "name" : "Directeur général"};
+            break;
+          case "URI DG 2":
+            tagDataUnparsed = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG 2", "nature" : "Personne", "name" : "Directeur général"};
+            break;
+          case "URI DG 3":
+            tagDataUnparsed = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG 3" ,  "nature" : "Personne", "name" : "Directeur général" };
+            break;
+          case "URI DG 4":
+            tagDataUnparsed = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG 4" ,  "nature" : "Personne", "name" : "Directeur général" };
+            break;
+          case "URI DG 5":
+            tagDataUnparsed = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG 5" ,  "nature" : "Personne", "name" : "Directeur général" };
+            break;
+          case "URI DG 6":
+            tagDataUnparsed = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
+            break;
+          default :
+           tagDataUnparsed =  { "type" : "N/A" , "start" : "N/A" , "end" : "N/A" , "uri" : "N/A" ,  "nature" :"N/A" , "name" : "N/A" };
+          
+      }
+
+
+      /*
       if(req.params.uri == "URI Président")
       {
 
@@ -254,6 +308,8 @@ router.route('/clipsheet/:uri')
        tagDataUnparsed.media = "SVS présentation";
 
       }
+      */
+      
       var tagDataParsed = {};
       for(var key in tagDataUnparsed)
       {
@@ -263,6 +319,10 @@ router.route('/clipsheet/:uri')
       function searchKey(query){
         var traduction = {};
         traduction["start"] = "Start";
+        traduction["type"] = "Type";
+        traduction["uri"] = "URI";
+        traduction["nature"] = "Nature";
+        traduction["name"] = "Name";
         traduction["end"] = "End";
         traduction["subject"] = "Subject";
         traduction["track"] = "Indexed Track";
@@ -372,25 +432,25 @@ router.route('/cliplist')
           data.indexedTracks[0].name = "Image";
           data.indexedTracks[0].uri = "URI Image";
           data.indexedTracks[0].fragments = [];
-              data.indexedTracks[0].fragments[0] = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[0].fragments[1] = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[0].fragments[2] = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[0].fragments[3] = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[0].fragments[4] = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[0].fragments[5] = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[0].fragments[6] = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président", "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[0].fragments[7] = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG", "nature" : "Personne", "name" : "Directeur général"};
-              data.indexedTracks[0].fragments[8] = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG", "nature" : "Personne", "name" : "Directeur général"};
+              data.indexedTracks[0].fragments[0] = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[0].fragments[1] = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président 2", "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[0].fragments[2] = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président 3", "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[0].fragments[3] = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président 4", "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[0].fragments[4] = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président 5", "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[0].fragments[5] = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président 6", "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[0].fragments[6] = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président 7", "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[0].fragments[7] = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG 1", "nature" : "Personne", "name" : "Directeur général"};
+              data.indexedTracks[0].fragments[8] = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG 2", "nature" : "Personne", "name" : "Directeur général"};
       data.indexedTracks[1] = {};
           data.indexedTracks[1].name = "Audio";
           data.indexedTracks[1].uri = "URI Audio";
           data.indexedTracks[1].fragments = [];
-              data.indexedTracks[1].fragments[0] = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président" ,  "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[1].fragments[1] = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président" ,  "nature" : "Personne", "name" : "Président" };
-              data.indexedTracks[1].fragments[2] = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
-              data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
-              data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
-              data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG" ,  "nature" : "Personne", "name" : "Directeur général" };
+              data.indexedTracks[1].fragments[0] = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président 8" ,  "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[1].fragments[1] = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président 9" ,  "nature" : "Personne", "name" : "Président" };
+              data.indexedTracks[1].fragments[2] = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG 3" ,  "nature" : "Personne", "name" : "Directeur général" };
+              data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG 4" ,  "nature" : "Personne", "name" : "Directeur général" };
+              data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG 5" ,  "nature" : "Personne", "name" : "Directeur général" };
+              data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG 6" ,  "nature" : "Personne", "name" : "Directeur général" };
       res.json(data);
   })
 
@@ -432,7 +492,7 @@ router.route('/cliplist')
               result.success = true;
               result.data = {
                 "track" : trackName,
-                "tag" : { "uri" : tagURI, "name" : tagName, "nature" : tagNature },
+                "tag" : { "uri" : tagURI.concat("1"), "name" : tagName, "nature" : tagNature },
                 "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
               };
           }
