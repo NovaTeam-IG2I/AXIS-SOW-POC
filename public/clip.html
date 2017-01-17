@@ -23,14 +23,14 @@ View for listing all the informations about a clip
     <div class="col-md-8">
         <uib-tabset active="active">
                 <uib-tab index="0" heading="Données techniques">
-                    <div class="framework" ng-repeat="(key, value) in technicalData"><span class="categoryName" >
+                    <div class="framework" ng-repeat="(key, value) in technicalData track by $index"><span class="categoryName" >
                       {{key}} :</span><span class="categoryValue" >{{value}}</span></div>
                 </uib-tab>
                 <uib-tab index="1" heading="Données générales">
-                    <div class="framework"><div ng-repeat="(key, value) in productionData"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
+                    <div class="framework"><div ng-repeat="(key, value) in productionData track by $index"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
                 </uib-tab>
                 <uib-tab index="$index + 2" ng-repeat="clip in clipData" disable="tab.disabled" heading="{{clip.uri}}">
-                    <div class="framework"><div ng-repeat="(key, value) in clip.data"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
+                    <div class="framework"><div ng-repeat="(key, value) in clip.data track by $index"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
                 </uib-tab>
         </uib-tabset>
     </div>

@@ -30,88 +30,37 @@ router.route('/productionsheet/:uri')
   .get(function(req,res){
 
       //TODO create a get method to get all production metadata of a media
-      console.log("TODO get all the production metadata of a media");
+      console.log("TODO get all the production metadata of a media : " + req.params.uri);
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/production?id=' + encodeURIComponent(req.params.uri), (result) => {
+        const statusCode = result.statusCode;
+        const contentType = result.headers['content-type'];
 
-      /*var postData = querystring.stringify({
-        'URI' : req.params.uri
-      });
-
-      var options = {
-        hostname: 'localhost',
-        port: 3000,
-        path: '/api/productionsheet/test',
-        method: 'GET',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Content-Length': Buffer.byteLength(postData)
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed.\n` +
+                        `Status Code: ${statusCode}`);
         }
-      };
+        if (error) {
+          console.log(error.message);
+          // consume response data to free up memory
+          result.resume();
+          return;
+        }
 
-      var request = http.request(options, (result) => {
-        console.log(`STATUS: ${result.statusCode}`);
-        console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
         result.setEncoding('utf8');
-        result.on('data', (chunk) => {
-          console.log(`BODY: ${chunk}`);
-        });
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
-          console.log('No more data in response.');
+          try {
+            let parsedData = JSON.parse(rawData);
+            res.json(parsedData);
+          } catch (e) {
+            console.log(e.message);
+          }
         });
+      }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
       });
-
-      request.on('error', (e) => {
-        console.log('problem with request: ${e.message}');
-      });
-
-      // write data to request body
-      request.write(postData);
-      request.end();*/
-
-      var productionDataUnparsed = new Object();
-      productionDataUnparsed.title = "Titanic";
-      productionDataUnparsed.theme1 = "Drama";
-      productionDataUnparsed.theme2 = "Love";
-      productionDataUnparsed.theme3 = "Disaster";
-      productionDataUnparsed.release = 1997;
-      productionDataUnparsed.duration = 194;
-      productionDataUnparsed.country = "USA";
-      productionDataUnparsed.author = "James Cameron";
-      productionDataUnparsed.director = "James Cameron";
-      productionDataUnparsed.society = "20th Century Fox";
-
-
-      var productionDataParsed = {};
-      for(var key in productionDataUnparsed)
-      {
-          productionDataParsed[searchKey(key)] = productionDataUnparsed[key];
-      }
-
-
-      function searchKey(query){
-        var traduction = {};
-        traduction["title"] = "Title";
-        traduction["theme1"] = "Theme 1";
-        traduction["theme2"] = "Theme 2";
-        traduction["theme3"] = "Theme 3";
-        traduction["theme4"] = "Theme 4";
-        traduction["theme5"] = "Theme 5";
-        traduction["theme6"] = "Theme 6";
-        traduction["release date"] = "Date";
-        traduction["duration"] = "Duration";
-        traduction["country"] = "Country";
-        traduction["author"] = "Author";
-        traduction["director"] = "Director";
-        traduction["society"] = "Society";
-
-        var regex = new RegExp(query,"gi");
-        for(var key in traduction){
-            if(key.search(regex) != -1)
-                return traduction[key];
-        }
-        return query;
-      }
-
-      res.json(productionDataParsed);
 
   })
 
@@ -121,77 +70,36 @@ router.route('/technicalsheet/:uri')
       //TODO create a get method to get all technical metadata of a media
       console.log("TODO get all the technical metadata of a media.");
 
-      /*var postData = querystring.stringify({
-        'URI' : req.params.uri
-      });
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/technical?id=' + encodeURIComponent(req.params.uri), (result) => {
+        const statusCode = result.statusCode;
+        const contentType = result.headers['content-type'];
 
-      var options = {
-        hostname: 'localhost',
-        port: 3000,
-        path: '/api/productionsheet/test',
-        method: 'GET',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Content-Length': Buffer.byteLength(postData)
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed.\n` +
+                        `Status Code: ${statusCode}`);
         }
-      };
+        if (error) {
+          console.log(error.message);
+          // consume response data to free up memory
+          result.resume();
+          return;
+        }
 
-      var request = http.request(options, (result) => {
-        console.log(`STATUS: ${result.statusCode}`);
-        console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
         result.setEncoding('utf8');
-        result.on('data', (chunk) => {
-          console.log(`BODY: ${chunk}`);
-        });
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
-          console.log('No more data in response.');
+          try {
+            let parsedData = JSON.parse(rawData);
+            res.json(parsedData);
+          } catch (e) {
+            console.log(e.message);
+          }
         });
+      }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
       });
-
-      request.on('error', (e) => {
-        console.log('problem with request: ${e.message}');
-      });
-
-      // write data to request body
-      request.write(postData);
-      request.end();*/
-
-      var technicalDataUnparsed = new Object();
-      technicalDataUnparsed.fileName = "Selma.mp4"
-      technicalDataUnparsed.date = 2014;
-      technicalDataUnparsed.fileSize = "700mo";
-      technicalDataUnparsed.hyperLink = "httpï¿¼/www.imdb.com/title/tt1020072/";
-      technicalDataUnparsed.rights = "Warner Bros";
-      technicalDataUnparsed.duration = "128";
-      technicalDataUnparsed.importationDate = "2016-12-22";
-
-      var technicalDataParsed = {};
-      for(var key in technicalDataUnparsed)
-      {
-          technicalDataParsed[searchKey(key)] = technicalDataUnparsed[key];
-      }
-
-
-      function searchKey(query){
-        var traduction = {};
-        traduction["filename"] = "File name";
-        traduction["date"] = "Date";
-        traduction["datetime"] = "Date";
-        traduction["filesize"] = "File Size";
-        traduction["hyperlink"] = "Hyperlink";
-        traduction["rights"] = "Rights";
-        traduction["duration"] = "Duration";
-        traduction["importationdate"] = "Importation Date";
-
-        var regex = new RegExp(query,"gi");
-        for(var key in traduction){
-            if(key.search(regex) != -1)
-                return traduction[key];
-        }
-        return query;
-      }
-
-      res.json(technicalDataParsed);
 
   })
 

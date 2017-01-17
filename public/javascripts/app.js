@@ -175,6 +175,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
         }).then(function successCallback(response) {
             $scope.getMediaProductions = "Succes";
             $scope.productionData = response.data;
+            console.log($scope.productionData);
         }, function errorCallback(response) {
             $scope.getMediaProductions = "Fail";
         });
@@ -301,7 +302,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 }
                 $scope.sequenceurParams.height += $scope.sequenceurParams.SPACE;
             }
-            
+
             //we need to add the empty line
             $scope.sequenceurParams.height += $scope.sequenceurParams.LINE_HEIGHT;
             //Because of the empty line, we don't need to minus a space len.
@@ -341,17 +342,17 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 }
                 sequenceur.appendChild(line);
             }
-            
+
             //We need to add an empty line to allow the creation of the various
             //elements by the user
-            
+
             var emptyLine = createLine({
                 "name" : "NEW",
                 "levels" : [[]]
             }, indexationData.indexedTracks.length);
-            
+
             sequenceur.appendChild(emptyLine);
-            
+
             addCursor();
         }
         /**
@@ -381,7 +382,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             textProperties.lengthAdjust = "spacingAndGlyphs";
             textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
             textProperties["dominant-baseline"] = "central";
-            textProperties["alignment-baseline"] = "central";            
+            textProperties["alignment-baseline"] = "central";
             var text = createSVGElement("text", textProperties);
             text.innerHTML = track.name;
             line.appendChild(text);
@@ -419,7 +420,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             segmentProperties.width = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
             var segment = createSVGElement("rect", segmentProperties);
-            
+
             //We create the label
             var textProperties = {};
             textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.seqBegin + (segmentProperties.width * 0.01)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
