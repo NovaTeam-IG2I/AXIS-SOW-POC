@@ -456,8 +456,7 @@ router.route('/cliplist')
 
   router.route('/createFragment/')
     .get(function(req,res){
-      var mediaURI = req.param("mediaURI", null);
-      var trackName = req.param("trackName", null);
+      var trackURI = req.param("trackURI", null);
       var tagURI = req.param("tagURI", null);
       var tagName = req.param("tagName", null);
       var tagNature = req.param("tagNature", null);
@@ -468,9 +467,7 @@ router.route('/cliplist')
       var result = {};
       result.success = false;
       result.message = "";
-      if(mediaURI == null){
-          result.message += "The media has not been specified. ";
-      }else if(trackName == null){
+      if(trackURI == null){
           result.message += "The track has not been specified. ";
       }else if(fragType == null){
           result.message += "The type of fragment has not been specified. ";
@@ -491,7 +488,7 @@ router.route('/cliplist')
               ////////////////////////////////////////////////////////////////
               result.success = true;
               result.data = {
-                "track" : trackName,
+                "trackURI" : trackURI, 
                 "tag" : { "uri" : tagURI.concat("1"), "name" : tagName, "nature" : tagNature },
                 "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
               };
@@ -503,5 +500,34 @@ router.route('/cliplist')
       res.json(result);
 
     })
+
+    router.route('/createTrack/')
+      .get(function(req,res){
+        var mediaURI = req.param("mediaURI", null);
+        var trackName = req.param("trackName", null);
+
+        var result = {};
+        result.msg = "";
+        result.data = {};
+        result.success = false;
+        if(mediaURI == null || trackName == null || mediaURI.length == 0 || trackName.length ==0){
+            result.msg += "All the informations have not been completed \n";
+        }else{
+            //REQUETE VERS LE SERVEUR <3 <3 <3
+            //ON RECOIT LE RESULTAT QUI CONTIENT L'URI et le resultat
+            //considerons que ça marche
+            if(true){
+                result.success = true;
+                result.data.uri = "URI URI quand tu me tiens";
+                result.data.track = trackName;
+            }else{
+                result.msg("An error occured in the request \n");
+            }
+        }
+      
+        res.json(result);
+
+    })
+    
 // allow us to use this routing configuration in other files as 'router'
 module.exports = router;

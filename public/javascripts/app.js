@@ -233,6 +233,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 //Add the name and create the multiline system
                 dataFormatted.indexedTracks.push({});
                 dataFormatted.indexedTracks[i].name = indexedTrack.name;
+                dataFormatted.indexedTracks[i].uri = indexedTrack.uri;
                 dataFormatted.indexedTracks[i].levels = [];
                 dataFormatted.indexedTracks[i].levels.push([]);
                 //Add the name of the indexedTrack for futur autocompletion
@@ -498,17 +499,37 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 if(trackname == undefined || trackname.length < 3)
                     alert("Please enter a valid name for the track");
                 else{
-                    //need ajax to do
-                    alert("On envoie une requete asynchrone avec " + trackname + " comme track");
                     var indexationData = sharedMedia.getIndexationData();
                     var lastIndex = indexationData.indexedTracks.length;
-                    indexationData.indexedTracks.push({});
-                    indexationData.indexedTracks[lastIndex].name = trackname;
-                    indexationData.indexedTracks[lastIndex].levels = [];
-                    indexationData.indexedTracks[lastIndex].levels.push([]);
-                    sharedMedia.setIndexationData(indexationData);
-                    $mdDialog.hide();
-                    paramSequenceur(indexationData);
+                    var doNotExist = true;
+                    for(var i = 0; i < indexationData.indexedTracks.length; i++){
+                        if(track.toLowerCase() == indexationData.indexedTracks[i].name.toLowerCase())
+                            doNotExist = false;
+                    }     
+                    
+                    if(doNotExist){
+                        $http({
+                            method: 'GET',
+                            url: 'http://localhost:3000/api/createTrack',
+                            params : {'mediaURI' : encodeURIComponent(sharedMedia.getMediaURI()), 'trackName' : track}
+                        }).then(function successCallback(response) {
+                            if(response.data.success == true){
+                                indexationData.trackNames.push(trackname);
+                                indexationData.indexedTracks.push({});
+                                indexationData.indexedTracks[lastIndex].uri = "";
+                                indexationData.indexedTracks[lastIndex].name = trackname;
+                                indexationData.indexedTracks[lastIndex].levels = [];
+                                indexationData.indexedTracks[lastIndex].levels.push([]);
+                                sharedMedia.setIndexationData(indexationData);
+                                paramSequenceur(indexationData);
+                            }else{
+                                alert("The track '"+track+"' already exists.");
+                            }
+                            $mdDialog.hide();
+                        }, function errorCallback(response) {});                                
+                    }else{
+                        alert("Track already exists");
+                    }
                 }
             }
         }
@@ -818,7 +839,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
 
 
 app.controller('indexationController', function ($scope, $http, sharedMedia, $mdDialog) {
-    var selectedTrack = null;
     var selectedTag = null;
 
     /**
@@ -842,8 +862,9 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
      * function DialogController
      * Description : contains the main functions to manipulate the popup
      */
-    function DialogController($scope, $mdDialog) {
-
+    function DialogController($scope, $mdDialog, sharedMedia) {
+        $scope.tracks = sharedMedia.getIndexationData().trackNames;
+        $scope.selectedTrack = "";
 
         $scope.hide = function () {
             $mdDialog.hide();
@@ -852,6 +873,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
         $scope.cancel = function () {
             $mdDialog.cancel();
         };
+
 
         /**
          * Function create
@@ -863,6 +885,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
         $scope.create = function () {
             var indexationData = sharedMedia.getIndexationData();
             var track = $scope.selectedTrack;
+            var trackURI = "";
             var tag = $scope.selectedTag;
             var fragType = indexationForm.fragmentType.value;
             var fragBegin = indexationForm.fragBegin.value;
@@ -871,7 +894,16 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
 
             if (track == null || track == undefined)
                 msg += "No track has been selected\n";
-
+            else{
+                var tracksFromService = sharedMedia.getIndexationData();
+                for(var i=0; i < tracksFromService.indexedTracks.length; i++){
+                    var trackFromService = tracksFromService.indexedTracks[i];
+                    if(track.toLowerCase() == trackFromService.name.toLowerCase()){
+                        trackURI = trackFromService.uri;
+                    }
+                }
+            }
+                
             if (tag == null || tag == undefined)
                 msg += "No tag has been selected\n";
 
@@ -896,25 +928,22 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
             if (msg.length > 0)
                 alert(msg);
             else {
-                if (fragType == "segment")
-
-                {
+                if (fragType == "segment"){
                     fragBegin = parseFloat(fragBegin);
                     fragEnd = parseFloat(fragEnd);
                 } else {
                     fragEnd = parseFloat(fragBegin);
                 }
-
-
-
                 //we need to search for the id of each element (the media and the tag (if the tag has for id 0, it is a new one)
                 var mediaURI = sharedMedia.getMediaURI();
                 //We don't need the start time nor the end time but we need the uri and the nature of the tag
                 var partialFragment = searchTagByName(tag);
+                
+                console.log(trackURI);
                 $http({
                     method: 'GET',
                     url: 'http://localhost:3000/api/createFragment/',
-                    params: {"mediaURI": mediaURI, "trackName": track, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
+                    params: {"trackURI": trackURI, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
                 }).then(function successCallback(response) {
                     var ans = response.data;
                     if (ans.success) {
@@ -933,53 +962,29 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
          * Description : query will constitute a regex. If type is a track, it will search the tracks which names correspond to the regex. If it is tag, it will search the tag names. Else, it will return an empty array
          * @param {String} type
          * @param {String} query
-         * @returns {Array[String]} items : tracks or tags matching the query
+         * @returns {String or Array} : if TYPE is track return String, if is TAG return Array 
          */
-        $scope.searchType = function (type, query) {
+        $scope.searchTags = function (query) {
             var items = new Array();
             var regex = new RegExp(regexEscape(query), "i");
-            switch (type) {
-                case "track" :
-                    var tracksFromService = sharedMedia.getIndexationData().trackNames;
-                    var tracks = new Array();
-                    for (var i = 0; i < tracksFromService.length; i++) {
-                        tracks.push(tracksFromService[i]);
+        
+            var tagsFromService = sharedMedia.getIndexationData().tagNames;
+            var tags = new Array();
+            for (var i = 0; i < tagsFromService.length; i++) {
+                tags.push(tagsFromService[i]);
+            }
+            if ($scope.selectedTag != null)
+                if (!containsTag(tags, $scope.selectedTag))
+                    tags.push({"name": $scope.selectedTag, "uri": ""});
+            if (query.length > 0) {
+                for (var i = 0; i < tags.length; i++) {
+                    var tag = tags[i];
+                    if (tag.name.search(regex) == 0) {
+                        items.push(tag.name);
                     }
-                    if ($scope.selectedTrack != null)
-                        if (!containsTrack(tracks, $scope.selectedTrack))
-                            tracks.push($scope.selectedTrack);
-                    if (query.length > 0) {
-                        for (var i = 0; i < tracks.length; i++) {
-                            var track = tracks[i];
-                            if (track.search(regex) == 0) {
-                                items.push(track);
-                            }
-                        }
-                    }
-                    break;
-                case "tag" :
-                    var tagsFromService = sharedMedia.getIndexationData().tagNames;
-                    var tags = new Array();
-                    for (var i = 0; i < tagsFromService.length; i++) {
-                        tags.push(tagsFromService[i]);
-                    }
-                    if ($scope.selectedTag != null)
-                        if (!containsTag(tags, $scope.selectedTag))
-                            tags.push({"name": $scope.selectedTag, "uri": ""});
-                    if (query.length > 0) {
-                        for (var i = 0; i < tags.length; i++) {
-                            var tag = tags[i];
-                            if (tag.name.search(regex) == 0) {
-                                items.push(tag.name);
-                            }
-                        }
-                    }
-                    break;
-                default :
-                    return new Array();
+                }
             }
             return items;
-
         };
 
         /**
@@ -1141,101 +1146,64 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
             indexationData.tagNames.push(data.tag);
         }
 
-        for (var i = 0; i < indexationData.trackNames.length; i++) {
-            if (indexationData.trackNames[i] == data.track)
-                newTrack = false;
+        var fragbegin = 0;
+        var fragend = 0;
+        var testLevel = 0;
+        var superimposed = false;
+        if (data.fragment.type == "segment") {
+            fragbegin = data.fragment.begin;
+            fragend = data.fragment.end;
+        } else {
+            fragbegin = parseFloat(data.fragment.begin) - sequenceurParams.POINT_WIDTH / 2;
+            fragend = parseFloat(data.fragment.begin) + sequenceurParams.POINT_WIDTH / 2;
         }
 
-        if (newTrack) {
-            indexationData.trackNames.push(data.track);
-            if (data.fragment.type == "segment") {
-                indexationData.indexedTracks.push({
-                    "name": data.track,
-                    "levels": [[{
-                                "start": data.fragment.begin,
-                                "end": data.fragment.end,
-                                "uri": data.fragment.uri,
-                                "name": data.tag.name,
-                                "type": data.fragment.type,
-                                "seqBegin": data.fragment.begin,
-                                "seqEnd": data.fragment.end
-                            }]]
-                });
-            } else {
-                indexationData.indexedTracks.push({
-                    "name": data.track,
-                    "levels": [[{
-                                "start": data.fragment.begin,
-                                "end": data.fragment.begin,
-                                "uri": data.fragment.uri,
-                                "name": data.tag.name,
-                                "type": data.fragment.type,
-                                "seqBegin": data.fragment.begin - sequenceurParams.POINT_WIDTH / 2,
-                                "seqEnd": data.fragment.begin + sequenceurParams.POINT_WIDTH / 2
-                            }]]
-                });
-            }
-
-
-        } else {
-            var fragbegin = 0;
-            var fragend = 0;
-            var testLevel = 0;
-            var superimposed = false;
-            if (data.fragment.type == "segment") {
-                fragbegin = data.fragment.begin;
-                fragend = data.fragment.end;
-            } else {
-                fragbegin = parseFloat(data.fragment.begin) - sequenceurParams.POINT_WIDTH / 2;
-                fragend = parseFloat(data.fragment.begin) + sequenceurParams.POINT_WIDTH / 2;
-            }
-
-            //We need to browse to prevent the superposition
-            for (var indexTrack = 0; indexTrack < indexationData.indexedTracks.length; indexTrack++) {
-                var track = indexationData.indexedTracks[indexTrack];
-                if (track.name == data.track) {
-                    for (var level = 0; level < track.levels.length; level++) {
-                        superimposed = false;
-                        var line = track.levels[level];
-                        for (var indexfragment = 0; indexfragment < line.length && !superimposed; indexfragment++) {
-                            var fragment = line[indexfragment];
-                            //superposition test
-                            if (!((fragbegin < fragment.seqBegin && fragend <= fragment.seqBegin) || (fragbegin >= fragment.seqEnd && fragend > fragment.seqEnd))) {
-                                testLevel++;
-                                superimposed = true;
-                            }
+        //We need to browse to prevent the superposition
+        for (var indexTrack = 0; indexTrack < indexationData.indexedTracks.length; indexTrack++) {
+            var track = indexationData.indexedTracks[indexTrack];
+            if (track.uri == data.trackURI) {
+                for (var level = 0; level < track.levels.length; level++) {
+                    superimposed = false;
+                    var line = track.levels[level];
+                    for (var indexfragment = 0; indexfragment < line.length && !superimposed; indexfragment++) {
+                        var fragment = line[indexfragment];
+                        //superposition test
+                        if (!((fragbegin < fragment.seqBegin && fragend <= fragment.seqBegin) || (fragbegin >= fragment.seqEnd && fragend > fragment.seqEnd))) {
+                            testLevel++;
+                            superimposed = true;
                         }
                     }
-                    if (track.levels.length < (testLevel + 1)) {
-                        track.levels.push(new Array());
-                    }
-
-                    if (data.fragment.type == "segment")
-                    {
-                        track.levels[testLevel].push({
-                            "seqBegin": fragbegin,
-                            "seqEnd": fragend,
-                            "start": data.fragment.begin,
-                            "end": fragend,
-                            "uri": data.tag.uri,
-                            "name": data.tag.name,
-                            "type": data.fragment.type
-                        }); 
-                    } else {
-                        track.levels[testLevel].push({
-                            "seqBegin": fragbegin,
-                            "seqEnd": fragend,
-                            "start": data.fragment.begin,
-                            "end": data.fragment.begin,
-                            "uri": data.tag.uri,
-                            "name": data.tag.name,
-                            "type": data.fragment.type
-                        });                    
-                    }
-
                 }
+                if (track.levels.length < (testLevel + 1)) {
+                    track.levels.push(new Array());
+                }
+
+                if (data.fragment.type == "segment")
+                {
+                    track.levels[testLevel].push({
+                        "seqBegin": fragbegin,
+                        "seqEnd": fragend,
+                        "start": data.fragment.begin,
+                        "end": fragend,
+                        "uri": data.tag.uri,
+                        "name": data.tag.name,
+                        "type": data.fragment.type
+                    }); 
+                } else {
+                    track.levels[testLevel].push({
+                        "seqBegin": fragbegin,
+                        "seqEnd": fragend,
+                        "start": data.fragment.begin,
+                        "end": data.fragment.begin,
+                        "uri": data.tag.uri,
+                        "name": data.tag.name,
+                        "type": data.fragment.type
+                    });                    
+                }
+
             }
         }
+        
         //We need to update the timeline now
         sharedMedia.setIndexationData(indexationData);
         $scope.$emit('reloadTimeline', indexationData);
