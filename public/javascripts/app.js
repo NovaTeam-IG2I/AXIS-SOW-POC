@@ -157,7 +157,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     data = formatIndexations(data);
                     sharedMedia.setIndexationData(data);
                     paramSequenceur(data);
-                    sharedMedia.setIndexationData(data);       
+                    sharedMedia.setIndexationData(data);
                     angular.element(document.getElementById("indexationButtonContainer"))[0].classList.remove("ng-hide");
                 }, function errorCallback(response) {
                     $scope.getMediaIndexations = "Fail";
@@ -174,6 +174,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
         }).then(function successCallback(response) {
             $scope.getMediaProductions = "Succes";
             $scope.productionData = response.data;
+            console.log($scope.productionData);
         }, function errorCallback(response) {
             $scope.getMediaProductions = "Fail";
         });
@@ -219,7 +220,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             dataFormatted.trackNames = new Array();
             dataFormatted.tagNames = new Array();
             dataFormatted.indexedTracks = [];
-            
+
             //idFragment will be usefull to access each fragment later
             //for example, to hightlight it
             var idFragment = 0;
@@ -307,7 +308,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 }
                 $scope.sequenceurParams.height += $scope.sequenceurParams.SPACE;
             }
-            
+
             //we need to add the empty line
             $scope.sequenceurParams.height += $scope.sequenceurParams.LINE_HEIGHT;
             //Because of the empty line, we don't need to minus a space len.
@@ -346,13 +347,13 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 }
                 sequenceur.appendChild(line);
             }
-            
+
             //We need to add an empty line to allow the creation of the various
             //elements by the user
-            
             var emptyLine = createEmptyLine("NEW", indexationData.indexedTracks.length);
+
             sequenceur.appendChild(emptyLine);
-            
+
             addCursor();
         }
         /**
@@ -382,7 +383,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             textProperties.lengthAdjust = "spacingAndGlyphs";
             textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
             textProperties["dominant-baseline"] = "central";
-            textProperties["alignment-baseline"] = "central";            
+            textProperties["alignment-baseline"] = "central";
             var text = createSVGElement("text", textProperties);
             text.innerHTML = track.name;
             line.appendChild(text);
@@ -403,7 +404,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             }
             return line;
         }
-        
+
         /**
          * Function createEmptyLine
          * Description : Because of a lack of time, the code has not been
@@ -411,7 +412,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
          * it adds the possibility to create a track by clicking on the label
          * Or to add a fragment by clicking on the line
          * @param {String} track : name for the empty label
-         * @param {type} index : index for locating where on the sequenceur 
+         * @param {type} index : index for locating where on the sequenceur
          * this line should be
          * @returns {Element}
          */
@@ -432,8 +433,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             rectangleProperties.y = $scope.sequenceurParams.LINE_HEIGHT * 0.10;
             rectangleProperties.width = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
             rectangleProperties.height = $scope.sequenceurParams.LINE_HEIGHT * 0.80;
-            
-            var rectangle = createSVGElement("rect", rectangleProperties);            
+
+            var rectangle = createSVGElement("rect", rectangleProperties);
             emptyLine.appendChild(rectangle);
 
             //Now we need to create the label and the container for the fragment
@@ -446,12 +447,12 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             textProperties.lengthAdjust = "spacingAndGlyphs";
             textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
             textProperties["dominant-baseline"] = "central";
-            textProperties["alignment-baseline"] = "central";            
+            textProperties["alignment-baseline"] = "central";
             var text = createSVGElement("text", textProperties);
             text.innerHTML = track;
             //when we click on the text "NEW" or "ADD", we open a popup to create a track.
             text.addEventListener("click", function(event){
-                event.preventDefault(); 
+                event.preventDefault();
                 if(event.which == 1)
                     showIndexationTrackDialog(event);
             });
@@ -470,7 +471,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             emptyLine.appendChild(tagContainer);
             return emptyLine;
         }
-      
+
         function showIndexationTrackDialog(event){
             $mdDialog.show({
                 controller: DialogTrackController,
@@ -478,15 +479,15 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 parent: angular.element(document.body),
                 targetEvent: event,
                 clickOutsideToClose: false
-            });  
+            });
         }
-        
+
         /**
          * function DialogTrackController
          * Description : Contains the main function to manipulate the dialog to create a track
          */
         function DialogTrackController($scope, $mdDialog){
-            
+
             $scope.hide = function () {
                 $mdDialog.hide();
             };
@@ -494,7 +495,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             $scope.cancel = function () {
                 $mdDialog.cancel();
             };
-        
+
             $scope.createTrack = function(track){
                 var trackname = angular.copy(track);
                 if(trackname == undefined || trackname.length < 3)
@@ -506,8 +507,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     for(var i = 0; i < indexationData.indexedTracks.length; i++){
                         if(track.toLowerCase() == indexationData.indexedTracks[i].name.toLowerCase())
                             doNotExist = false;
-                    }     
-                    
+                    }
+
                     if(doNotExist){
                         $http({
                             method: 'GET',
@@ -527,14 +528,14 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                                 alert("The track '"+track+"' already exists.");
                             }
                             $mdDialog.hide();
-                        }, function errorCallback(response) {});                                
+                        }, function errorCallback(response) {});
                     }else{
                         alert("Track already exists");
                     }
                 }
             }
         }
-        
+
         /**
          * Function createSegment
          * Description : Create the component linked to a segment from the informations given to the line indicated
@@ -552,7 +553,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             segmentProperties.width = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
             var segment = createSVGElement("rect", segmentProperties);
-            
+
             //We create the label
             var textProperties = {};
             textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (0.95 * parseFloat(fragment.seqBegin) + 0.05 * parseFloat(fragment.seqEnd)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
@@ -598,13 +599,13 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                 //empty object if not found
                 if(tab.length > 0){
                     if(tab[0].classList.contains('active')){
-                        tab[0].blur();                        
+                        tab[0].blur();
                         tab[0].classList.toggle('active');
                         tab[0].wasActive = "true";
                     }
                     tab[0].style = "background-color : black";
                     tab[0].childNodes[0].style = "background-color : black";
-                    
+
                 }
             });
             text.addEventListener("mouseleave",function(event){
@@ -692,7 +693,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                         $scope.getClipData(uri, fragment.name, fragment.id);
                     //}
                 }
-            });  
+            });
             text.addEventListener("mouseenter", function(event){
                 var tab = angular.element(document.getElementById("tab_"+fragment.id));
                 //empty object if not found
@@ -778,8 +779,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             }
             return y;
         }
-        
-        
+
+
         /**
          * Function : highlightFragment
          * Description : Search inside the indexationData the fragment with the corresponding URI
@@ -793,7 +794,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             rect.setAttributeNS(null, 'stroke-linecap', "round");
             rect.setAttributeNS(null, 'stroke-linejoin', "round");
         };
-        
+
         /**
          * Function : shadowFragment
          * Description : Cast a bloom on an already highlighted fragment
@@ -807,7 +808,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             rect.removeAttributeNS(null, 'stroke-linecap');
             rect.removeAttributeNS(null, 'stroke-linejoin');
         };
-        
+
         /**
          *function : createSVGElement
          *params :
@@ -904,7 +905,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                     }
                 }
             }
-                
+
             if (tag == null || tag == undefined)
                 msg += "No tag has been selected\n";
 
@@ -961,12 +962,12 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
          * Description : query will constitute a regex. If type is a track, it will search the tracks which names correspond to the regex. If it is tag, it will search the tag names. Else, it will return an empty array
          * @param {String} type
          * @param {String} query
-         * @returns {String or Array} : if TYPE is track return String, if is TAG return Array 
+         * @returns {String or Array} : if TYPE is track return String, if is TAG return Array
          */
         $scope.searchTags = function (query) {
             var items = new Array();
             var regex = new RegExp(regexEscape(query), "i");
-        
+
             var tagsFromService = sharedMedia.getIndexationData().tagNames;
             var tags = new Array();
             for (var i = 0; i < tagsFromService.length; i++) {
@@ -1204,7 +1205,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
 
             }
         }
-        
+
         //We need to update the timeline now
         sharedMedia.setIndexationData(indexationData);
         $scope.$emit('reloadTimeline', indexationData);
