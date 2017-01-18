@@ -441,6 +441,97 @@ router.route('/cliplist')
       }
       res.json(result);
 
+  })
+
+
+     
+
+  router.route('/getCategories')
+    .get(function(req,res){
+
+      //TODO create a get method to get all the URI of all the clips
+      console.log("TODO get all categories");
+
+
+      var categories =[
+      {
+        label:"Category1",
+        subClass:[
+        {
+          label:"subClass1-1",
+          subClass:[{
+            label:"subClass1-1-1",
+            subClass:[],
+            individuals:[
+            {
+              label:"i1"
+            },
+            {
+              label:"i2"
+            }]
+          }],
+          individuals:[
+            {label:"sdqsq"}
+          ]
+        },
+        {
+        label:"subClass1-2",
+        subClass:[],
+        individuals:[]
+        }]
+      },
+      {
+        label:"Category2",
+        subClass:[
+        {
+          label:"subClass2-1",
+          subClass:[],
+          individuals:[]
+        }],
+        individuals:[]
+      },
+      {
+        label:"Category3",
+        subClass:[],
+        individuals:[]
+      }
+    ];
+    console.log(categories);
+    res.json(categories);
     })
+
+  router.route('/getPredicates')
+    .get(function(req,res){
+
+      //TODO create a get method to get all the URI of all the clips
+      console.log("TODO get all predicates");
+      var predicates=["pred1","pred2"];
+      console.log("coucou");
+      res.json(predicates);
+    })
+
+  router.route('/addRegister')
+    .post(function(req,res){
+      
+      console.log(req.body);
+    })
+
+  router.route('/addPredicate')
+    .post(function(req,res){
+      console.log(req.body);
+    })
+
+  router.route('/deleteRegister')
+    .post(function(req,res){
+      
+      console.log(req.body);
+    })
+
+  router.route('/addpredicateToRegisters')
+    .post(function(req,res){
+      
+      console.log(req.body);
+    })
+
 // allow us to use this routing configuration in other files as 'router'
 module.exports = router;

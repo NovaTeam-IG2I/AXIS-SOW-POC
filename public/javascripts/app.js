@@ -1017,66 +1017,147 @@ app.controller('indexationController', function($scope, $http, sharedMedia, $mdD
 
 });
 
-app.controller('manageRegisterController', function($scope) {
-  //TODO : replace with real data
-  $scope.categories =[
-    {
-      label:"Category1",
-      subClass:[
-      {
-        label:"subClass1-1",
-        subClass:[{
-          label:"subClass1-1-1",
-          subClass:[],
-          individuals:[
-          {
-            label:"i1"
-          },
-          {
-            label:"i2"
-          }]
-        }],
-        individuals:[
-          {label:"sdqsq"}
-        ]
-      },
-      {
-      label:"subClass1-2",
-      subClass:[],
-      individuals:[]
-      }]
-    },
-    {
-      label:"Category2",
-      subClass:[
-      {
-        label:"subClass2-1",
-        subClass:[],
-        individuals:[]
-      }],
-      individuals:[]
-    },
-    {
-      label:"Category3",
-      subClass:[],
-      individuals:[]
-    }
-  ];
+app.controller('manageRegisterController', function($scope, $http) {
 
-  $scope.selectedClass;
-  $scope.selectedIndividual;
+  $scope.getAllRegisterInstance = "";
+  $scope.getAllPredicates = "";
+  $scope.addRegister = "";
+  $scope.categories = new Object();
+  $scope.predicates = new Object();
+
+  $scope.addRegisterName = "";
+  $scope.addRegisterProp1 = "";
+  $scope.addRegisterProp2 = "";
+
+  
+  $scope.addPredicateName = ""
+  $scope.addPredicate= "";
+
+  $scope.addPredicateToRegisters = "";
+  $scope.selectedIndividualObject="";
+  $scope.selectedIndividualSubject="";
+  $scope.selectedPredicate="";
+
+  $scope.selectedIndividualDelete="";
+  $scope.deleteRegister = "";
+
+  $scope.selectedClass="";
+  $scope.selectedIndividualDelete="";
+  $scope.selectedIndividualSubject="";
+  $scope.selectedIndividualObject="";
+  $scope.selectedPredicate="";
+
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/getCategories'
+  }).then(function successCallback(response) {
+      $scope.getAllRegisterInstance = "Succes";
+      $scope.categories = response.data;
+      console.log($scope.categories);
+  }, function errorCallback(response) {
+      $scope.getAllRegisterInstance = "Fail";
+  });
+
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/getPredicates'
+  }).then(function successCallback(response) {
+      $scope.getAllPredicates = "Succes";
+      $scope.predicates = response.data;
+      console.log($scope.predicates);
+  }, function errorCallback(response) {
+      $scope.getAllPredicates = "Fail";
+  });
+
+
+  $scope.addRegisterInstance = function(){
+      $http({
+        method: 'POST',
+        url: 'http://localhost:3000/api/addRegister',
+        data : {name : $scope.addRegisterName, class: $scope.selectedClass, prop1:$scope.addRegisterProp1, prop2:$scope.addRegisterProp2}
+      }).then(function successCallback(response) {
+          $scope.addRegister = "Succes";
+      console.log($scope.categories);
+      }, function errorCallback(response) {
+          $scope.addRegister = "Fail";
+      });
+
+  }
+
+  $scope.addPredicate = function(){
+      $http({
+        method: 'POST',
+        url: 'http://localhost:3000/api/addPredicate',
+        data : {name : $scope.addPredicateName}
+      }).then(function successCallback(response) {
+          $scope.addPredicate = "Succes";
+      }, function errorCallback(response) {
+          $scope.addPredicate = "Fail";
+      });
+
+  }
+
+  $scope.addPredicateToRegisters = function(){
+      $http({
+        method: 'POST',
+        url: 'http://localhost:3000/api/addPredicateToRegisters',
+        data : {subjectName : $scope.selectedIndividualSubject, predicateName : $scope.selectedPredicate, objectName: $scope.selectedIndividualObject}
+      }).then(function successCallback(response) {
+          $scope.addPredicateToRegisters = "Succes";
+      }, function errorCallback(response) {
+          $scope.addPredicateToRegisters = "Fail";
+      });
+
+  }
+
+  $scope.deleteRegister = function(){
+      $http({
+        method: 'POST',
+        url: 'http://localhost:3000/api/deleteRegister',
+        data : {rehisterName : $scope.selectedIndividualDelete}
+      }).then(function successCallback(response) {
+          $scope.deleteRegister = "Succes";
+      }, function errorCallback(response) {
+          $scope.deleteRegister = "Fail";
+      });
+
+  }
+
+
+  
   $scope.getSelectedText = function() {
-    if ($scope.selectedClass !== undefined) {
+    if ($scope.selectedClass !== "") {
       return $scope.selectedClass;
     } else {
       return "Please select a class";
     }
   };
-  $scope.getSelectedInd = function() {
-    if ($scope.selectedIndividual !== undefined) {
-      return $scope.selectedIndividual;
+  $scope.getSelectedIndSubject = function() {
+    if ($scope.selectedIndividualSubject !== "") {
+      return $scope.selectedIndividualSubject;
     } else {
       return "Please select an individual";
+    }
+  };
+  $scope.getSelectedPredicate = function() {
+    if ($scope.selectedPredicate !== "") {
+      return $scope.selectedPredicate;
+    } else {
+      return "Please select a predicate";
+    }
+  };
+  $scope.getSelectedIndObject = function() {
+    if ($scope.selectedIndividualObject !== "") {
+      return $scope.selectedIndividualObject;
+    } else {
+      return "Please select an individual";
+    }
+  };
+  $scope.getSelectedIndDelete = function() {
+    if ($scope.selectedIndividualDelete !== "") {
+      return $scope.selectedIndividualDelete;
+    } else {
+      return "Please select an individual to delete";
     }
   };
 });

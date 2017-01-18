@@ -7,7 +7,7 @@
     <div class="row">
       <md-input-container>
         <label>Name</label>
-        <input type="text" name="addRegisterName"></input>
+        <input ng-model="addRegisterName" type="text" name="addRegisterName"></input>
       </md-input-container>
 
       <md-input-container>
@@ -23,17 +23,17 @@
     <div class="row">
       <md-input-container>
         <label>Propriétés1</label>
-        <input type="text"></input>
+        <input ng-model="addRegisterProp1" type="text"></input>
       </md-input-container>
 
       <md-input-container>
         <label>Propriétés2</label>
-        <input type="text"></input>
+        <input ng-model="addRegisterProp2" type="text"></input>
       </md-input-container>
     </div>
 
     <div>
-      <md-button type="submit">Create</md-button>
+      <md-button type="submit" ng-click="addRegisterInstance()">Create</md-button>
     </div>
   </md-form>
 
@@ -42,13 +42,13 @@
     <md-form name="createPredicateForm">
       <md-input-container>
         <label>Name (ex: hasLivedIn)</label>
-        <input type="text"></input>
+        <input ng-model="addPredicateName" type="text"></input>
       </md-input-container>
 
 
 
       <div>
-       <md-button type="submit">Create</md-button>
+       <md-button type="submit" ng-click="addPredicate()">Create</md-button>
       </div>
 
     </md-form>
@@ -58,7 +58,7 @@
   <div class="row">
     <md-form name="modifForm">
       <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
+        <md-select ng-model="selectedIndividualSubject" md-selected-text="getSelectedIndSubject()">
           <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
             <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
               <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
@@ -68,17 +68,13 @@
       </md-input-container>
 
       <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
-          <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
-            <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
-              <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
-            </md-optgroup>
-          </md-optgroup>
+        <md-select ng-model="selectedPredicate" md-selected-text="getSelectedPredicate()">
+          <md-option ng-value="predicate" ng-repeat="predicate in predicates">{{predicate}}</md-option>
         </md-select>
       </md-input-container>
 
       <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
+        <md-select ng-model="selectedIndividualObject" md-selected-text="getSelectedIndObject()">
           <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
             <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
               <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
@@ -89,7 +85,7 @@
 
 
       <div>
-       <md-button type="submit">Create</md-button>
+       <md-button type="submit" ng-click="addPredicateToRegisters()">Create</md-button>
       </div>
 
     </md-form>
@@ -99,7 +95,7 @@
   <div class="row">
     <md-form name="deleteForm">
       <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
+        <md-select ng-model="selectedIndividualDelete" md-selected-text="getSelectedIndDelete()">
           <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
             <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
               <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
@@ -108,13 +104,9 @@
         </md-select>
       </md-input-container>
 
-      <!--
-      TODO: add textarea with properties of the individual selected
-      -->
-
 
       <div>
-       <md-button type="submit">Delete</md-button>
+       <md-button type="submit" ng-click="deleteRegister()">Delete</md-button>
       </div>
 
     </md-form>
