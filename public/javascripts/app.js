@@ -157,7 +157,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     data = formatIndexations(data);
                     sharedMedia.setIndexationData(data);
                     paramSequenceur(data);
-                    sharedMedia.setIndexationData(data);                 
+                    sharedMedia.setIndexationData(data);       
+                    angular.element(document.getElementById("indexationButtonContainer"))[0].classList.remove("ng-hide");
                 }, function errorCallback(response) {
                     $scope.getMediaIndexations = "Fail";
                 });
@@ -278,6 +279,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                     levelToAddFragment = 0;
                 }
             }
+            dataFormatted.nbFragment = idFragment;
             return dataFormatted;
         }
 
@@ -1133,7 +1135,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
 
         var newTrack = true;
         var newTag = true;
-        var lastId = 0;
+        var lastId = indexationData.nbFragment++;
 
         for (var i = 0; i < indexationData.tagNames.length; i++) {
             if (indexationData.tagNames[i].name == data.tag.name)
@@ -1184,8 +1186,9 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                         "end": fragend,
                         "uri": data.tag.uri,
                         "name": data.tag.name,
-                        "type": data.fragment.type
-                    }); 
+                        "type": data.fragment.type,
+                        "id" : lastId
+                    });
                 } else {
                     track.levels[testLevel].push({
                         "seqBegin": fragbegin,
@@ -1194,8 +1197,9 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                         "end": data.fragment.begin,
                         "uri": data.tag.uri,
                         "name": data.tag.name,
-                        "type": data.fragment.type
-                    });                    
+                        "type": data.fragment.type,
+                        "id" : lastId
+                    });
                 }
 
             }

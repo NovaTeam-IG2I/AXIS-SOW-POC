@@ -284,7 +284,7 @@ router.route('/clipsheet/:uri')
             tagDataUnparsed = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
             break;
           default :
-           tagDataUnparsed =  { "type" : "N/A" , "start" : "N/A" , "end" : "N/A" , "uri" : "N/A" ,  "nature" :"N/A" , "name" : "N/A" };
+           tagDataUnparsed =  { "type" : "N/A" , "start" : "N/A" , "end" : "N/A" , "uri" : req.params.uri ,  "nature" :"N/A" , "name" : "N/A" };
           
       }
 
@@ -489,7 +489,7 @@ router.route('/cliplist')
               result.success = true;
               result.data = {
                 "trackURI" : trackURI, 
-                "tag" : { "uri" : tagURI.concat("1"), "name" : tagName, "nature" : tagNature },
+                "tag" : { "uri" : tagURI.concat("_1"), "name" : tagName, "nature" : tagNature },
                 "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
               };
           }

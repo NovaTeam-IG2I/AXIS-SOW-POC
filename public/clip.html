@@ -8,14 +8,13 @@ View for listing all the informations about a clip
         <div class="row">
             <!--Video media player-->
             <video id="video" width="100%" height="100%" controls preload="auto" ></video>
-            <div> Visualization of the video with URI {{mediaURI}}.</div>
         </div>
         <div id="sequenceurContainer" class="row">
             <svg id="sequenceur" ng-viewBox="0 0 {{sequenceurParams.width}} {{sequenceurParams.height}}"
             style="width : {{sequenceurParams.width}}px; height: {{sequenceurParams.height}}px;">
             </svg>
         </div>
-        <div class="row" ng-controller="indexationController" ng-cloak style="margin:auto; text-align:center">
+        <div id="indexationButtonContainer" class="row ng-hide" ng-controller="indexationController" ng-cloak style="margin:auto; text-align:center">
             <md-button ng-click="showIndexationDialog(event)" class="md-raised">
               Add/Create fragment</md-button>
         </div>
