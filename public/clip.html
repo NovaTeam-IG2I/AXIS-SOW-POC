@@ -7,17 +7,16 @@ View for listing all the informations about a clip
     <div class="col-md-4">
         <div class="row">
             <!--Video media player-->
-            <video id="video" width="100%" height="100%" controls ></video>
-            <div> Visualization of the video with URI {{mediaURI}}.</div>
+            <video id="video" width="100%" height="100%" controls preload="auto" ></video>
         </div>
         <div id="sequenceurContainer" class="row">
             <svg id="sequenceur" ng-viewBox="0 0 {{sequenceurParams.width}} {{sequenceurParams.height}}"
             style="width : {{sequenceurParams.width}}px; height: {{sequenceurParams.height}}px;">
             </svg>
         </div>
-        <div class="row" ng-controller="indexationController" ng-cloak>
+        <div id="indexationButtonContainer" class="row ng-hide" ng-controller="indexationController" ng-cloak style="margin:auto; text-align:center">
             <md-button ng-click="showIndexationDialog(event)" class="md-raised">
-              Add fragment or create a tag/indexed track</md-button>
+              Add/Create fragment</md-button>
         </div>
     </div>
     <div class="col-md-8">
@@ -27,10 +26,10 @@ View for listing all the informations about a clip
                       {{key}} :</span><span class="categoryValue" >{{value}}</span></div>
                 </uib-tab>
                 <uib-tab index="1" heading="Données générales">
-                    <div class="framework"><div ng-repeat="(key, value) in productionData"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
+                    <div ng-repeat="(key, value) in productionData" class="framework"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div>
                 </uib-tab>
-                <uib-tab index="$index + 2" ng-repeat="clip in clipData" disable="tab.disabled" heading="{{clip.uri}}">
-                    <div class="framework"><div ng-repeat="(key, value) in clip.data"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div></div>
+            <uib-tab index="$index + 2" ng-repeat="clip in clipData" disable="tab.disabled" heading="{{clip.name}}" id="tab_{{clip.fragID}}" ng-mouseenter="highlightFragment(clip.fragID)" ng-mouseleave="shadowFragment(clip.fragID)" >
+                    <div ng-repeat="(key, value) in clip.data" class="framework"><span class="categoryName">{{key}} :</span><span class="categoryValue" >{{value}}</span></div>
                 </uib-tab>
         </uib-tabset>
     </div>

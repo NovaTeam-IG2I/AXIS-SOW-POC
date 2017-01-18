@@ -13,25 +13,12 @@
         <div class="md-dialog-content col-md-12 middleAlign"> 
             <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'segment'" novalidate class="css-form">
                 <div class="col-md-3">
-                    <md-autocomplete
-                        id="autocompleteTrack"
-                        md-no-cache="noCache"
-                        md-selected-item="selectedItem" 
-                        md-selected-item-change="selectedTrackChange(item)"
-                        md-search-text="searchTrack"
-                        md-search-text-change="searchTrackChange()"
-                        md-items="item in searchType('track',searchTrack)" 
-                        md-item-text="item"
-                        md-floating-label="Please enter the indexed track"
-                        required
-                        >
-                        <md-item-template>
-                            <span md-highlight-text="searchTrack">{{item}}</span>
-                        </md-item-template>
-                        <md-not-found class="col-md-4">
-                            <a ng-click="newTrack(searchTrack)">Create a new track</a>
-                        </md-not-found>                        
-                    </md-autocomplete>
+                    <md-input-container class="col-md-12">
+                        <label>Track :</label>
+                        <md-select ng-model="selectedTrack" required>
+                            <md-option ng-value="track" ng-repeat="track in tracks">{{ track}}</md-option>
+                        </md-select>
+                    </md-input-container>                
                 </div>
                 <div class="col-md-3">
                     <md-autocomplete
@@ -41,7 +28,7 @@
                         md-selected-item-change="selectedTagChange(item2)" 
                         md-search-text="searchTag" 
                         md-search-text-change="searchTagChange()"
-                        md-items="item2 in searchType('tag',searchTag)" 
+                        md-items="item2 in searchTags(searchTag)" 
                         md-item-text="item2"
                         md-floating-label="Please enter the tag"
                         required

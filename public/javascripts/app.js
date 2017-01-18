@@ -22,7 +22,7 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute', 'ngFileUpload', 'ngMaterial
         /*Width of the indexed tracks names*/
         "INDEXED_TRACK_NAME_WIDTH": 50,
         /* Ratio to determine the width of a bar */
-        "RATIO_POINT_TO_SECOND": 3,
+        "RATIO_POINT_TO_SECOND": 4,
         /* Width of a point tag */
         "POINT_WIDTH": 15,
         /*CSS of Elements*/
@@ -30,6 +30,7 @@ var app = angular.module('AXIS-SOW-POC', ['ngRoute', 'ngFileUpload', 'ngMaterial
         "BACKGROUND_COLOR_SEGMENT" : "darkblue",
         "BACKGROUND_COLOR_POINT" : "indigo",
         "BACKGROUND_COLOR_INDEXED_TRACK" : "lightblue",
+        "BACKGROUND_COLOR_BUTTON" : "lightgrey",
         "FOREGROUND_COLOR_LABEL" : "white",
         "FOREGROUND_COLOR_SEGMENT" : "white",
         "FOREGROUND_COLOR_POINT" : "white",
@@ -113,7 +114,7 @@ app.controller('listController', ['$scope', '$http', 'sharedMedia', function ($s
         };
     }]);
 
-app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', function ($sce, $scope, $http, sharedMedia) {
+app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$mdDialog', function ($sce, $scope, $http, sharedMedia, $mdDialog) {
         //TODO add the functions to control the clip view
         $scope.mediaURI = sharedMedia.getMediaURI();
         $scope.mediaAdress = "";
@@ -137,7 +138,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             $scope.getMediaVideo = "Succes";
             //$scope.mediaAdress = $sce.trustAsResourceUrl(response.data);
             $scope.mediaAdress = response.data;
-            console.log($scope.mediaAdress);
             var video = angular.element(document.getElementById("video"))[0];
             var source = document.createElement("source");
             source.src = $scope.mediaAdress;
@@ -156,10 +156,9 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     var data = response.data;
                     data = formatIndexations(data);
                     sharedMedia.setIndexationData(data);
-                    console.log(data);
                     paramSequenceur(data);
-                    sharedMedia.setIndexationData(data);
-                    console.log(data);
+                    sharedMedia.setIndexationData(data);       
+                    angular.element(document.getElementById("indexationButtonContainer"))[0].classList.remove("ng-hide");
                 }, function errorCallback(response) {
                     $scope.getMediaIndexations = "Fail";
                 });
@@ -189,19 +188,20 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             $scope.getMediaTechnicals = "Fail";
         });
 
-        $scope.getClipData = function (clipURI) {
-            $http({
-                method: 'GET',
-                url: 'http://localhost:3000/api/clipsheet/' + encodeURIComponent(clipURI)
-            }).then(function successCallback(response) {
-                $scope.getMediaClip = "Succes";
-                console.log($scope.clipData);
-                if ($scope.clipData[clipURI] == undefined) {
-                    $scope.clipData[clipURI] = {"uri": clipURI, "data": response.data};
-                }
-            }, function errorCallback(response) {
-                $scope.getMediaClip = "Fail";
-            });
+        $scope.getClipData = function (clipURI, clipName, fragmentID) {
+            if(clipURI != null && clipURI != ""){
+                $http({
+                    method: 'GET',
+                    url: 'http://localhost:3000/api/clipsheet/' + encodeURIComponent(clipURI)
+                }).then(function successCallback(response) {
+                    $scope.getMediaClip = "Succes";
+                    if ($scope.clipData[clipURI] == undefined) {
+                        $scope.clipData[clipURI] = {"uri": clipURI, "fragID" : fragmentID, "name" : clipName, "data": response.data};
+                    }
+                }, function errorCallback(response) {
+                    $scope.getMediaClip = "Fail";
+                });
+            }
         };
 
 
@@ -219,8 +219,10 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             dataFormatted.trackNames = new Array();
             dataFormatted.tagNames = new Array();
             dataFormatted.indexedTracks = [];
-
-
+            
+            //idFragment will be usefull to access each fragment later
+            //for example, to hightlight it
+            var idFragment = 0;
             var shouldAddFragToTag = true;
             var shouldAddFragToLevel = true;
             var levelToAddFragment = 0;
@@ -232,11 +234,14 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 //Add the name and create the multiline system
                 dataFormatted.indexedTracks.push({});
                 dataFormatted.indexedTracks[i].name = indexedTrack.name;
+                dataFormatted.indexedTracks[i].uri = indexedTrack.uri;
                 dataFormatted.indexedTracks[i].levels = [];
                 dataFormatted.indexedTracks[i].levels.push([]);
                 //Add the name of the indexedTrack for futur autocompletion
                 dataFormatted.trackNames.push(indexedTrack.name);
                 for (var j = 0; j < indexedTrack.fragments.length; j++) {
+                    //increment the idFragment
+                    idFragment++;
                     //get the current fragment
                     var fragment = indexedTrack.fragments[j];
                     //We need to manipulate the fragment to put some more information
@@ -244,7 +249,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     var seqEnd = (fragment.type == "point") ? (fragment.start + $scope.sequenceurParams.POINT_WIDTH / 2) : fragment.end;
                     fragment.seqBegin = seqBegin;
                     fragment.seqEnd = seqEnd;
-
+                    fragment.id = idFragment;
                     //We need to check for no doublon case
                     shouldAddFragToTag = true;
                     for (var k = 0; k < dataFormatted.tagNames.length; k++) {
@@ -274,6 +279,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     levelToAddFragment = 0;
                 }
             }
+            dataFormatted.nbFragment = idFragment;
             return dataFormatted;
         }
 
@@ -307,7 +313,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             //Because of the empty line, we don't need to minus a space len.
             //$scope.sequenceurParams.height -= $scope.sequenceurParams.SPACE;
             sharedMedia.setSequenceurParams($scope.sequenceurParams);
-            console.log("paramSequenceur");
             createAllComponents(correctedData);
         }
 
@@ -345,11 +350,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             //We need to add an empty line to allow the creation of the various
             //elements by the user
             
-            var emptyLine = createLine({
-                "name" : "NEW",
-                "levels" : [[]]
-            }, indexationData.indexedTracks.length);
-            
+            var emptyLine = createEmptyLine("NEW", indexationData.indexedTracks.length);
             sequenceur.appendChild(emptyLine);
             
             addCursor();
@@ -377,7 +378,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             var textProperties = {};
             textProperties.x = $scope.sequenceurParams.MARGIN + $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.10;
             textProperties.y = "50%";
-            textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
+            textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.80 ;
             textProperties.lengthAdjust = "spacingAndGlyphs";
             textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
             textProperties["dominant-baseline"] = "central";
@@ -401,8 +402,139 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                 line.appendChild(tagContainer);
             }
             return line;
-
         }
+        
+        /**
+         * Function createEmptyLine
+         * Description : Because of a lack of time, the code has not been
+         * refactored. It keeps the same meaning as createLine but in addition,
+         * it adds the possibility to create a track by clicking on the label
+         * Or to add a fragment by clicking on the line
+         * @param {String} track : name for the empty label
+         * @param {type} index : index for locating where on the sequenceur 
+         * this line should be
+         * @returns {Element}
+         */
+        function createEmptyLine(track, index)
+        {
+            var emptyLine;
+            var lineProperties = {};
+            lineProperties.y = computeYLine(index);
+            lineProperties.x = 0;
+            lineProperties.width = $scope.sequenceurParams.width;
+            lineProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
+            lineProperties.track = track;
+            emptyLine = createSVGElement("svg", lineProperties);
+            //To add a button like look
+            var rectangleProperties = {};
+            rectangleProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_BUTTON;
+            rectangleProperties.x = $scope.sequenceurParams.MARGIN;
+            rectangleProperties.y = $scope.sequenceurParams.LINE_HEIGHT * 0.10;
+            rectangleProperties.width = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH;
+            rectangleProperties.height = $scope.sequenceurParams.LINE_HEIGHT * 0.80;
+            
+            var rectangle = createSVGElement("rect", rectangleProperties);            
+            emptyLine.appendChild(rectangle);
+
+            //Now we need to create the label and the container for the fragment
+            //We create the label
+            var textProperties = {};
+            textProperties.x = $scope.sequenceurParams.MARGIN + $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.10;
+            textProperties.y = "50%";
+            textProperties.class = "cursor";
+            textProperties.textLength = $scope.sequenceurParams.INDEXED_TRACK_NAME_WIDTH * 0.8;
+            textProperties.lengthAdjust = "spacingAndGlyphs";
+            textProperties.fill = $scope.sequenceurParams.FOREGROUND_COLOR_LABEL;
+            textProperties["dominant-baseline"] = "central";
+            textProperties["alignment-baseline"] = "central";            
+            var text = createSVGElement("text", textProperties);
+            text.innerHTML = track;
+            //when we click on the text "NEW" or "ADD", we open a popup to create a track.
+            text.addEventListener("click", function(event){
+                event.preventDefault(); 
+                if(event.which == 1)
+                    showIndexationTrackDialog(event);
+            });
+            emptyLine.appendChild(text);
+
+            //We create the "rectangle" which is the length of the video
+            var tagContainerProperties = {};
+            tagContainerProperties.x = $scope.sequenceurParams.BAR_OFFSET;
+            tagContainerProperties.y = 0;
+            tagContainerProperties.width = $scope.sequenceurParams.barwidth;
+            tagContainerProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
+            tagContainerProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_INDEXED_TRACK;
+            tagContainerProperties.type = "tagContainer";
+            tagContainerProperties.class = "tagContainer";
+            var tagContainer = createSVGElement("rect", tagContainerProperties);
+            emptyLine.appendChild(tagContainer);
+            return emptyLine;
+        }
+      
+        function showIndexationTrackDialog(event){
+            $mdDialog.show({
+                controller: DialogTrackController,
+                templateUrl: 'template/addTrack.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                clickOutsideToClose: false
+            });  
+        }
+        
+        /**
+         * function DialogTrackController
+         * Description : Contains the main function to manipulate the dialog to create a track
+         */
+        function DialogTrackController($scope, $mdDialog){
+            
+            $scope.hide = function () {
+                $mdDialog.hide();
+            };
+
+            $scope.cancel = function () {
+                $mdDialog.cancel();
+            };
+        
+            $scope.createTrack = function(track){
+                var trackname = angular.copy(track);
+                if(trackname == undefined || trackname.length < 3)
+                    alert("Please enter a valid name for the track");
+                else{
+                    var indexationData = sharedMedia.getIndexationData();
+                    var lastIndex = indexationData.indexedTracks.length;
+                    var doNotExist = true;
+                    for(var i = 0; i < indexationData.indexedTracks.length; i++){
+                        if(track.toLowerCase() == indexationData.indexedTracks[i].name.toLowerCase())
+                            doNotExist = false;
+                    }     
+                    
+                    if(doNotExist){
+                        $http({
+                            method: 'GET',
+                            url: 'http://localhost:3000/api/createTrack',
+                            params : {'mediaURI' : encodeURIComponent(sharedMedia.getMediaURI()), 'trackName' : track}
+                        }).then(function successCallback(response) {
+                            if(response.data.success == true){
+                                indexationData.trackNames.push(trackname);
+                                indexationData.indexedTracks.push({});
+                                indexationData.indexedTracks[lastIndex].uri = "";
+                                indexationData.indexedTracks[lastIndex].name = trackname;
+                                indexationData.indexedTracks[lastIndex].levels = [];
+                                indexationData.indexedTracks[lastIndex].levels.push([]);
+                                sharedMedia.setIndexationData(indexationData);
+                                paramSequenceur(indexationData);
+                            }else{
+                                alert("The track '"+track+"' already exists.");
+                            }
+                            $mdDialog.hide();
+                        }, function errorCallback(response) {});                                
+                    }else{
+                        alert("Track already exists");
+                    }
+                }
+            }
+        }
+        
         /**
          * Function createSegment
          * Description : Create the component linked to a segment from the informations given to the line indicated
@@ -416,13 +548,14 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             segmentProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_SEGMENT;
             segmentProperties.x = $scope.sequenceurParams.BAR_OFFSET + fragment.seqBegin * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.y = $scope.sequenceurParams.LINE_HEIGHT * level;
+            segmentProperties.id = fragment.id;
             segmentProperties.width = (fragment.seqEnd - fragment.seqBegin) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             segmentProperties.height = $scope.sequenceurParams.LINE_HEIGHT;
             var segment = createSVGElement("rect", segmentProperties);
             
             //We create the label
             var textProperties = {};
-            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (fragment.seqBegin + (segmentProperties.width * 0.01)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
+            textProperties.x = $scope.sequenceurParams.BAR_OFFSET + (0.95 * parseFloat(fragment.seqBegin) + 0.05 * parseFloat(fragment.seqEnd)) * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             textProperties.y = $scope.sequenceurParams.LINE_HEIGHT * (level + 0.5);
 
             //Information from fragment
@@ -449,18 +582,42 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     var time = event.target.getAttribute("start");
                     if (time != undefined) {
                         video.pause();
-                        video.currentTime = time;
+                        video.currentTime = parseFloat(time);
                         video.play();
                     }
                     //if(event.ctrlKey){
                     //if right click, we open the dialog for the right tag
                     var uri = event.target.getAttribute("uri");
                     if (uri != undefined)
-                        $scope.getClipData(uri);
+                        $scope.getClipData(uri, fragment.name, fragment.id);
                     //}
                 }
             });
-
+            text.addEventListener("mouseenter", function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    if(tab[0].classList.contains('active')){
+                        tab[0].blur();                        
+                        tab[0].classList.toggle('active');
+                        tab[0].wasActive = "true";
+                    }
+                    tab[0].style = "background-color : black";
+                    tab[0].childNodes[0].style = "background-color : black";
+                    
+                }
+            });
+            text.addEventListener("mouseleave",function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    tab[0].removeAttribute('style');
+                    if(tab[0].hasOwnProperty("wasActive")){
+                        tab[0].removeAttribute("wasActive");
+                        tab[0].classList.toggle('active');
+                    }
+                }
+            });
             currentLine.appendChild(segment);
             currentLine.appendChild(text);
         }
@@ -481,6 +638,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             timePointProperties.y2 = $scope.sequenceurParams.LINE_HEIGHT * (level + 1);
             timePointProperties.stroke = $scope.sequenceurParams.BACKGROUND_COLOR_POINT;
             timePointProperties["stroke-width"] = $scope.sequenceurParams.RATIO_POINT_TO_SECOND / 2;
+            timePointProperties.id = "point_" + fragment.id;
             var timePoint = createSVGElement("line", timePointProperties);
 
             var pointProperties = {};
@@ -490,6 +648,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             pointProperties.width = $scope.sequenceurParams.POINT_WIDTH * $scope.sequenceurParams.RATIO_POINT_TO_SECOND;
             pointProperties.height = 0.5 * $scope.sequenceurParams.LINE_HEIGHT;
             pointProperties.fill = $scope.sequenceurParams.BACKGROUND_COLOR_POINT;
+            pointProperties.id = fragment.id;
             var point = createSVGElement("rect", pointProperties);
 
             //We create the label
@@ -521,7 +680,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     var time = fragment.start;//event.target.getAttribute("start");
                     if (time != undefined) {
                         video.pause();
-                        video.currentTime = time;
+                        video.currentTime = parseFloat(time);
                         video.play();
                     }
                     //if(event.ctrlKey){
@@ -530,8 +689,31 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
                     var uri = fragment.uri;//event.target.getAttribute("uri");
 
                     if (uri != undefined)
-                        $scope.getClipData(uri);
+                        $scope.getClipData(uri, fragment.name, fragment.id);
                     //}
+                }
+            });  
+            text.addEventListener("mouseenter", function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    if(tab[0].classList.contains('active')){
+                        tab[0].blur();
+                        tab[0].classList.toggle('active');
+                        tab[0].wasActive = "true";
+                    }
+                    tab[0].style = "background-color : black";
+                }
+            });
+            text.addEventListener("mouseleave",function(event){
+                var tab = angular.element(document.getElementById("tab_"+fragment.id));
+                //empty object if not found
+                if(tab.length > 0){
+                    tab[0].removeAttribute('style');
+                    if(tab[0].hasOwnProperty("wasActive")){
+                        tab[0].removeAttribute("wasActive");
+                        tab[0].classList.toggle('active');
+                    }
                 }
             });
             currentLine.appendChild(timePoint);
@@ -596,6 +778,36 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
             }
             return y;
         }
+        
+        
+        /**
+         * Function : highlightFragment
+         * Description : Search inside the indexationData the fragment with the corresponding URI
+         * If found, it hightlights it.
+         * @param {String} fragmentURI
+         */
+        $scope.highlightFragment = function(fragmentID){
+            var rect = angular.element(document.getElementById(fragmentID))[0];
+            rect.setAttributeNS(null, 'stroke', "yellow");
+            rect.setAttributeNS(null, 'stroke-width', "4");
+            rect.setAttributeNS(null, 'stroke-linecap', "round");
+            rect.setAttributeNS(null, 'stroke-linejoin', "round");
+        };
+        
+        /**
+         * Function : shadowFragment
+         * Description : Cast a bloom on an already highlighted fragment
+         * @param {type} fragmentURI
+         * @returns {undefined}
+         */
+        $scope.shadowFragment = function(fragmentID){
+            var rect = angular.element(document.getElementById(fragmentID))[0];
+            rect.removeAttributeNS(null, 'stroke');
+            rect.removeAttributeNS(null, 'stroke-width');
+            rect.removeAttributeNS(null, 'stroke-linecap');
+            rect.removeAttributeNS(null, 'stroke-linejoin');
+        };
+        
         /**
          *function : createSVGElement
          *params :
@@ -628,7 +840,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', func
 
 
 app.controller('indexationController', function ($scope, $http, sharedMedia, $mdDialog) {
-    var selectedTrack = null;
     var selectedTag = null;
 
     /**
@@ -652,8 +863,9 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
      * function DialogController
      * Description : contains the main functions to manipulate the popup
      */
-    function DialogController($scope, $mdDialog) {
-
+    function DialogController($scope, $mdDialog, sharedMedia) {
+        $scope.tracks = sharedMedia.getIndexationData().trackNames;
+        $scope.selectedTrack = "";
 
         $scope.hide = function () {
             $mdDialog.hide();
@@ -662,6 +874,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
         $scope.cancel = function () {
             $mdDialog.cancel();
         };
+
 
         /**
          * Function create
@@ -673,6 +886,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
         $scope.create = function () {
             var indexationData = sharedMedia.getIndexationData();
             var track = $scope.selectedTrack;
+            var trackURI = "";
             var tag = $scope.selectedTag;
             var fragType = indexationForm.fragmentType.value;
             var fragBegin = indexationForm.fragBegin.value;
@@ -681,7 +895,16 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
 
             if (track == null || track == undefined)
                 msg += "No track has been selected\n";
-
+            else{
+                var tracksFromService = sharedMedia.getIndexationData();
+                for(var i=0; i < tracksFromService.indexedTracks.length; i++){
+                    var trackFromService = tracksFromService.indexedTracks[i];
+                    if(track.toLowerCase() == trackFromService.name.toLowerCase()){
+                        trackURI = trackFromService.uri;
+                    }
+                }
+            }
+                
             if (tag == null || tag == undefined)
                 msg += "No tag has been selected\n";
 
@@ -706,17 +929,12 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
             if (msg.length > 0)
                 alert(msg);
             else {
-                if (fragType == "segment")
-
-                {
+                if (fragType == "segment"){
                     fragBegin = parseFloat(fragBegin);
                     fragEnd = parseFloat(fragEnd);
                 } else {
                     fragEnd = parseFloat(fragBegin);
                 }
-
-
-
                 //we need to search for the id of each element (the media and the tag (if the tag has for id 0, it is a new one)
                 var mediaURI = sharedMedia.getMediaURI();
                 //We don't need the start time nor the end time but we need the uri and the nature of the tag
@@ -724,7 +942,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                 $http({
                     method: 'GET',
                     url: 'http://localhost:3000/api/createFragment/',
-                    params: {"mediaURI": mediaURI, "trackName": track, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
+                    params: {"trackURI": trackURI, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
                 }).then(function successCallback(response) {
                     var ans = response.data;
                     if (ans.success) {
@@ -743,53 +961,29 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
          * Description : query will constitute a regex. If type is a track, it will search the tracks which names correspond to the regex. If it is tag, it will search the tag names. Else, it will return an empty array
          * @param {String} type
          * @param {String} query
-         * @returns {Array[String]} items : tracks or tags matching the query
+         * @returns {String or Array} : if TYPE is track return String, if is TAG return Array 
          */
-        $scope.searchType = function (type, query) {
+        $scope.searchTags = function (query) {
             var items = new Array();
             var regex = new RegExp(regexEscape(query), "i");
-            switch (type) {
-                case "track" :
-                    var tracksFromService = sharedMedia.getIndexationData().trackNames;
-                    var tracks = new Array();
-                    for (var i = 0; i < tracksFromService.length; i++) {
-                        tracks.push(tracksFromService[i]);
+        
+            var tagsFromService = sharedMedia.getIndexationData().tagNames;
+            var tags = new Array();
+            for (var i = 0; i < tagsFromService.length; i++) {
+                tags.push(tagsFromService[i]);
+            }
+            if ($scope.selectedTag != null)
+                if (!containsTag(tags, $scope.selectedTag))
+                    tags.push({"name": $scope.selectedTag, "uri": ""});
+            if (query.length > 0) {
+                for (var i = 0; i < tags.length; i++) {
+                    var tag = tags[i];
+                    if (tag.name.search(regex) == 0) {
+                        items.push(tag.name);
                     }
-                    if ($scope.selectedTrack != null)
-                        if (!containsTrack(tracks, $scope.selectedTrack))
-                            tracks.push($scope.selectedTrack);
-                    if (query.length > 0) {
-                        for (var i = 0; i < tracks.length; i++) {
-                            var track = tracks[i];
-                            if (track.search(regex) == 0) {
-                                items.push(track);
-                            }
-                        }
-                    }
-                    break;
-                case "tag" :
-                    var tagsFromService = sharedMedia.getIndexationData().tagNames;
-                    var tags = new Array();
-                    for (var i = 0; i < tagsFromService.length; i++) {
-                        tags.push(tagsFromService[i]);
-                    }
-                    if ($scope.selectedTag != null)
-                        if (!containsTag(tags, $scope.selectedTag))
-                            tags.push({"name": $scope.selectedTag, "uri": ""});
-                    if (query.length > 0) {
-                        for (var i = 0; i < tags.length; i++) {
-                            var tag = tags[i];
-                            if (tag.name.search(regex) == 0) {
-                                items.push(tag.name);
-                            }
-                        }
-                    }
-                    break;
-                default :
-                    return new Array();
+                }
             }
             return items;
-
         };
 
         /**
@@ -865,7 +1059,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
             var indexationData = sharedMedia.getIndexationData();
             for (var i = 0; i < indexationData.tagNames.length; i++) {
                 var tag = indexationData.tagNames[i];
-                if (String.toLowerCase(tag.name) == String.toLowerCase(tagName)) {
+                if (tag.name.toLowerCase() == tagName.toLowerCase()) {
                     return tag;
                 }
             }
@@ -941,7 +1135,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
 
         var newTrack = true;
         var newTag = true;
-        var lastId = 0;
+        var lastId = indexationData.nbFragment++;
 
         for (var i = 0; i < indexationData.tagNames.length; i++) {
             if (indexationData.tagNames[i].name == data.tag.name)
@@ -951,102 +1145,66 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
             indexationData.tagNames.push(data.tag);
         }
 
-        for (var i = 0; i < indexationData.trackNames.length; i++) {
-            if (indexationData.trackNames[i] == data.track)
-                newTrack = false;
+        var fragbegin = 0;
+        var fragend = 0;
+        var testLevel = 0;
+        var superimposed = false;
+        if (data.fragment.type == "segment") {
+            fragbegin = data.fragment.begin;
+            fragend = data.fragment.end;
+        } else {
+            fragbegin = parseFloat(data.fragment.begin) - sequenceurParams.POINT_WIDTH / 2;
+            fragend = parseFloat(data.fragment.begin) + sequenceurParams.POINT_WIDTH / 2;
         }
 
-        if (newTrack) {
-            indexationData.trackNames.push(data.track);
-            if (data.fragment.type == "segment") {
-                indexationData.indexedTracks.push({
-                    "name": data.track,
-                    "levels": [[{
-                                "start": data.fragment.begin,
-                                "end": data.fragment.end,
-                                "uri": data.fragment.uri,
-                                "name": data.tag.name,
-                                "type": data.fragment.type,
-                                "seqBegin": data.fragment.begin,
-                                "seqEnd": data.fragment.end
-                            }]]
-                });
-            } else {
-                indexationData.indexedTracks.push({
-                    "name": data.track,
-                    "levels": [[{
-                                "start": data.fragment.begin,
-                                "end": data.fragment.begin,
-                                "uri": data.fragment.uri,
-                                "name": data.tag.name,
-                                "type": data.fragment.type,
-                                "seqBegin": data.fragment.begin - sequenceurParams.POINT_WIDTH / 2,
-                                "seqEnd": data.fragment.begin + sequenceurParams.POINT_WIDTH / 2
-                            }]]
-                });
-            }
-
-
-        } else {
-            var fragbegin = 0;
-            var fragend = 0;
-            var testLevel = 0;
-            var superimposed = false;
-            if (data.fragment.type == "segment") {
-                fragbegin = data.fragment.begin;
-                fragend = data.fragment.end;
-            } else {
-                fragbegin = parseFloat(data.fragment.begin) - sequenceurParams.POINT_WIDTH / 2;
-                fragend = parseFloat(data.fragment.begin) + sequenceurParams.POINT_WIDTH / 2;
-            }
-
-            //We need to browse to prevent the superposition
-            for (var indexTrack = 0; indexTrack < indexationData.indexedTracks.length; indexTrack++) {
-                var track = indexationData.indexedTracks[indexTrack];
-                if (track.name == data.track) {
-                    for (var level = 0; level < track.levels.length; level++) {
-                        superimposed = false;
-                        var line = track.levels[level];
-                        for (var indexfragment = 0; indexfragment < line.length && !superimposed; indexfragment++) {
-                            var fragment = line[indexfragment];
-                            //superposition test
-                            if (!((fragbegin < fragment.seqBegin && fragend <= fragment.seqBegin) || (fragbegin >= fragment.seqEnd && fragend > fragment.seqEnd))) {
-                                testLevel++;
-                                superimposed = true;
-                            }
+        //We need to browse to prevent the superposition
+        for (var indexTrack = 0; indexTrack < indexationData.indexedTracks.length; indexTrack++) {
+            var track = indexationData.indexedTracks[indexTrack];
+            if (track.uri == data.trackURI) {
+                for (var level = 0; level < track.levels.length; level++) {
+                    superimposed = false;
+                    var line = track.levels[level];
+                    for (var indexfragment = 0; indexfragment < line.length && !superimposed; indexfragment++) {
+                        var fragment = line[indexfragment];
+                        //superposition test
+                        if (!((fragbegin < fragment.seqBegin && fragend <= fragment.seqBegin) || (fragbegin >= fragment.seqEnd && fragend > fragment.seqEnd))) {
+                            testLevel++;
+                            superimposed = true;
                         }
                     }
-                    if (track.levels.length < (testLevel + 1)) {
-                        track.levels.push(new Array());
-                    }
-
-                    if (data.fragment.type == "segment")
-                    {
-                        track.levels[testLevel].push({
-                            "seqBegin": fragbegin,
-                            "seqEnd": fragend,
-                            "start": fragbegin,
-                            "end": fragend,
-                            "uri": data.tag.uri,
-                            "name": data.tag.name,
-                            "type": data.fragment.type
-                        });
-                    } else {
-                        track.levels[testLevel].push({
-                            "seqBegin": fragbegin,
-                            "seqEnd": fragend,
-                            "start": data.fragment.begin,
-                            "end": data.fragment.begin,
-                            "uri": data.tag.uri,
-                            "name": data.tag.name,
-                            "type": data.fragment.type
-                        });
-                    }
-
                 }
+                if (track.levels.length < (testLevel + 1)) {
+                    track.levels.push(new Array());
+                }
+
+                if (data.fragment.type == "segment")
+                {
+                    track.levels[testLevel].push({
+                        "seqBegin": fragbegin,
+                        "seqEnd": fragend,
+                        "start": data.fragment.begin,
+                        "end": fragend,
+                        "uri": data.tag.uri,
+                        "name": data.tag.name,
+                        "type": data.fragment.type,
+                        "id" : lastId
+                    });
+                } else {
+                    track.levels[testLevel].push({
+                        "seqBegin": fragbegin,
+                        "seqEnd": fragend,
+                        "start": data.fragment.begin,
+                        "end": data.fragment.begin,
+                        "uri": data.tag.uri,
+                        "name": data.tag.name,
+                        "type": data.fragment.type,
+                        "id" : lastId
+                    });
+                }
+
             }
         }
-
+        
         //We need to update the timeline now
         sharedMedia.setIndexationData(indexationData);
         $scope.$emit('reloadTimeline', indexationData);
