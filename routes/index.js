@@ -1,5 +1,5 @@
 //
-// Index routing code file
+// Index routing code file : link between UX and front code
 //
 
 var express = require('express');
