@@ -491,5 +491,83 @@ router.route('/exportation')
       });
     })
 
+router.route('/createRegister')
+    .post(function(req,res){
+      //TODO create a method to add a register to the database
+      var postData = querystring.stringify({
+        "name" : req.body.name, "class" : req.body.class
+      });
+      
+      var options = {
+        hostname: 'localhost',
+        port: 8080,
+        path: '/AXIS-SOW-POC-backend/register',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+
+      var req = http.request(options, (res) => {
+        console.log(`STATUS: ${res.statusCode}`);
+        console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
+        res.setEncoding('utf8');
+        res.on('data', (chunk) => {
+          console.log(`BODY: ${chunk}`);
+        });
+        res.on('end', () => {
+          console.log('No more data in response.');
+        });
+      });
+
+      req.on('error', (e) => {
+        console.log(`problem with request: ${e.message}`);
+      });
+
+      // write data to request body
+      req.write(postData);
+      req.end();
+    })
+
+router.route('/listRegister')
+    .get(function(req,res){
+
+      //TODO create an deplacement method to deplace a clip to a particular place
+
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/categories', (result) => {
+        const statusCode = result.statusCode;
+        const contentType = result.headers['content-type'];
+
+        // Error handlers
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed.\n` +
+                        `Status Code: ${statusCode}`);
+        }
+        if (error) {
+          console.log(error.message);
+          // consume response data to free up memory
+          result.resume();
+          return;
+        }
+
+        // Response treatment
+        result.setEncoding('utf8');
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
+        result.on('end', () => {
+          try {
+            let parsedData = JSON.parse(rawData);
+            res.send(parsedData);
+          } catch (e) {
+            console.log(e.message);
+          }
+        });
+      }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
+      });
+    })
+
 // allow us to use this routing configuration in other files as 'router'
 module.exports = router;
