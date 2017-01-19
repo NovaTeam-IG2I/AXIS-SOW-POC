@@ -497,7 +497,7 @@ router.route('/createRegister')
       var postData = querystring.stringify({
         "name" : req.body.name, "class" : req.body.class
       });
-      
+
       var options = {
         hostname: 'localhost',
         port: 8080,

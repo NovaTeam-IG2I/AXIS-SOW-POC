@@ -1222,13 +1222,16 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
 
 app.controller('manageRegisterController', ['$scope', '$http', function ($scope, $http) {
 
+  // Request state variables
   $scope.getCategoriesList = "";
   $scope.setNewRegister = "";
 
+  // $scope variables declartions
   $scope.selectedCategorie = 1;
   $scope.registerName = "";
   $scope.allCategories = [{"uri" : 'http://titan.be/axis-csrm/datamodel/ontology/0.4#PhysicalPerson', "name" : "Exemple1"},{"uri" : 'http://titan.be/axis-csrm/datamodel/ontology/0.4#PhysicalPerson', "name" : "Exemple2"},{"uri" : 'http://titan.be/axis-csrm/datamodel/ontology/0.4#PhysicalPerson', "name" : "Exemple3"}];
 
+  // Request continous to get the classes
   /*$http({
     method: 'GET',
     url: 'http://localhost:3000/api/listRegister'
@@ -1239,6 +1242,7 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
     $scope.getCategoriesList = "Fail";
   });*/
 
+  // Function that send to the API the new Register informations
   $scope.createRegister = function () {
     $http({
       method: 'POST',
