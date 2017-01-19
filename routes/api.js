@@ -404,6 +404,14 @@ router.route('/createFragment')
           if(fragType == "point") fragEnd = fragBegin;
           if(result.message == ""){
               result.success = true;
+              // TODO HTTP POST REQUEST
+
+              //if tagURI == ""
+              //create a tag with name == (appel a melo)
+              //pas de else
+              //envoie a richou des informations
+              //reprendre et renvoyer URI
+
               result.data = {
                 "trackURI" : trackURI,
                 "tag" : { "uri" : tagURI.concat("_1"), "name" : tagName, "nature" : tagNature },
