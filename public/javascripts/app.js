@@ -88,6 +88,11 @@ app.config(function ($routeProvider) {
                 templateUrl: 'manageRegister.html',
                 controller: 'manageRegisterController'
             })
+            //the exportation manager
+            .when('/exportation', {
+                templateUrl: 'exportation.html',
+                controller: 'exportationController'
+            })
             .otherwise({
                 redirectTo: '/'
             });
@@ -942,7 +947,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
                 var partialFragment = searchTagByName(tag);
                 $http({
                     method: 'GET',
-                    url: 'http://localhost:3000/api/createFragment/',
+                    url: 'http://localhost:3000/api/createFragment',
                     params: {"trackURI": trackURI, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
                 }).then(function successCallback(response) {
                     var ans = response.data;
@@ -1298,3 +1303,23 @@ app.controller('importController', ['$http', '$scope', '$timeout', function ($ht
 
         }
     }]);
+
+app.controller('exportationController', ['$http', '$scope', function ($http, $scope) {
+
+  $scope.getExportation = "";
+
+  $scope.startExportation = function() {
+    $http({
+        method: 'GET',
+        url: 'http://localhost:3000/api/exportation'
+      }).then(function successCallback(response) {
+        $scope.getExportation = "Succes";
+        var element = document.createElement('a');
+        element.setAttribute('href', 'data:text/text;charset=utf-8,' + encodeURI(response.data));
+        element.setAttribute('download', "export.owl");
+        element.click();
+      }, function errorCallback(response) {
+        $scope.getExportation = "Fail";
+      });
+  }
+}]);

@@ -31,7 +31,7 @@ router.route('/productionsheet/:uri')
 
       //TODO create a get method to get all production metadata of a media
       console.log("TODO get all the production metadata of a media : " + req.params.uri);
-      http.get('http://localhost:8080/AXIS-SOW-POC-backend/production?id=' + encodeURIComponent(req.params.uri), (result) => {
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/production?uri=' + encodeURIComponent(req.params.uri), (result) => {
         const statusCode = result.statusCode;
         const contentType = result.headers['content-type'];
 
@@ -70,7 +70,7 @@ router.route('/technicalsheet/:uri')
       //TODO create a get method to get all technical metadata of a media
       console.log("TODO get all the technical metadata of a media.");
 
-      http.get('http://localhost:8080/AXIS-SOW-POC-backend/technical?id=' + encodeURIComponent(req.params.uri), (result) => {
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/technical?uri=' + encodeURIComponent(req.params.uri), (result) => {
         const statusCode = result.statusCode;
         const contentType = result.headers['content-type'];
 
@@ -330,7 +330,7 @@ router.route('/cliplist')
 
     })
 
-    router.route('/indexationdata/:uri')
+router.route('/indexationdata/:uri')
     .get(function(req,res){
         //TODO create a get method to get all the indexation of a media
       var data = {};
@@ -362,7 +362,7 @@ router.route('/cliplist')
       res.json(data);
   })
 
-  router.route('/createFragment/')
+router.route('/createFragment')
     .get(function(req,res){
       var trackURI = req.param("trackURI", null);
       var tagURI = req.param("tagURI", null);
@@ -433,6 +433,41 @@ router.route('/createTrack')
     res.json(result);
 
 })
+
+router.route('/exportation')
+  .get(function(req,res){
+
+    //TODO create an deplacement method to deplace a clip to a particular place
+    http.get('http://localhost:8080/AXIS-SOW-POC-backend/export', (result) => {
+      const statusCode = result.statusCode;
+      const contentType = result.headers['content-type'];
+
+      let error;
+      if (statusCode !== 200) {
+        error = new Error(`Request Failed.\n` +
+                      `Status Code: ${statusCode}`);
+      }
+      if (error) {
+        console.log(error.message);
+        // consume response data to free up memory
+        result.resume();
+        return;
+      }
+
+      result.setEncoding('utf8');
+      let rawData = '';
+      result.on('data', (chunk) => rawData += chunk);
+      result.on('end', () => {
+        try {
+          res.send(rawData);
+        } catch (e) {
+          console.log(e.message);
+        }
+      });
+    }).on('error', (e) => {
+      console.log(`Got error: ${e.message}`);
+    });
+  })
 
 // allow us to use this routing configuration in other files as 'router'
 module.exports = router;
