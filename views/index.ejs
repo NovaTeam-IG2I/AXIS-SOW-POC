@@ -4,8 +4,10 @@ Main template for the interface : act as a layout
 
 <!DOCTYPE html>
 <html>
+
   <head>
 		<title><%= title %></title>
+    <!-- Static import for library and front frameworks  -->
     <script src="/javascripts/angular.min.js"></script>
     <script src="/javascripts/angular-route.min.js"></script>
     <script src="/javascripts/ng-file-upload.min.js"></script>
@@ -16,25 +18,31 @@ Main template for the interface : act as a layout
     <script src="javascripts/angular-messages.min.js"></script>
     <script src="javascripts/angular-material.min.js"></script>
     <script src="javascripts/app.js"></script>
-
+    <!-- Static links for style frameworks  -->
     <link rel="stylesheet" href="stylesheets/angular-material-1.1.0.min.css">
     <link rel="stylesheet" href="stylesheets/bootstrap-3.3.2.min.css">
     <link rel="stylesheet" href="stylesheets/style.css">
 	</head>
+
 	<body ng-app="AXIS-SOW-POC">
 		<div id='main' class="container">
+      <!-- Navbar which handle all the navigation through the website  -->
 			<nav class="navbar-fluid navbar-default navbar-fixed-top">
 				<div class="container">
 					<a class="navbar-brand" href="#/"> <%= title %> </a>
 					<p class="navbar-text"> Proof of concept </p>
 
-        			<p class="navbar-right navbar-text" ng-hide="authenticated"><a href="#/list">View gallery</a> / <a href="#/import">Import a media</a> / <a href="#/manageRegister">Manage register</a> / <a href="#/exportation">Exportation</a></p>
+        			<p class="navbar-right navbar-text" ng-hide="authenticated"><a href="#/list">View gallery</a>
+                 / <a href="#/import">Import a media</a> / <a href="#/manageRegister">Manage register</a>
+                  / <a href="#/exportation">Exportation</a></p>
 				</div>
 			</nav>
+      <!-- One page container for the differents parts  -->
 			<div class="col-md-12">
 				<div ng-view>
 				</div>
 			</div>
 		</div>
 	</body>
+
 </html>

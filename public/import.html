@@ -3,10 +3,18 @@ View for listing correlations between XMP and TAGs
 -->
 
 <div ng-controller="importController">
+  <!--Specify the file name-->
   <h4>Upload on file select</h4>
-  Title : <input type="title" ng-model="fileName"></input>
-  <br><br>
-  <button type="file" ngf-select="uploadFiles($file)" accept="video/mp4" ngf-max-size="300MB" enctype="multipart/form-data">
-      Select File</button>
-  <br><br>
+  Title :
+  <input type="title" ng-model="fileName">
+  </input>
+  <br>
+  <br>
+  <!--Specify the file source and start the importation mechanism-->
+  <button type="file" ngf-select="uploadFiles($file)" accept="video/mp4"
+  ngf-max-size="300MB" enctype="multipart/form-data">
+  Select File
+  </button>
+  <br>
+  <br>
 </div>
