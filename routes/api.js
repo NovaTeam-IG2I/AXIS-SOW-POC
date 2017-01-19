@@ -500,34 +500,7 @@ router.route('/cliplist')
     res.json(categories);
     })
 
-  router.route('/getPredicates')
-    .get(function(req,res){
-
-      //TODO create a get method to get all the URI of all the clips
-      console.log("TODO get all predicates");
-      var predicates=["pred1","pred2"];
-      console.log("coucou");
-      res.json(predicates);
-    })
-
   router.route('/addRegister')
-    .post(function(req,res){
-      
-      console.log(req.body);
-    })
-
-  router.route('/addPredicate')
-    .post(function(req,res){
-      console.log(req.body);
-    })
-
-  router.route('/deleteRegister')
-    .post(function(req,res){
-      
-      console.log(req.body);
-    })
-
-  router.route('/addpredicateToRegisters')
     .post(function(req,res){
       
       console.log(req.body);
