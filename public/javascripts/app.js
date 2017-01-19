@@ -1229,10 +1229,10 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
   // $scope variables declartions
   $scope.selectedCategorie = 1;
   $scope.registerName = "";
-  $scope.allCategories = [{"uri" : 'http://titan.be/axis-csrm/datamodel/ontology/0.4#PhysicalPerson', "name" : "Exemple1"},{"uri" : 'http://titan.be/axis-csrm/datamodel/ontology/0.4#PhysicalPerson', "name" : "Exemple2"},{"uri" : 'http://titan.be/axis-csrm/datamodel/ontology/0.4#PhysicalPerson', "name" : "Exemple3"}];
+  $scope.allCategories = [];
 
   // Request continous to get the classes
-  /*$http({
+  $http({
     method: 'GET',
     url: 'http://localhost:3000/api/listRegister'
   }).then(function successCallback(response) {
@@ -1240,7 +1240,7 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
     $scope.allCategories = response.data.categories;
   }, function errorCallback(response) {
     $scope.getCategoriesList = "Fail";
-  });*/
+  });
 
   // Function that send to the API the new Register informations
   $scope.createRegister = function () {
@@ -1250,8 +1250,10 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
       data: {class: $scope.selectedCategorie, name: $scope.registerName}
     }).then(function successCallback(response) {
       $scope.sendFile = "Succes";
+      $scope.registerName = "";
     }, function errorCallback(response) {
       $scope.sendFile = "Fail";
+      $scope.registerName = "";
     });
   }
 }]);
@@ -1269,8 +1271,10 @@ app.controller('importController', ['$http', '$scope', '$timeout', function ($ht
       data: {file: file.name, title: $scope.fileName}
     }).then(function successCallback(response) {
       $scope.sendFile = "Succes";
+      $scope.fileName = "";
     }, function errorCallback(response) {
       $scope.sendFile = "Fail";
+      $scope.fileName = "";
     });
 
   }
