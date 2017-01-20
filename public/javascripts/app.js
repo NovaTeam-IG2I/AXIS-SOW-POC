@@ -602,8 +602,8 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
                         tab[0].classList.toggle('active');
                         tab[0].wasActive = "true";
                     }
-                    tab[0].style = "background-color : black";
-                    tab[0].childNodes[0].style = "background-color : black";
+                    tab[0].style = "background-color : #777";
+                    tab[0].childNodes[0].style = "background-color : #777";
                     
                 }
             });
