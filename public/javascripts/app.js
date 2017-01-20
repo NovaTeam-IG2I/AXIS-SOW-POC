@@ -1291,8 +1291,8 @@ app.controller('exportationController', ['$http', '$scope', function ($http, $sc
     }).then(function successCallback(response) {
       $scope.getExportation = "Succes";
       var element = document.createElement('a');
-      element.setAttribute('href', 'data:text/text;charset=utf-8,' + encodeURI(response.data));
-      element.setAttribute('download', "export.owl");
+      element.setAttribute('href', 'data:text/text;charset=utf-8,' + 'azazazazazazaza');
+      element.setAttribute('download', "export.txt");
       element.click();
     }, function errorCallback(response) {
       $scope.getExportation = "Fail";

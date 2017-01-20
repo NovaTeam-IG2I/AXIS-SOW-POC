@@ -443,7 +443,7 @@ router.route('/createTrack')
       if(mediaURI == null || trackName == null || mediaURI.length == 0 || trackName.length ==0){
           result.msg += "All the informations have not been completed \n";
       } else {
-          if(true){succesful
+          if(true){
               result.success = true;
               result.data.uri = "URI succesful";
               result.data.track = trackName;
