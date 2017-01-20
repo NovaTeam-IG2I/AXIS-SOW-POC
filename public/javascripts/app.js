@@ -1249,10 +1249,10 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
       url: 'http://localhost:3000/api/createRegister',
       data: {class: $scope.selectedCategorie, name: $scope.registerName}
     }).then(function successCallback(response) {
-      $scope.sendFile = "Succes";
+      $scope.setNewRegister = "Succes";
       $scope.registerName = "";
     }, function errorCallback(response) {
-      $scope.sendFile = "Fail";
+      $scope.setNewRegister = "Fail";
       $scope.registerName = "";
     });
   }
