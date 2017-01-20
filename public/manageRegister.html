@@ -1,118 +1,17 @@
 <div ng-controller="manageRegisterController">
   <h4>Register Manager</h4>
-  <h5> New Register </h5>
-
-  <md-form name="addForm">
-
-    <div class="row">
-      <md-input-container>
-        <label>Name</label>
-        <input type="text" name="addRegisterName"></input>
-      </md-input-container>
-
-      <md-input-container>
-        <md-select ng-model="selectedClass" md-selected-text="getSelectedText()">
-          <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
-            <md-option ng-if="category.subClass.length!=0" ng-value="subCat.label" ng-repeat="subCat in category.subClass">{{subCat.label}}</md-option>
-            <md-option ng-if="category.subClass.length==0" ng-value="category.label">{{category.label}}</md-option>
-          </md-optgroup>
-        </md-select>
-      </md-input-container>
-    </div>
-
-    <div class="row">
-      <md-input-container>
-        <label>Propriétés1</label>
-        <input type="text"></input>
-      </md-input-container>
-
-      <md-input-container>
-        <label>Propriétés2</label>
-        <input type="text"></input>
-      </md-input-container>
-    </div>
-
-    <div>
-      <md-button type="submit">Create</md-button>
-    </div>
-  </md-form>
-
-  <h5> Create predicate </h5>
-  <div class="row">
-    <md-form name="createPredicateForm">
-      <md-input-container>
-        <label>Name (ex: hasLivedIn)</label>
-        <input type="text"></input>
-      </md-input-container>
-
-
-
-      <div>
-        <md-button type="submit">Create</md-button>
-      </div>
-
-    </md-form>
-  </div>
-
-  <h5> Add predicate to given registers </h5>
-  <div class="row">
-    <md-form name="modifForm">
-      <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
-          <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
-            <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
-              <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
-            </md-optgroup>
-          </md-optgroup>
-        </md-select>
-      </md-input-container>
-
-      <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
-          <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
-            <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
-              <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
-            </md-optgroup>
-          </md-optgroup>
-        </md-select>
-      </md-input-container>
-
-      <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
-          <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
-            <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
-              <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
-            </md-optgroup>
-          </md-optgroup>
-        </md-select>
-      </md-input-container>
-
-
-      <div>
-        <md-button type="submit">Create</md-button>
-      </div>
-
-    </md-form>
-  </div>
-
-  <h5> Delete Register </h5>
-  <div class="row">
-    <md-form name="deleteForm">
-      <md-input-container>
-        <md-select ng-model="selectedIndividual" md-selected-text="getSelectedInd()">
-          <md-optgroup ng-repeat="category in categories" label="{{category.label}}">
-            <md-optgroup ng-repeat="subCat in category.subClass" label="{{subCat.label}}">
-              <md-option ng-value="individual.label" ng-repeat="individual in subCat.individuals">{{individual.label}}</md-option>
-            </md-optgroup>
-          </md-optgroup>
-        </md-select>
-      </md-input-container>
-
-
-    <div>
-      <md-button type="submit">Delete</md-button>
-    </div>
-
-  </md-form>
-</div>
+  <!--Mechanism to add a register to the database -->
+  <h5> Create Register </h5>
+  <!--Specify the register name-->
+  Name :
+  <input type="title" ng-model="registerName">
+  </input>
+  <!--Specify the register category-->
+  <select name="repeatSelect" id="repeatSelect" ng-model="selectedCategorie">
+    <option ng-repeat="categorie in allCategories track by $index" value="{{categorie.uri}}">{{categorie.name}}</option>
+  </select>
+  <!--Start the register creation mechanism-->
+  <button ng-click="createRegister()"> Create </button>
+  <br>
+  <br>
 </div>

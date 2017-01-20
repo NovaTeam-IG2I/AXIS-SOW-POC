@@ -1220,69 +1220,43 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
 
 });
 
-app.controller('manageRegisterController', function ($scope) {
-  //TODO : replace with real data
-  $scope.categories = [
-    {
-      label: "Category1",
-      subClass: [
-        {
-          label: "subClass1-1",
-          subClass: [{
-            label: "subClass1-1-1",
-            subClass: [],
-            individuals: [
-              {
-                label: "i1"
-              },
-              {
-                label: "i2"
-              }]
-            }],
-            individuals: [
-              {label: "sdqsq"}
-            ]
-          },
-          {
-            label: "subClass1-2",
-            subClass: [],
-            individuals: []
-          }]
-        },
-        {
-          label: "Category2",
-          subClass: [
-            {
-              label: "subClass2-1",
-              subClass: [],
-              individuals: []
-            }],
-            individuals: []
-          },
-          {
-            label: "Category3",
-            subClass: [],
-            individuals: []
-          }
-        ];
+app.controller('manageRegisterController', ['$scope', '$http', function ($scope, $http) {
 
-        $scope.selectedClass;
-        $scope.selectedIndividual;
-        $scope.getSelectedText = function () {
-          if ($scope.selectedClass !== undefined) {
-            return $scope.selectedClass;
-          } else {
-            return "Please select a class";
-          }
-        };
-        $scope.getSelectedInd = function () {
-          if ($scope.selectedIndividual !== undefined) {
-            return $scope.selectedIndividual;
-          } else {
-            return "Please select an individual";
-          }
-        };
-      });
+  // Request state variables
+  $scope.getCategoriesList = "";
+  $scope.setNewRegister = "";
+
+  // $scope variables declartions
+  $scope.selectedCategorie = 1;
+  $scope.registerName = "";
+  $scope.allCategories = [];
+
+  // Request continous to get the classes
+  $http({
+    method: 'GET',
+    url: 'http://localhost:3000/api/listRegister'
+  }).then(function successCallback(response) {
+    $scope.getCategoriesList = "Succes";
+    $scope.allCategories = response.data.categories;
+  }, function errorCallback(response) {
+    $scope.getCategoriesList = "Fail";
+  });
+
+  // Function that send to the API the new Register informations
+  $scope.createRegister = function () {
+    $http({
+      method: 'POST',
+      url: 'http://localhost:3000/api/createRegister',
+      data: {class: $scope.selectedCategorie, name: $scope.registerName}
+    }).then(function successCallback(response) {
+      $scope.sendFile = "Succes";
+      $scope.registerName = "";
+    }, function errorCallback(response) {
+      $scope.sendFile = "Fail";
+      $scope.registerName = "";
+    });
+  }
+}]);
 
 // Controller for the importation of a video mp4
 app.controller('importController', ['$http', '$scope', '$timeout', function ($http, $scope, $timeout) {
@@ -1297,8 +1271,10 @@ app.controller('importController', ['$http', '$scope', '$timeout', function ($ht
       data: {file: file.name, title: $scope.fileName}
     }).then(function successCallback(response) {
       $scope.sendFile = "Succes";
+      $scope.fileName = "";
     }, function errorCallback(response) {
       $scope.sendFile = "Fail";
+      $scope.fileName = "";
     });
 
   }
