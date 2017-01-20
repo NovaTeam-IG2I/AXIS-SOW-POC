@@ -516,9 +516,9 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
 
         if(doNotExist){
           $http({
-            method: 'GET',
+            method: 'POST',
             url: 'http://localhost:3000/api/createTrack',
-            params : {'mediaURI' : encodeURIComponent(sharedMedia.getMediaURI()), 'trackName' : track}
+            data : {"uri" : sharedMedia.getMediaURI(), "name" : track}
           }).then(function successCallback(response) {
             if(response.data.success == true){
               indexationData.trackNames.push(trackname);

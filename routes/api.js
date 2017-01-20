@@ -429,30 +429,60 @@ router.route('/createFragment')
     })
 
 router.route('/createTrack')
-    .get(function(req,res){
+    .post(function(req,res){
 
       //TODO create a post method to add a track in the database
 
-      var mediaURI = req.param("mediaURI", null);
-      var trackName = req.param("trackName", null);
-
-      var result = {};
-      result.msg = "";
-      result.data = {};
-      result.success = false;
-      if(mediaURI == null || trackName == null || mediaURI.length == 0 || trackName.length ==0){
-          result.msg += "All the informations have not been completed \n";
+      var resultTrack = {};
+      resultTrack.msg = "";
+      resultTrack.data = {};
+      resultTrack.success = false;
+      if(req.body.uri == null || req.body.name == null || req.body.uri.length == 0 || req.body.name.length ==0){
+          resultTrack.msg += "All the informations have not been completed \n";
       } else {
-          if(true){
-              result.success = true;
-              result.data.uri = "URI succesful";
-              result.data.track = trackName;
-          } else {
-              result.msg("An error occured in the request \n");
-          }
-      }
+          var postData = querystring.stringify({
+            "name" : req.body.name, "uri" : req.body.uri
+          });
 
-      res.json(result);
+          var options = {
+            hostname: 'localhost',
+            port: 8080,
+            path: '/AXIS-SOW-POC-backend/track',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Content-Length': Buffer.byteLength(postData)
+            }
+          };
+
+          var request = http.request(options, (result) => {
+            console.log(`STATUS: ${result.statusCode}`);
+            console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
+            result.setEncoding('utf8');
+            // Response treatment
+            let rawData = '';
+            result.on('data', (chunk) => rawData += chunk);
+            result.on('end', () => {
+              try {
+                let parsedData = JSON.parse(rawData);
+                resultTrack.success = true;
+                resultTrack.data.uri = parsedData.uri;
+                resultTrack.data.track = req.body.name;
+                res.json(resultTrack);
+              } catch (e) {
+                console.log(e.message);
+              }
+            });
+          });
+
+          request.on('error', (e) => {
+            console.log(`problem with request: ${e.message}`);
+          });
+
+          // write data to request body
+          request.write(postData);
+          request.end();
+      }
     })
 
 router.route('/exportation')
