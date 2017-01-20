@@ -24,6 +24,8 @@ router.route('/import')
       form.submit('http://localhost:8080/AXIS-SOW-POC-backend/import', function(err, res) {
         res.resume();
       });
+
+      res.send("End of transaction");
     })
 
 router.route('/productionsheet/:uri')
