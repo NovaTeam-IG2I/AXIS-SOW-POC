@@ -509,25 +509,26 @@ router.route('/createRegister')
         }
       };
 
-      var req = http.request(options, (res) => {
-        console.log(`STATUS: ${res.statusCode}`);
-        console.log(`HEADERS: ${JSON.stringify(res.headers)}`);
-        res.setEncoding('utf8');
-        res.on('data', (chunk) => {
+      var request = http.request(options, (result) => {
+        console.log(`STATUS: ${result.statusCode}`);
+        console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
+        result.setEncoding('utf8');
+        result.on('data', (chunk) => {
           console.log(`BODY: ${chunk}`);
         });
-        res.on('end', () => {
+        result.on('end', () => {
           console.log('No more data in response.');
         });
       });
 
-      req.on('error', (e) => {
+      request.on('error', (e) => {
         console.log(`problem with request: ${e.message}`);
       });
 
       // write data to request body
-      req.write(postData);
-      req.end();
+      request.write(postData);
+      request.end();
+      res.send("End of transaction");
     })
 
 router.route('/listRegister')
