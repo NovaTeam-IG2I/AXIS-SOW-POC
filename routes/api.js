@@ -344,115 +344,186 @@ router.route('/indexationdata/:uri')
 
       //TODO create a get method to get all the indexation of a media
 
-      var data = {};
-      data.duree = 171;
-      data.indexedTracks = [];
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/structure?uri=' + encodeURIComponent(req.params.uri) , (result) => {
+        const statusCode = result.statusCode;
+        const contentType = result.headers['content-type'];
 
-      data.indexedTracks[0] = {};
-      data.indexedTracks[0].name = "Image";
-      data.indexedTracks[0].uri = "URI Image";
-      data.indexedTracks[0].fragments = [];
-      data.indexedTracks[0].fragments[0] = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[1] = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président 2", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[2] = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président 3", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[3] = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président 4", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[4] = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président 5", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[5] = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président 6", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[6] = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président 7", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[7] = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG 1", "nature" : "Personne", "name" : "Directeur général"};
-      data.indexedTracks[0].fragments[8] = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG 2", "nature" : "Personne", "name" : "Directeur général"};
+        // Error handlers
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed.\n` +
+                        `Status Code: ${statusCode}`);
+        }
+        if (error) {
+          console.log(error.message);
+          // consume response data to free up memory
+          result.resume();
+          return;
+        }
 
-      data.indexedTracks[1] = {};
-      data.indexedTracks[1].name = "Audio";
-      data.indexedTracks[1].uri = "URI Audio";
-      data.indexedTracks[1].fragments = [];
-      data.indexedTracks[1].fragments[0] = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président 8" ,  "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[1].fragments[1] = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président 9" ,  "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[1].fragments[2] = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG 3" ,  "nature" : "Personne", "name" : "Directeur général" };
-      data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG 4" ,  "nature" : "Personne", "name" : "Directeur général" };
-      data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG 5" ,  "nature" : "Personne", "name" : "Directeur général" };
-      data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG 6" ,  "nature" : "Personne", "name" : "Directeur général" };
-
-      res.json(data);
+        // Response treatment
+        result.setEncoding('utf8');
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
+        result.on('end', () => {
+          try {
+            let parsedData = JSON.parse(rawData);
+            parsedData.duree = 171;
+            res.json(parsedData);
+          } catch (e) {
+            console.log(e.message);
+          }
+        });
+      }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
+      });
     })
 
 router.route('/createFragment')
-    .get(function(req,res){
+    .post(function(req,res){
 
       //TODO create a post method to add a fragment in the database
 
-      var trackURI = req.param("trackURI", null);
-      var tagURI = req.param("tagURI", null);
-      var tagName = req.param("tagName", null);
-      var tagNature = req.param("tagNature", null);
-      var fragType = req.param("fragType", null);
-      var fragBegin = req.param("fragBegin", null);
-      var fragEnd = req.param("fragEnd", null);
+      var trackURI = req.body.trackURI;
+      var tagURI = req.body.tagURI;
+      var tagName = req.body.tagName;
+      var tagNature = req.body.tagNature;
+      var fragType = req.body.fragType;
+      var fragBegin = req.body.fragBegin;
+      var fragEnd = req.body.fragEnd;
 
-      var result = {};
-      result.success = false;
-      result.message = "";
+      var resultTrack = {};
+      resultTrack.success = false;
+      resultTrack.message = "";
       if(trackURI == null){
-          result.message += "The track has not been specified. ";
+          resultTrack.message += "The track has not been specified. ";
       } else if(fragType == null){
-          result.message += "The type of fragment has not been specified. ";
+          resultTrack.message += "The type of fragment has not been specified. ";
       } else if(!(fragType == "segment" || fragType == "point" )){
-          result.message += "A fragment can only be a segment or a flag. ";
+          resultTrack.message += "A fragment can only be a segment or a flag. ";
       } else if(fragBegin == null){
-          result.message += "The beginning time has not been specified. ";
+          resultTrack.message += "The beginning time has not been specified. ";
       } else if (fragType == "segment" && fragEnd == null){
-          result.message += "A segment needs an ending time. ";
+          resultTrack.message += "A segment needs an ending time. ";
       } else {
           if(fragType == "point") fragEnd = fragBegin;
-          if(result.message == ""){
-              result.success = true;
+          if(resultTrack.message == ""){
+              resultTrack.success = true;
               // TODO HTTP POST REQUEST
 
-              //if tagURI == ""
-              //create a tag with name == (appel a melo)
-              //pas de else
-              //envoie a richou des informations
-              //reprendre et renvoyer URI
+              var postData = querystring.stringify({
+                "track" : trackURI,
+                "register" : tagURI,
+                "type" : fragType,
+                "start" : fragBegin,
+                "end" : fragEnd
+              });
+              console.log("POSTDATA : " + postData);
+              var options = {
+                hostname: 'localhost',
+                port: 8080,
+                path: '/AXIS-SOW-POC-backend/fragment',
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'Content-Length': Buffer.byteLength(postData)
+                }
+              };
 
-              result.data = {
+              var request = http.request(options, (result) => {
+                console.log(`STATUS: ${result.statusCode}`);
+                console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
+                result.setEncoding('utf8');
+                // Response treatment
+                let rawData = '';
+                result.on('data', (chunk) => rawData += chunk);
+                result.on('end', () => {
+                  try {
+                    let parsedData = JSON.parse(rawData);
+                    console.log(parsedData);
+                  } catch (e) {
+                    console.log(e.message);
+                  }
+                });
+              });
+
+              request.on('error', (e) => {
+                console.log(`problem with request: ${e.message}`);
+              });
+
+              // write data to request body
+              request.write(postData);
+              request.end();
+
+              resultTrack.data = {
                 "trackURI" : trackURI,
                 "tag" : { "uri" : tagURI.concat("_1"), "name" : tagName, "nature" : tagNature },
                 "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
               };
           }
           else {
-              result.data = {};
+              resultTrack.data = {};
           }
       }
 
-      res.json(result);
+      res.json(resultTrack);
     })
 
 router.route('/createTrack')
-    .get(function(req,res){
+    .post(function(req,res){
 
       //TODO create a post method to add a track in the database
 
-      var mediaURI = req.param("mediaURI", null);
-      var trackName = req.param("trackName", null);
-
-      var result = {};
-      result.msg = "";
-      result.data = {};
-      result.success = false;
-      if(mediaURI == null || trackName == null || mediaURI.length == 0 || trackName.length ==0){
-          result.msg += "All the informations have not been completed \n";
+      var resultTrack = {};
+      resultTrack.msg = "";
+      resultTrack.data = {};
+      resultTrack.success = false;
+      if(req.body.uri == null || req.body.name == null || req.body.uri.length == 0 || req.body.name.length ==0){
+          resultTrack.msg += "All the informations have not been completed \n";
       } else {
-          if(true){
-              result.success = true;
-              result.data.uri = "URI succesful";
-              result.data.track = trackName;
-          } else {
-              result.msg("An error occured in the request \n");
-          }
-      }
+          var postData = querystring.stringify({
+            "name" : req.body.name, "uri" : req.body.uri
+          });
 
-      res.json(result);
+          var options = {
+            hostname: 'localhost',
+            port: 8080,
+            path: '/AXIS-SOW-POC-backend/track',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Content-Length': Buffer.byteLength(postData)
+            }
+          };
+
+          var request = http.request(options, (result) => {
+            console.log(`STATUS: ${result.statusCode}`);
+            console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
+            result.setEncoding('utf8');
+            // Response treatment
+            let rawData = '';
+            result.on('data', (chunk) => rawData += chunk);
+            result.on('end', () => {
+              try {
+                let parsedData = JSON.parse(rawData);
+                resultTrack.success = true;
+                resultTrack.data.uri = parsedData.uri;
+                resultTrack.data.track = req.body.name;
+                res.json(resultTrack);
+              } catch (e) {
+                console.log(e.message);
+              }
+            });
+          });
+
+          request.on('error', (e) => {
+            console.log(`problem with request: ${e.message}`);
+          });
+
+          // write data to request body
+          request.write(postData);
+          request.end();
+      }
     })
 
 router.route('/exportation')
@@ -516,7 +587,9 @@ router.route('/createRegister')
         console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
         result.setEncoding('utf8');
         result.on('data', (chunk) => {
+          let parsedData = JSON.parse(chunk);
           console.log(`BODY: ${chunk}`);
+          res.json(parsedData);
         });
         result.on('end', () => {
           console.log('No more data in response.');
@@ -530,7 +603,7 @@ router.route('/createRegister')
       // write data to request body
       request.write(postData);
       request.end();
-      res.send("End of transaction");
+      //res.send("End of transaction");
     })
 
 router.route('/listRegister')
