@@ -344,36 +344,40 @@ router.route('/indexationdata/:uri')
 
       //TODO create a get method to get all the indexation of a media
 
-      var data = {};
-      data.duree = 171;
-      data.indexedTracks = [];
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/structure?uri=' + encodeURIComponent(req.params.uri) , (result) => {
+        const statusCode = result.statusCode;
+        const contentType = result.headers['content-type'];
 
-      data.indexedTracks[0] = {};
-      data.indexedTracks[0].name = "Image";
-      data.indexedTracks[0].uri = "URI Image";
-      data.indexedTracks[0].fragments = [];
-      data.indexedTracks[0].fragments[0] = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[1] = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président 2", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[2] = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président 3", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[3] = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président 4", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[4] = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président 5", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[5] = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président 6", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[6] = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président 7", "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[0].fragments[7] = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG 1", "nature" : "Personne", "name" : "Directeur général"};
-      data.indexedTracks[0].fragments[8] = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG 2", "nature" : "Personne", "name" : "Directeur général"};
+        // Error handlers
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed.\n` +
+                        `Status Code: ${statusCode}`);
+        }
+        if (error) {
+          console.log(error.message);
+          // consume response data to free up memory
+          result.resume();
+          return;
+        }
 
-      data.indexedTracks[1] = {};
-      data.indexedTracks[1].name = "Audio";
-      data.indexedTracks[1].uri = "URI Audio";
-      data.indexedTracks[1].fragments = [];
-      data.indexedTracks[1].fragments[0] = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président 8" ,  "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[1].fragments[1] = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président 9" ,  "nature" : "Personne", "name" : "Président" };
-      data.indexedTracks[1].fragments[2] = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG 3" ,  "nature" : "Personne", "name" : "Directeur général" };
-      data.indexedTracks[1].fragments[3] = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG 4" ,  "nature" : "Personne", "name" : "Directeur général" };
-      data.indexedTracks[1].fragments[4] = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG 5" ,  "nature" : "Personne", "name" : "Directeur général" };
-      data.indexedTracks[1].fragments[5] = { "type" : "point" , "start" : 50 , "end" : 55, "uri" : "URI DG 6" ,  "nature" : "Personne", "name" : "Directeur général" };
-
-      res.json(data);
+        // Response treatment
+        result.setEncoding('utf8');
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
+        result.on('end', () => {
+          try {
+            let parsedData = JSON.parse(rawData);
+            console.log(parsedData);
+            parsedData.duree = 171;
+            res.json(parsedData);
+          } catch (e) {
+            console.log(e.message);
+          }
+        });
+      }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
+      });
     })
 
 router.route('/createFragment')
