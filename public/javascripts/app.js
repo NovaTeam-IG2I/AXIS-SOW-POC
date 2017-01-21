@@ -844,7 +844,6 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
 
 }]);
 
-
 app.controller('indexationController', function ($scope, $http, sharedMedia, $mdDialog) {
   var selectedTag = null;
 
@@ -945,10 +944,39 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
         var mediaURI = sharedMedia.getMediaURI();
         //We don't need the start time nor the end time but we need the uri and the nature of the tag
         var partialFragment = searchTagByName(tag);
+        if(partialFragment.uri == "" || partialFragment.uri == null){
+          var setNewRegister = "";
+          $http({
+            method: 'POST',
+            url: 'http://localhost:3000/api/createRegister',
+            data: {class: 'http://titan.be/axis-csrm/datamodel/ontology/0.4#Register', name: partialFragment.name}
+          }).then(function successCallback(response) {
+            setNewRegister = "Succes";
+            partialFragment.uri = response.data.uri;
+          }, function errorCallback(response) {
+            setNewRegister = "Fail";
+          }).then( function(){
+            $http({
+              method: 'POST',
+              url: 'http://localhost:3000/api/createFragment',
+              data: {"trackURI": trackURI, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
+            }).then(function successCallback(response) {
+              var ans = response.data;
+              if (ans.success) {
+                addFragment(ans.data);
+                $mdDialog.hide();
+              } else {
+                alert(ans.message);
+              }
+            }, function errorCallback(response) {
+            });
+          });
+        }
+        else{
         $http({
-          method: 'GET',
+          method: 'POST',
           url: 'http://localhost:3000/api/createFragment',
-          params: {"trackURI": trackURI, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
+          data: {"trackURI": trackURI, "tagURI": partialFragment.uri, "tagName": partialFragment.name, "tagNature": partialFragment.nature, "fragType": fragType, "fragBegin": fragBegin, "fragEnd": fragEnd}
         }).then(function successCallback(response) {
           var ans = response.data;
           if (ans.success) {
@@ -959,6 +987,7 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
           }
         }, function errorCallback(response) {
         });
+      }
       }
     };
 
@@ -1291,8 +1320,8 @@ app.controller('exportationController', ['$http', '$scope', function ($http, $sc
     }).then(function successCallback(response) {
       $scope.getExportation = "Succes";
       var element = document.createElement('a');
-      element.setAttribute('href', 'data:text/text;charset=utf-8,' + 'azazazazazazaza');
-      element.setAttribute('download', "export.txt");
+      element.setAttribute('href', 'data:application/owl+xml;charset=utf-8,' + encodeURI(response.data));
+      element.setAttribute('download', "export.owl");
       element.click();
     }, function errorCallback(response) {
       $scope.getExportation = "Fail";

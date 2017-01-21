@@ -368,7 +368,6 @@ router.route('/indexationdata/:uri')
         result.on('end', () => {
           try {
             let parsedData = JSON.parse(rawData);
-            console.log(parsedData);
             parsedData.duree = 171;
             res.json(parsedData);
           } catch (e) {
@@ -381,55 +380,93 @@ router.route('/indexationdata/:uri')
     })
 
 router.route('/createFragment')
-    .get(function(req,res){
+    .post(function(req,res){
 
       //TODO create a post method to add a fragment in the database
 
-      var trackURI = req.param("trackURI", null);
-      var tagURI = req.param("tagURI", null);
-      var tagName = req.param("tagName", null);
-      var tagNature = req.param("tagNature", null);
-      var fragType = req.param("fragType", null);
-      var fragBegin = req.param("fragBegin", null);
-      var fragEnd = req.param("fragEnd", null);
+      var trackURI = req.body.trackURI;
+      var tagURI = req.body.tagURI;
+      var tagName = req.body.tagName;
+      var tagNature = req.body.tagNature;
+      var fragType = req.body.fragType;
+      var fragBegin = req.body.fragBegin;
+      var fragEnd = req.body.fragEnd;
 
-      var result = {};
-      result.success = false;
-      result.message = "";
+      var resultTrack = {};
+      resultTrack.success = false;
+      resultTrack.message = "";
       if(trackURI == null){
-          result.message += "The track has not been specified. ";
+          resultTrack.message += "The track has not been specified. ";
       } else if(fragType == null){
-          result.message += "The type of fragment has not been specified. ";
+          resultTrack.message += "The type of fragment has not been specified. ";
       } else if(!(fragType == "segment" || fragType == "point" )){
-          result.message += "A fragment can only be a segment or a flag. ";
+          resultTrack.message += "A fragment can only be a segment or a flag. ";
       } else if(fragBegin == null){
-          result.message += "The beginning time has not been specified. ";
+          resultTrack.message += "The beginning time has not been specified. ";
       } else if (fragType == "segment" && fragEnd == null){
-          result.message += "A segment needs an ending time. ";
+          resultTrack.message += "A segment needs an ending time. ";
       } else {
           if(fragType == "point") fragEnd = fragBegin;
-          if(result.message == ""){
-              result.success = true;
+          if(resultTrack.message == ""){
+              resultTrack.success = true;
               // TODO HTTP POST REQUEST
 
-              //if tagURI == ""
-              //create a tag with name == (appel a melo)
-              //pas de else
-              //envoie a richou des informations
-              //reprendre et renvoyer URI
+              var postData = querystring.stringify({
+                "track" : trackURI,
+                "register" : tagURI,
+                "type" : fragType,
+                "start" : fragBegin,
+                "end" : fragEnd
+              });
+              console.log("POSTDATA : " + postData);
+              var options = {
+                hostname: 'localhost',
+                port: 8080,
+                path: '/AXIS-SOW-POC-backend/fragment',
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+                  'Content-Length': Buffer.byteLength(postData)
+                }
+              };
 
-              result.data = {
+              var request = http.request(options, (result) => {
+                console.log(`STATUS: ${result.statusCode}`);
+                console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
+                result.setEncoding('utf8');
+                // Response treatment
+                let rawData = '';
+                result.on('data', (chunk) => rawData += chunk);
+                result.on('end', () => {
+                  try {
+                    let parsedData = JSON.parse(rawData);
+                    console.log(parsedData);
+                  } catch (e) {
+                    console.log(e.message);
+                  }
+                });
+              });
+
+              request.on('error', (e) => {
+                console.log(`problem with request: ${e.message}`);
+              });
+
+              // write data to request body
+              request.write(postData);
+              request.end();
+
+              resultTrack.data = {
                 "trackURI" : trackURI,
                 "tag" : { "uri" : tagURI.concat("_1"), "name" : tagName, "nature" : tagNature },
                 "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
               };
           }
           else {
-              result.data = {};
+              resultTrack.data = {};
           }
       }
 
-      res.json(result);
+      res.json(resultTrack);
     })
 
 router.route('/createTrack')
@@ -550,7 +587,9 @@ router.route('/createRegister')
         console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
         result.setEncoding('utf8');
         result.on('data', (chunk) => {
+          let parsedData = JSON.parse(chunk);
           console.log(`BODY: ${chunk}`);
+          res.json(parsedData);
         });
         result.on('end', () => {
           console.log('No more data in response.');
@@ -564,7 +603,7 @@ router.route('/createRegister')
       // write data to request body
       request.write(postData);
       request.end();
-      res.send("End of transaction");
+      //res.send("End of transaction");
     })
 
 router.route('/listRegister')
