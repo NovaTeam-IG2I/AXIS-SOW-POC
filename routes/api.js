@@ -373,7 +373,6 @@ router.route('/createTrack')
 
       var resultTrack = {};
       resultTrack.msg = "";
-      resultTrack.data = {};
       resultTrack.success = false;
       if(req.body.uri == null || req.body.name == null || req.body.uri.length == 0 || req.body.name.length ==0){
           resultTrack.msg += "All the informations have not been completed \n";
@@ -404,8 +403,8 @@ router.route('/createTrack')
               try {
                 let parsedData = JSON.parse(rawData);
                 resultTrack.success = true;
-                resultTrack.data.uri = parsedData.uri;
-                resultTrack.data.track = req.body.name;
+                resultTrack.uri = parsedData.uri;
+                resultTrack.track = req.body.name;
                 res.json(resultTrack);
               } catch (e) {
                 console.log(e.message);

@@ -518,10 +518,11 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
             url: 'http://localhost:3000/api/createTrack',
             data : {"uri" : sharedMedia.getMediaURI(), "name" : track}
           }).then(function successCallback(response) {
+
             if(response.data.success == true){
               indexationData.trackNames.push(trackname);
               indexationData.indexedTracks.push({});
-              indexationData.indexedTracks[lastIndex].uri = "";
+              indexationData.indexedTracks[lastIndex].uri = response.data.uri;
               indexationData.indexedTracks[lastIndex].name = trackname;
               indexationData.indexedTracks[lastIndex].levels = [];
               indexationData.indexedTracks[lastIndex].levels.push([]);
