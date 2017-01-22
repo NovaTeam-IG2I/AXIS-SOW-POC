@@ -39,7 +39,7 @@ View for listing all the informations about a clip
                 <uib-tab index="$index + 2" ng-repeat="clip in clipData" disable="tab.disabled" heading="{{clip.name}}"
                 id="tab_{{clip.fragID}}" ng-mouseenter="highlightFragment(clip.fragID)" ng-mouseleave="shadowFragment(clip.fragID)" >
                     <div ng-repeat="(key, value) in clip.data track by $index" class="framework"><span class="categoryName">
-                      {{key}} :</span><span class="categoryValue" >{{value}}</span></div>
+                      {{key}} :</span><span class="categoryValue" >{{value}}</span></br></div>
                 </uib-tab>
         </uib-tabset>
     </div>
