@@ -15,7 +15,7 @@ a {
     overflow-x: scroll;
     -moz-user-select: none;
     -webkit-user-select: none;
-    user-select: none;	
+    user-select: none;
 }
 
 #sequenceur{
@@ -31,7 +31,7 @@ text.tagName:hover, text.cursor{
 */
 
 .dialogAlign{
-    text-align:  center;    
+    text-align:  center;
 }
 
 .alignLeft{
@@ -50,10 +50,10 @@ text.tagName:hover, text.cursor{
 }
 
 span.categoryName{
-    display : inline-block; 
+    display : inline-block;
     float: left;
     width : 150px;
-    text-decoration: underline; 
+    text-decoration: underline;
     font-weight: bold;
 }
 

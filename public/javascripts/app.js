@@ -201,9 +201,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
         url: 'http://localhost:3000/api/clipsheet/' + encodeURIComponent(clipURI)
       }).then(function successCallback(response) {
         $scope.getMediaClip = "Succes";
-        if ($scope.clipData[clipURI] == undefined) {
-          $scope.clipData[clipURI] = {"uri": clipURI, "fragID" : fragmentID, "name" : clipName, "data": response.data};
-        }
+        $scope.clipData[clipURI] = {"uri": clipURI, "fragID" : fragmentID, "name" : clipName, "data": response.data};
       }, function errorCallback(response) {
         $scope.getMediaClip = "Fail";
       });

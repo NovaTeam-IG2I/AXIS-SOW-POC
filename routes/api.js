@@ -116,143 +116,39 @@ router.route('/clipsheet/:uri')
       //TODO create a get method to get all the metadata of a tag
       console.log("TODO get all the metadata of a tag.");
 
-      /*var postData = querystring.stringify({
-        'URI' : req.params.uri
-      });
+      // GET request to the webservice to get the clip data about the tag selected
+      http.get('http://localhost:8080/AXIS-SOW-POC-backend/clip?uri=' + encodeURIComponent(req.params.uri), (result) => {
+        const statusCode = result.statusCode;
+        const contentType = result.headers['content-type'];
 
-      var options = {
-        hostname: 'localhost',
-        port: 3000,
-        path: '/api/productionsheet/test',
-        method: 'GET',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Content-Length': Buffer.byteLength(postData)
+        // Error handlers
+        let error;
+        if (statusCode !== 200) {
+          error = new Error(`Request Failed.\n` +
+                        `Status Code: ${statusCode}`);
         }
-      };
+        if (error) {
+          console.log(error.message);
+          // consume response data to free up memory
+          result.resume();
+          return;
+        }
 
-      var request = http.request(options, (result) => {
-        console.log(`STATUS: ${result.statusCode}`);
-        console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
+        // Response treatment
         result.setEncoding('utf8');
-        result.on('data', (chunk) => {
-          console.log(`BODY: ${chunk}`);
-        });
+        let rawData = '';
+        result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
-          console.log('No more data in response.');
+          try {
+            let parsedData = JSON.parse(rawData);
+            res.json(parsedData);
+          } catch (e) {
+            console.log(e.message);
+          }
         });
+      }).on('error', (e) => {
+        console.log(`Got error: ${e.message}`);
       });
-
-      request.on('error', (e) => {
-        console.log('problem with request: ${e.message}');
-      });
-
-      // write data to request body
-      request.write(postData);
-      request.end();*/
-      var tagDataUnparsed;
-      switch(req.params.uri)
-      {
-          case "URI Président 1":
-            tagDataUnparsed = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 2":
-            tagDataUnparsed = { "type" : "segment", "start" : 25, "end" : 27,  "uri" : "URI Président 2", "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 3":
-            tagDataUnparsed = { "type" : "segment", "start" : 32, "end" : 34,  "uri" : "URI Président 3", "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 4":
-            tagDataUnparsed = { "type" : "point" , "start" : 47, "end" : 50.5,"uri" : "URI Président 4", "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 5":
-            tagDataUnparsed = { "type" : "segment", "start" : 59, "end" : 60.6,"uri" : "URI Président 5", "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 6":
-            tagDataUnparsed = { "type" : "segment", "start" : 79, "end" : 87,  "uri" : "URI Président 6", "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 7":
-            tagDataUnparsed = { "type" : "segment", "start" : 156, "end" : 165, "uri" : "URI Président 7", "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 8":
-            tagDataUnparsed = { "type" : "segment", "start" : 10.5, "end" : 18, "uri" : "URI Président 8" ,  "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI Président 9":
-            tagDataUnparsed = { "type" : "segment", "start" : 23.5, "end" : 34, "uri" : "URI Président 9" ,  "nature" : "Personne", "name" : "Président" };
-            break;
-          case "URI DG 1":
-            tagDataUnparsed = { "type" : "segment", "start" : 84, "end" : 97, "uri" : "URI DG 1", "nature" : "Personne", "name" : "Directeur général"};
-            break;
-          case "URI DG 2":
-            tagDataUnparsed = { "type" : "segment", "start" : 15, "end" : 40, "uri" : "URI DG 2", "nature" : "Personne", "name" : "Directeur général"};
-            break;
-          case "URI DG 3":
-            tagDataUnparsed = { "type" : "segment", "start" : 41.5, "end" : 50, "uri" : "URI DG 3" ,  "nature" : "Personne", "name" : "Directeur général" };
-            break;
-          case "URI DG 4":
-            tagDataUnparsed = { "type" : "segment", "start" : 59, "end" : 70, "uri" : "URI DG 4" ,  "nature" : "Personne", "name" : "Directeur général" };
-            break;
-          case "URI DG 5":
-            tagDataUnparsed = { "type" : "segment", "start" : 154, "end" : 164, "uri" : "URI DG 5" ,  "nature" : "Personne", "name" : "Directeur général" };
-            break;
-          case "URI DG 6":
-            tagDataUnparsed = { "type" : "segment", "start" : 7.2, "end" : 18, "uri" : "URI Président 1", "nature" : "Personne", "name" : "Président" };
-            break;
-          default :
-           tagDataUnparsed =  { "type" : "N/A" , "start" : "N/A" , "end" : "N/A" , "uri" : req.params.uri ,  "nature" :"N/A" , "name" : "N/A" };
-
-      }
-
-
-      /*
-      if(req.params.uri == "URI Président")
-      {
-
-      tagDataUnparsed.start = "00:17:56";
-      tagDataUnparsed.end = "00:21:23";
-      tagDataUnparsed.subject = "Présentation du président de l'entreprise";
-      tagDataUnparsed.track = "Video";
-      tagDataUnparsed.media = "SVS presentation";
-      }
-      else
-      {
-       tagDataUnparsed.start = "00:40:56";
-       tagDataUnparsed.end = "00:21:23";
-       tagDataUnparsed.subject = "Présentation par le vice-directeur";
-       tagDataUnparsed.track = "Video";
-       tagDataUnparsed.media = "SVS présentation";
-
-      }
-      */
-
-      var tagDataParsed = {};
-      for(var key in tagDataUnparsed)
-      {
-          tagDataParsed[searchKey(key)] = tagDataUnparsed[key];
-      }
-
-      function searchKey(query){
-        var traduction = {};
-        traduction["start"] = "Start";
-        traduction["type"] = "Type";
-        traduction["uri"] = "URI";
-        traduction["nature"] = "Nature";
-        traduction["name"] = "Name";
-        traduction["end"] = "End";
-        traduction["subject"] = "Subject";
-        traduction["track"] = "Indexed Track";
-        traduction["media"] = "Indexed Media";
-
-        var regex = new RegExp(query,"gi");
-        for(var key in traduction){
-            if(key.search(regex) != -1)
-                return traduction[key];
-        }
-        return query;
-      }
-
-      res.json(tagDataParsed);
-
   })
 
 router.route('/cliplist')
@@ -418,7 +314,6 @@ router.route('/createFragment')
                 "start" : fragBegin,
                 "end" : fragEnd
               });
-              console.log("POSTDATA : " + postData);
               var options = {
                 hostname: 'localhost',
                 port: 8080,
@@ -440,7 +335,6 @@ router.route('/createFragment')
                 result.on('end', () => {
                   try {
                     let parsedData = JSON.parse(rawData);
-                    console.log(parsedData);
                   } catch (e) {
                     console.log(e.message);
                   }
