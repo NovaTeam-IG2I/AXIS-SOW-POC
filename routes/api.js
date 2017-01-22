@@ -324,7 +324,7 @@ router.route('/createFragment')
                   'Content-Length': Buffer.byteLength(postData)
                 }
               };
-
+              var RegisterURI;
               var request = http.request(options, (result) => {
                 console.log(`STATUS: ${result.statusCode}`);
                 console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
@@ -335,6 +335,9 @@ router.route('/createFragment')
                 result.on('end', () => {
                   try {
                     let parsedData = JSON.parse(rawData);
+                    RegisterURI = parsedData.uri;
+                    console.log(parsedData);
+                    console.log(RegisterURI);
                   } catch (e) {
                     console.log(e.message);
                   }
@@ -351,7 +354,7 @@ router.route('/createFragment')
 
               resultTrack.data = {
                 "trackURI" : trackURI,
-                "tag" : { "uri" : tagURI.concat("_1"), "name" : tagName, "nature" : tagNature },
+                "tag" : { "uri" : tagURI, "name" : tagName, "nature" : tagNature },
                 "fragment" : {"type" : fragType, "begin" : fragBegin, "end" : fragEnd}
               };
           }
