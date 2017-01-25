@@ -100,9 +100,13 @@ app.config(function ($routeProvider) {
 
 app.controller('listController', ['$scope', '$http', 'sharedMedia', function ($scope, $http, sharedMedia) {
   //TODO add the functions to control the list view
+
+  //scope variables
   $scope.getAllVideos = "";
   $scope.numberOfVideos = 0;
   $scope.videos = [];
+
+  // GET HTTP REQUEST to obtain the list of media
   $http({
     method: 'GET',
     url: 'http://localhost:3000/api/cliplist'
@@ -121,21 +125,26 @@ app.controller('listController', ['$scope', '$http', 'sharedMedia', function ($s
 
 app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$mdDialog', function ($sce, $scope, $http, sharedMedia, $mdDialog) {
   //TODO add the functions to control the clip view
+
+  // Scope variables declaration
   $scope.mediaURI = sharedMedia.getMediaURI();
   $scope.mediaAdress = "";
 
   $scope.sequenceurParams = sharedMedia.getSequenceurParams();
 
+  // Request status declaration
   $scope.getMediaIndexations = "";
   $scope.getMediaProductions = "";
   $scope.getMediaTechnicals = "";
   $scope.getMediaClip = "";
   $scope.getMediaVideo = "";
 
+  // Response JSON declarations
   $scope.productionData = new Object();
   $scope.technicalData = new Object();
   $scope.clipData = new Object();
 
+  // GET HTTP Request to obtain the URI of a media
   $http({
     method: 'GET',
     url: 'http://localhost:3000/api/mediavideo/' + encodeURIComponent($scope.mediaURI)
@@ -173,6 +182,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
     $scope.getMediaVideo = "Fail";
   });
 
+  // GET HTTP Request to obtain production data of a media
   $http({
     method: 'GET',
     url: 'http://localhost:3000/api/productionsheet/' + encodeURIComponent($scope.mediaURI)
@@ -184,6 +194,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
     $scope.getMediaProductions = "Fail";
   });
 
+  // GET HTTP Request to obtain technical data of a media
   $http({
     method: 'GET',
     url: 'http://localhost:3000/api/technicalsheet/' + encodeURIComponent($scope.mediaURI)
@@ -194,6 +205,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
     $scope.getMediaTechnicals = "Fail";
   });
 
+  // GET HTTP Request to obtain clip data of a register
   $scope.getClipData = function (clipURI, clipName, fragmentID) {
     if(clipURI != null && clipURI != ""){
       $http({
@@ -843,7 +855,7 @@ app.controller('clipController', ['$sce', '$scope', '$http', 'sharedMedia', '$md
 
 }]);
 
-app.controller('indexationController', function ($scope, $http, sharedMedia, $mdDialog) {
+app.controller('indexationController', ['$scope', '$http', 'sharedMedia', '$mdDialog', function ($scope, $http, sharedMedia, $mdDialog) {
   var selectedTag = null;
 
   /**
@@ -1243,12 +1255,10 @@ app.controller('indexationController', function ($scope, $http, sharedMedia, $md
     sharedMedia.setIndexationData(indexationData);
     $scope.$emit('reloadTimeline', indexationData);
   }
-
-
-
-});
+}]);
 
 app.controller('manageRegisterController', ['$scope', '$http', function ($scope, $http) {
+  // TODO add the functions to manage the register view
 
   // Request state variables
   $scope.getCategoriesList = "";
@@ -1259,7 +1269,7 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
   $scope.registerName = "";
   $scope.allCategories = [];
 
-  // Request continous to get the classes
+  // Continous GET HTTP REQUEST to get the classes
   $http({
     method: 'GET',
     url: 'http://localhost:3000/api/listRegister'
@@ -1270,7 +1280,7 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
     $scope.getCategoriesList = "Fail";
   });
 
-  // Function that send to the API the new Register informations
+  // POST HTTP REQUEST that send to the API the new Register informations
   $scope.createRegister = function () {
     $http({
       method: 'POST',
@@ -1288,10 +1298,13 @@ app.controller('manageRegisterController', ['$scope', '$http', function ($scope,
 
 // Controller for the importation of a video mp4
 app.controller('importController', ['$http', '$scope', '$timeout', function ($http, $scope, $timeout) {
+  //TODO add the functions to control the import view
 
+  //scope variables
   $scope.sendFile = "";
   $scope.fileName = "";
 
+  // POST HTTP Request to give send the new media to the webservice
   $scope.uploadFiles = function (file) {
     $http({
       method: 'POST',
@@ -1309,9 +1322,12 @@ app.controller('importController', ['$http', '$scope', '$timeout', function ($ht
 }]);
 
 app.controller('exportationController', ['$http', '$scope', function ($http, $scope) {
+  //TODO add the functions to control the export view
 
+  //scope variables
   $scope.getExportation = "";
 
+  // GET HTTP REQUEST to obtain the owl file from the TDB
   $scope.startExportation = function() {
     $http({
       method: 'GET',

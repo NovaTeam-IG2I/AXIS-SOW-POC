@@ -3,6 +3,8 @@ View for the creation of a track
 -->
 
 <md-dialog aria-label="Add Track" class="col-md-3">
+
+  <!-- Window header -->
   <md-toolbar>
     <div class="md-toolbar-tools">
       <h2>Add fragment</h2>
@@ -13,6 +15,7 @@ View for the creation of a track
     </div>
   </md-toolbar>
 
+  <!-- Enter the name of the track-->
   <md-dialog-content>
     <div class="md-dialog-content col-md-12 middleAlign">
       <form name="indexationTrackForm" ng-submit="$event.preventDefault()" class="css-form2">
@@ -21,9 +24,11 @@ View for the creation of a track
     </div>
   </md-dialog-content>
 
+  <!-- Submit the data to the controller-->
   <md-dialog-actions layout="row">
     <md-button ng-click="createTrack(trackname)">
       Create the track
     </md-button>
   </md-dialog-actions>
+
 </md-dialog>

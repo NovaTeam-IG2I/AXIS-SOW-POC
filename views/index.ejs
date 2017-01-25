@@ -26,6 +26,7 @@ Main template for the interface : act as a layout
 
 	<body ng-app="AXIS-SOW-POC">
 		<div id='main' class="container">
+      
       <!-- Navbar which handle all the navigation through the website  -->
 			<nav class="navbar-fluid navbar-default navbar-fixed-top">
 				<div class="container">
@@ -37,11 +38,13 @@ Main template for the interface : act as a layout
                   / <a href="#/exportation">Exportation</a></p>
 				</div>
 			</nav>
+
       <!-- One page container for the differents parts  -->
 			<div class="col-md-12">
 				<div ng-view>
 				</div>
 			</div>
+
 		</div>
 	</body>
 

@@ -25,6 +25,7 @@ router.route('/import')
         res.resume();
       });
 
+      // End of transaction
       res.send("End of transaction");
     })
 
@@ -58,6 +59,7 @@ router.route('/productionsheet/:uri')
         result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
           try {
+            // Send the Json parsed response
             let parsedData = JSON.parse(rawData);
             res.json(parsedData);
           } catch (e) {
@@ -99,6 +101,7 @@ router.route('/technicalsheet/:uri')
         result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
           try {
+            // Send the Json parsed response
             let parsedData = JSON.parse(rawData);
             res.json(parsedData);
           } catch (e) {
@@ -140,6 +143,7 @@ router.route('/clipsheet/:uri')
         result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
           try {
+            // Send the Json parsed response
             let parsedData = JSON.parse(rawData);
             res.json(parsedData);
           } catch (e) {
@@ -184,6 +188,7 @@ router.route('/cliplist')
         result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
           try {
+            // Build and send the Json parsed response
             let parsedData = JSON.parse(rawData);
             let sendData = new Object();
             sendData.videos = parsedData.videos;
@@ -199,7 +204,7 @@ router.route('/cliplist')
       });
     })
 
-  router.route('/mediavideo/:uri')
+router.route('/mediavideo/:uri')
     .get(function(req,res){
 
         //TODO create a get method to get all the URI of all the clips
@@ -224,6 +229,7 @@ router.route('/cliplist')
           result.on('data', (chunk) => rawData += chunk);
           result.on('end', () => {
             try {
+              // Send the Video URI response
               res.send('http://localhost:8080/AXIS-SOW-POC-backend/video?uri=' + encodeURIComponent(req.params.uri));
             } catch (e) {
               console.log(e.message);
@@ -263,6 +269,7 @@ router.route('/indexationdata/:uri')
         result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
           try {
+            // Send the Json parsed response
             let parsedData = JSON.parse(rawData);
             parsedData.duree = 171;
             res.json(parsedData);
@@ -280,6 +287,7 @@ router.route('/createFragment')
 
       //TODO create a post method to add a fragment in the database
 
+      // Shortcuts for variables
       var trackURI = req.body.trackURI;
       var tagURI = req.body.tagURI;
       var tagName = req.body.tagName;
@@ -288,9 +296,12 @@ router.route('/createFragment')
       var fragBegin = req.body.fragBegin;
       var fragEnd = req.body.fragEnd;
 
+      // Response JSON
       var resultTrack = {};
       resultTrack.success = false;
       resultTrack.message = "";
+
+      // Temporary Manual testing
       if(trackURI == null){
           resultTrack.message += "The track has not been specified. ";
       } else if(fragType == null){
@@ -305,8 +316,9 @@ router.route('/createFragment')
           if(fragType == "point") fragEnd = fragBegin;
           if(resultTrack.message == ""){
               resultTrack.success = true;
-              // TODO HTTP POST REQUEST
+              // TODO HTTP POST REQUEST to send the new fragment
 
+              // Data Package
               var postData = querystring.stringify({
                 "track" : trackURI,
                 "register" : tagURI,
@@ -314,6 +326,7 @@ router.route('/createFragment')
                 "start" : fragBegin,
                 "end" : fragEnd
               });
+              // Request Options
               var options = {
                 hostname: 'localhost',
                 port: 8080,
@@ -334,6 +347,7 @@ router.route('/createFragment')
                 result.on('data', (chunk) => rawData += chunk);
                 result.on('end', () => {
                   try {
+                    // Add the received response to the JSON
                     let parsedData = JSON.parse(rawData);
                     RegisterURI = parsedData.uri;
                     console.log(parsedData);
@@ -352,6 +366,7 @@ router.route('/createFragment')
               request.write(postData);
               request.end();
 
+              // Finish building response JSON
               resultTrack.data = {
                 "trackURI" : trackURI,
                 "tag" : { "uri" : tagURI, "name" : tagName, "nature" : tagNature },
@@ -359,10 +374,11 @@ router.route('/createFragment')
               };
           }
           else {
+              // In failure case
               resultTrack.data = {};
           }
       }
-
+      // Send the response
       res.json(resultTrack);
     })
 
@@ -371,16 +387,22 @@ router.route('/createTrack')
 
       //TODO create a post method to add a track in the database
 
+      // Response JSON
       var resultTrack = {};
       resultTrack.msg = "";
       resultTrack.success = false;
+
+      // Temporary Manual testing
       if(req.body.uri == null || req.body.name == null || req.body.uri.length == 0 || req.body.name.length ==0){
           resultTrack.msg += "All the informations have not been completed \n";
       } else {
+
+          // Data package
           var postData = querystring.stringify({
             "name" : req.body.name, "uri" : req.body.uri
           });
 
+          // Request options
           var options = {
             hostname: 'localhost',
             port: 8080,
@@ -401,6 +423,7 @@ router.route('/createTrack')
             result.on('data', (chunk) => rawData += chunk);
             result.on('end', () => {
               try {
+                // Build and send the response JSON
                 let parsedData = JSON.parse(rawData);
                 resultTrack.success = true;
                 resultTrack.uri = parsedData.uri;
@@ -450,6 +473,7 @@ router.route('/exportation')
         result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
           try {
+            // Send the responsa data
             res.send(rawData);
           } catch (e) {
             console.log(e.message);
@@ -463,10 +487,13 @@ router.route('/exportation')
 router.route('/createRegister')
     .post(function(req,res){
       //TODO create a method to add a register to the database
+
+      // Data package
       var postData = querystring.stringify({
         "name" : req.body.name, "class" : req.body.class
       });
 
+      // Request Options
       var options = {
         hostname: 'localhost',
         port: 8080,
@@ -483,6 +510,7 @@ router.route('/createRegister')
         console.log(`HEADERS: ${JSON.stringify(result.headers)}`);
         result.setEncoding('utf8');
         result.on('data', (chunk) => {
+          // Send the response JSON
           let parsedData = JSON.parse(chunk);
           console.log(`BODY: ${chunk}`);
           res.json(parsedData);
@@ -530,6 +558,7 @@ router.route('/listRegister')
         result.on('data', (chunk) => rawData += chunk);
         result.on('end', () => {
           try {
+            // Send the response
             let parsedData = JSON.parse(rawData);
             res.send(parsedData);
           } catch (e) {

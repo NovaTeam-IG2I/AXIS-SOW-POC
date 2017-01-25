@@ -1,8 +1,10 @@
 <!--
-View for the creation of a track
+View for the creation of a fragment
 -->
 
 <md-dialog aria-label="Add fragment" class="col-md-10">
+
+  <!-- Window header -->
   <md-toolbar>
     <div class="md-toolbar-tools">
       <h2>Add fragment</h2>
@@ -13,64 +15,75 @@ View for the creation of a track
     </div>
   </md-toolbar>
 
-  <md-dialog-content>
-    <div class="md-dialog-content col-md-12 middleAlign">
-      <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'segment'" novalidate class="css-form">
-        <div class="col-md-3">
-          <md-input-container class="col-md-12">
-            <label>Track :</label>
-            <md-select ng-model="selectedTrack" required>
-              <md-option ng-value="track" ng-repeat="track in tracks">{{ track}}</md-option>
-            </md-select>
-          </md-input-container>
-        </div>
-        <div class="col-md-3">
-          <md-autocomplete
-          id="autocompleteTag"
-          md-no-cache="noCache"
-          md-selected-item="selectedItem2"
-          md-selected-item-change="selectedTagChange(item2)"
-          md-search-text="searchTag"
-          md-search-text-change="searchTagChange()"
-          md-items="item2 in searchTags(searchTag)"
-          md-item-text="item2"
-          md-floating-label="Please enter the tag"
-          required
-          >
-          <md-item-template>
-            <span md-highlight-text="searchTag">{{item2}}</span>
-          </md-item-template>
-          <md-not-found class="col-md-4">
-            <a ng-click="newTag(searchTag)">Create a new tag</a>
-          </md-not-found>
-        </md-autocomplete>
-      </div>
-      <div class="col-md-3 dialogAlign">
-        <span>Type of indexation : </span>
-        <br />
-        <label for="segmentIn">Segment</label>
-        <input id="segmentIn" type="radio" name="fragmentType" ng-model="radioValue" value="segment" ngStyle="{{styleFragBegin}}">
-        <br />
-        <label for="pointIn">Point</label>
-        <input id="pointIn" type="radio" name="fragmentType" ng-model="radioValue" value="point" ngStyle="{{styleFragEnd}}">
-      </div>
+    <!-- Select all the informations for the future fragment -->
+    <md-dialog-content>
+      <div class="md-dialog-content col-md-12 middleAlign">
+        <form name="indexationForm" ng-submit="$event.preventDefault()" ng-init="radioValue = 'segment'" novalidate class="css-form">
 
-      <div class="col-md-3">
-        <div class="row">
-          <input type="text" name="fragBegin" placeholder="tmp begin {{radioValue}}" ng-model="fragBegin" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" required />
-        </div>
-        <br />
-        <div class="row" ng-show="radioValue == 'segment'">
-          <input type="text" name="fragEnd" placeholder="tmp end {{radioValue}}" ng-model="fragEnd" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" required />
-        </div>
-      </div>
-    </form>
-  </div>
-</md-dialog-content>
+          <!-- Select the track -->
+          <div class="col-md-3">
+            <md-input-container class="col-md-12">
+              <label>Track :</label>
+              <md-select ng-model="selectedTrack" required>
+                <md-option ng-value="track" ng-repeat="track in tracks">{{ track}}</md-option>
+              </md-select>
+            </md-input-container>
+          </div>
 
-<md-dialog-actions layout="row">
-  <md-button ng-click="create()">
-    Create fragment
-  </md-button>
-</md-dialog-actions>
+          <!-- Enter the name of the Register -->
+          <div class="col-md-3">
+            <md-autocomplete
+            id="autocompleteTag"
+            md-no-cache="noCache"
+            md-selected-item="selectedItem2"
+            md-selected-item-change="selectedTagChange(item2)"
+            md-search-text="searchTag"
+            md-search-text-change="searchTagChange()"
+            md-items="item2 in searchTags(searchTag)"
+            md-item-text="item2"
+            md-floating-label="Please enter the tag"
+            required
+            >
+            <md-item-template>
+              <span md-highlight-text="searchTag">{{item2}}</span>
+            </md-item-template>
+            <md-not-found class="col-md-4">
+              <a ng-click="newTag(searchTag)">Create a new tag</a>
+            </md-not-found>
+          </md-autocomplete>
+        </div>
+
+        <!-- Choose the type of the fragment -->
+        <div class="col-md-3 dialogAlign">
+          <span>Type of indexation : </span>
+          <br />
+          <label for="segmentIn">Segment</label>
+          <input id="segmentIn" type="radio" name="fragmentType" ng-model="radioValue" value="segment" ngStyle="{{styleFragBegin}}">
+          <br />
+          <label for="pointIn">Point</label>
+          <input id="pointIn" type="radio" name="fragmentType" ng-model="radioValue" value="point" ngStyle="{{styleFragEnd}}">
+        </div>
+
+        <!-- Enter the duration of the fragment-->
+        <div class="col-md-3">
+          <div class="row">
+            <input type="text" name="fragBegin" placeholder="tmp begin {{radioValue}}" ng-model="fragBegin" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" required />
+          </div>
+          <br />
+          <div class="row" ng-show="radioValue == 'segment'">
+            <input type="text" name="fragEnd" placeholder="tmp end {{radioValue}}" ng-model="fragEnd" ng-pattern="/^[0-9]+((\.|,)[0-9]{1,2})?$/" required />
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </md-dialog-content>
+
+  <!-- Submit the data to the controller -->
+  <md-dialog-actions layout="row">
+    <md-button ng-click="create()">
+      Create fragment
+    </md-button>
+  </md-dialog-actions>
+
 </md-dialog>
